@@ -7,11 +7,11 @@ const Header = () => {
         <div className="flex">
             <Sidebar />
             <div className="flex-1">
-            <header className="w-full h-auto px-4 py-2 bg-gradient-to-r from-[#fa7c10] to-[#ffad33] flex items-center justify-between">
-            <div className="text-xl text-white">
+                <header className="w-full h-auto px-4 py-2 bg-gradient-to-r from-[#fa7c10] to-[#ffad33] flex items-center justify-between">
+                    <div className="text-white ml-5">
                         Dashboard
                     </div>
-                    <div className="relative flex items-center border border-orange-500 rounded-full p-2 px-3 space-x-3 backdrop-blur-md group">
+                    <div className="relative flex items-center border border-orange-500 rounded-full p-2 px-3 space-x-3 backdrop-blur-lg group">
                         <img
                             src={avatar}
                             alt="avatar"

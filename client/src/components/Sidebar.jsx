@@ -36,11 +36,11 @@ const Sidebar = () => {
       </div>
 
       {/* Navigation Links */}
-      <div className="flex flex-col items-center justify-end mt-4  mb-8 w-full gap-5">
+      <div className="flex flex-col items-center justify-end mt-4 mb-8 w-full gap-5">
         <NavLink
           to="/"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[20px] transition-colors ${isActive ? 'bg-[#fa7c10] text-white' : ''
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive ? 'bg-[#fa7c10] text-white' : ''
             }`
           }
         >
@@ -50,7 +50,7 @@ const Sidebar = () => {
         <NavLink
           to="/payroll"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[20px] transition-colors ${isActive ? 'bg-[#fa7c10] text-white' : ''
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive ? 'bg-[#fa7c10] text-white' : ''
             }`
           }
         >
@@ -60,7 +60,7 @@ const Sidebar = () => {
         <NavLink
           to="/attendance"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[20px] transition-colors ${isActive ? 'bg-[#fa7c10] text-white' : ''
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive ? 'bg-[#fa7c10] text-white' : ''
             }`
           }
         >
@@ -70,7 +70,7 @@ const Sidebar = () => {
         <NavLink
           to="/leave"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[20px] transition-colors ${isActive ? 'bg-[#fa7c10] text-white' : ''
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive ? 'bg-[#fa7c10] text-white' : ''
             }`
           }
         >
