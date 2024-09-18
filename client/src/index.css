@@ -1,3 +1,34 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* index.css */
+
+.header {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: calc(100% - 64px);
+    /* Adjust based on sidebar width */
+    height: 60px;
+    /* Adjust as needed */
+    background-color: #fa7c10;
+    z-index: 1000;
+}
+
+.sidebar {
+    transition: width 0.3s ease;
+}
+
+.content {
+    margin-top: 60px;
+    /* Adjust based on header height */
+    margin-left: 64px;
+    /* Adjust based on sidebar width */
+    transition: margin-left 0.3s ease;
+}
+
+.content-collapsed {
+    margin-left: 16px;
+    /* Adjust based on collapsed sidebar width */
+}
