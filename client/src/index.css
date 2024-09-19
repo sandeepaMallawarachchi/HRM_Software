@@ -2,16 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* index.css */
-
 .header {
     position: sticky;
     top: 0;
     left: 0;
     width: calc(100% - 64px);
-    /* Adjust based on sidebar width */
-    height: 60px;
-    /* Adjust as needed */
+    height: 50px;
     background-color: #fa7c10;
     z-index: 1000;
 }
@@ -31,4 +27,24 @@
 .content-collapsed {
     margin-left: 16px;
     /* Adjust based on collapsed sidebar width */
+}
+
+.button{
+    width: auto;
+    background-color: white;
+    border: 1px solid #fa7c10;
+    color: #fa7c10;
+    padding: 10px;
+    border-radius: 20px;
+}
+
+.button:hover{
+    background-color: #fa7c10;
+    color: white;
+}
+
+.button:active{
+    background-color: #fa7c10;
+    border: none;
+    outline: none;
 }
