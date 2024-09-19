@@ -1,19 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaBell, FaEnvelope, FaAngleDown } from 'react-icons/fa';
 import avatar from '../images/avatar.png';
 import { Link, useLocation } from 'react-router-dom';
+import Support from './profileComponents/Support';
 
 const Header = () => {
 
     const location = useLocation();
+    const [showSupportModal, setShowSupportModal] = useState(false);
 
     // Function to determine the title based on the current route
     const getPageTitle = () => {
         switch (location.pathname) {
             case '/profile':
                 return 'Profile';
-            case '/change-password':
-                return 'Change Password';
             case '/support':
                 return 'Support';
             default:
@@ -21,9 +21,10 @@ const Header = () => {
         }
     };
 
+    const closeModal = () => setShowSupportModal(false);
+
     return (
         <div className="z-0 header w-full h-auto px-4 py-2 bg-gradient-to-r from-[#fa7c10] to-[#ffad33] flex items-center justify-between">
-            
             <div className="text-white ml-5">
                 {getPageTitle()}
             </div>
@@ -49,12 +50,19 @@ const Header = () => {
                 <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-md">
                     <ul className="py-2">
                         <Link to='/profile'><li className="px-4 py-2 hover:bg-orange-100 cursor-pointer">Profile</li></Link>
-                        <li className="px-4 py-2 hover:bg-orange-100 cursor-pointer">Change Password</li>
                         <li className="px-4 py-2 hover:bg-orange-100 cursor-pointer">Logout</li>
-                        <li className="px-4 py-2 hover:bg-orange-100 cursor-pointer">Support</li>
+                        <li
+                            onClick={() => setShowSupportModal(true)}
+                            className="px-4 py-2 hover:bg-orange-100 cursor-pointer"
+                        >
+                            Support
+                        </li>
                     </ul>
                 </div>
             </div>
+
+            {showSupportModal && <Support onClose={closeModal} />}
+
         </div>
     );
 }

@@ -5,8 +5,8 @@ const PersonalDetails = () => {
     const [details, setDetails] = useState({
         name: 'Sandeepa Mallawarachchi',
         phone: '+94 712345678',
-        address: '',
-        maritalStatus: '',
+        address: 'Gampaha',
+        maritalStatus: 'Singal',
     });
 
     const handleChange = (e) => {
@@ -14,15 +14,45 @@ const PersonalDetails = () => {
     };
 
     return (
-        <div className="mt-4">
-            <h3 className="text-lg font-semibold">Personal Details</h3>
+        <div className="mt-4 bg-[#f6f5fb] p-6 rounded-lg">
             {editable ? (
-                <div>
-                    <input name="name" value={details.name} onChange={handleChange} className="border" />
-                    <input name="phone" value={details.phone} onChange={handleChange} className="border" />
-                    <input name="address" value={details.address} onChange={handleChange} className="border" />
-                    <input name="maritalStatus" value={details.maritalStatus} onChange={handleChange} className="border" />
-                    <button onClick={() => setEditable(false)}>Save</button>
+                <div className="space-y-4">
+                    <input
+                        name="name"
+                        value={details.name}
+                        onChange={handleChange}
+                        className="border rounded-md p-2 w-full"
+                        placeholder="Enter your name"
+                    />
+                    <input
+                        name="phone"
+                        value={details.phone}
+                        onChange={handleChange}
+                        className="border rounded-md p-2 w-full"
+                        placeholder="Enter your phone"
+                    />
+                    <input
+                        name="address"
+                        value={details.address}
+                        onChange={handleChange}
+                        className="border rounded-md p-2 w-full"
+                        placeholder="Enter your address"
+                    />
+                    <input
+                        name="maritalStatus"
+                        value={details.maritalStatus}
+                        onChange={handleChange}
+                        className="border rounded-md p-2 w-full"
+                        placeholder="Enter marital status"
+                    />
+                    <div className="flex space-x-2 mt-4">
+                        <button onClick={() => setEditable(false)} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-[20px]">
+                            Save
+                        </button>
+                        <button onClick={() => setEditable(false)} className="text-gray-500 hover:underline">
+                            Cancel
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <div>
@@ -30,7 +60,9 @@ const PersonalDetails = () => {
                     <p>Phone: {details.phone}</p>
                     <p>Address: {details.address}</p>
                     <p>Marital Status: {details.maritalStatus}</p>
-                    <button onClick={() => setEditable(true)}>Edit</button>
+                    <button onClick={() => setEditable(true)} className="mt-2 text-blue-600 hover:underline">
+                        Edit
+                    </button>
                 </div>
             )}
         </div>

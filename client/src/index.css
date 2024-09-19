@@ -29,13 +29,14 @@
     /* Adjust based on collapsed sidebar width */
 }
 
-.button{
+/* .button{
     width: auto;
     background-color: white;
     border: 1px solid #fa7c10;
     color: #fa7c10;
     padding: 10px;
     border-radius: 20px;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .button:hover{
@@ -43,8 +44,9 @@
     color: white;
 }
 
-.button:active{
-    background-color: #fa7c10;
+.button:active {
+    background-color: #fa7c10 !important; 
     border: none;
     outline: none;
-}
+    color: white !important;
+} */
