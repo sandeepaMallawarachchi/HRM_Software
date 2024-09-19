@@ -52,7 +52,7 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="grid grid-cols-3 gap-6 p-6 pt-20"> {/* Added pt-20 to account for the header height */}
+        <div className="grid grid-cols-3 gap-6 p-6">
             {/* Time at Work Card */}
             <div className="col-span-1 bg-white rounded-lg shadow-md p-4">
                 <h2 className="text-lg font-semibold mb-4">Time at Work</h2>

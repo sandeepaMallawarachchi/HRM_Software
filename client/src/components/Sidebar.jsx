@@ -16,7 +16,7 @@ const Sidebar = () => {
       {/* Toggle Button */}
       <button
         onClick={handleToggle}
-        className="absolute top-10 right-[-12px] bg-orange-400 text-white p-2 rounded-full shadow-md hover:bg-[#fa7c10]"
+        className="absolute top-20 right-[-12px] bg-orange-400 text-white p-2 rounded-full shadow-md hover:bg-[#fa7c10]"
       >
         {isCollapsed ? <HiOutlineX size={20} /> : <FaBars size={20} />}
       </button>
