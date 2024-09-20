@@ -38,7 +38,7 @@ const AccountSecurity = () => {
     };
 
     return (
-        <div className="mt-4 bg-[#f6f5fb] p-6 rounded-lg">
+        <div className="mt-4 bg-[#eaeaea] p-6 rounded-lg">
             <h3 className="text-lg">Password Management</h3>
             {editable ? (
                 <form onSubmit={handleSubmit} className="mt-4 space-y-4">
