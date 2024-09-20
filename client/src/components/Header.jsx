@@ -24,8 +24,8 @@ const Header = () => {
     const closeModal = () => setShowSupportModal(false);
 
     return (
-        <div className="z-0 header w-full h-auto px-4 py-2 bg-gradient-to-r from-[#fa7c10] to-[#ffad33] flex items-center justify-between">
-            <div className="text-white ml-5">
+        <div className="z-0 header w-full h-auto px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 flex items-center justify-between">
+            <div className="text-white ml-16">
                 {getPageTitle()}
             </div>
 
@@ -35,7 +35,7 @@ const Header = () => {
             </div>
 
             {/* User Avatar and Dropdown Menu */}
-            <div className="relative flex items-center border border-orange-500 rounded-full p-2 px-3 space-x-3 backdrop-blur-lg group">
+            <div className="relative flex items-center border border-white rounded-full p-2 px-3 space-x-3 backdrop-blur-lg group">
                 <img
                     src={avatar}
                     alt="avatar"

@@ -16,11 +16,11 @@ const Support = ({ onClose }) => {
         e.preventDefault();
         console.log('Form Data:', formData);
         // Add form submission logic here
-        onClose(); // Close the modal after submission
+        onClose();
     };
 
     return (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white rounded-lg p-8 w-1/3 shadow-lg">
                 <h2 className="text-2xl font-semibold mb-4">Contact Support</h2>
                 <form onSubmit={handleSubmit}>
@@ -57,19 +57,19 @@ const Support = ({ onClose }) => {
                             required
                         ></textarea>
                     </div>
-                    <div className="flex justify-end space-x-4">
+                    <div className="flex justify-start space-x-4">
+                    <button
+                            type="submit"
+                            className="px-4 py-2 bg-orange-500 text-white rounded-[20px]"
+                        >
+                            Submit
+                        </button>
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 bg-gray-300 rounded-lg"
+                            className="px-4 py-2 underline"
                         >
                             Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="px-4 py-2 bg-orange-500 text-white rounded-lg"
-                        >
-                            Submit
                         </button>
                     </div>
                 </form>
