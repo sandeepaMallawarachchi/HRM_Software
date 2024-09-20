@@ -12,11 +12,11 @@ const Sidebar = () => {
   };
 
   return (
-    <div className={`flex flex-col ${isCollapsed ? 'w-16' : 'w-64'} pr-3 h-screen bg-white text-black shadow-lg transition-all duration-300 rounded-r-[40px] border-r relative`}>
+    <div className={`z-50 flex flex-col ${isCollapsed ? 'w-16' : 'w-64'} pr-3 h-screen bg-white text-black shadow-xl transition-all duration-300 rounded-r-[40px] border-r relative`}>
       {/* Toggle Button */}
       <button
         onClick={handleToggle}
-        className="absolute top-20 right-[-12px] bg-orange-400 text-white p-2 rounded-full shadow-md hover:bg-[#fa7c10]"
+        className="absolute top-20 right-[-12px] bg-gradient-to-r from-orange-400 to-orange-500 text-white p-2 rounded-full shadow-md hover:bg-orange-400"
       >
         {isCollapsed ? <HiOutlineX size={20} /> : <FaBars size={20} />}
       </button>
@@ -40,7 +40,7 @@ const Sidebar = () => {
         <NavLink
           to="/"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive ? 'bg-[#fa7c10] text-white' : ''
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white' : ''
             }`
           }
         >
@@ -50,7 +50,7 @@ const Sidebar = () => {
         <NavLink
           to="/payroll"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive ? 'bg-[#fa7c10] text-white' : ''
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white' : ''
             }`
           }
         >
@@ -60,7 +60,7 @@ const Sidebar = () => {
         <NavLink
           to="/attendance"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive ? 'bg-[#fa7c10] text-white' : ''
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white' : ''
             }`
           }
         >
@@ -70,7 +70,7 @@ const Sidebar = () => {
         <NavLink
           to="/leave"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive ? 'bg-[#fa7c10] text-white' : ''
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white' : ''
             }`
           }
         >

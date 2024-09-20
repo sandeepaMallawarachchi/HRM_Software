@@ -61,7 +61,7 @@ const Resume = () => {
     <div className="mt-4 bg-[#eaeaea] p-6 rounded-lg">
       {/* Experience Section */}
       <div className="mb-8">
-        <h3 className="text-lg mb-4">Experience</h3>
+        <h3 className="text-lg mb-4 text-gray-500">Experience</h3>
         {experienceList.map(exp => (
           <div key={exp.id} className="bg-white p-4 mb-4 rounded-lg shadow-sm relative">
             <p onClick={() => setEditExperience(exp)} className="cursor-pointer">{exp.date}</p>
@@ -81,7 +81,7 @@ const Resume = () => {
 
       {/* Education Section */}
       <div>
-        <h3 className="text-lg mb-4">Education</h3>
+        <h3 className="text-lg mb-4 text-gray-500">Education</h3>
         {educationList.map(edu => (
           <div key={edu.id} className="bg-white p-4 mb-4 rounded-lg shadow-sm relative">
             <p onClick={() => setEditEducation(edu)} className="cursor-pointer">{edu.date}</p>

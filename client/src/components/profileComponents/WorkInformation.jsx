@@ -17,7 +17,7 @@ const WorkInformation = () => {
                         type="text"
                         value={workInfo.department}
                         readOnly
-                        className="w-full p-2 mt-1 border border-gray-300 rounded bg-gray-100"
+                        className="w-full p-2 mt-1 border-none rounded"
                     />
                 </div>
                 <div>
@@ -26,7 +26,7 @@ const WorkInformation = () => {
                         type="text"
                         value={workInfo.location}
                         readOnly
-                        className="w-full p-2 mt-1 border border-gray-300 rounded bg-gray-100"
+                        className="w-full p-2 mt-1 border-none rounded"
                     />
                 </div>
                 <div>
@@ -35,7 +35,7 @@ const WorkInformation = () => {
                         type="text"
                         value={workInfo.designation}
                         readOnly
-                        className="w-full p-2 mt-1 border border-gray-300 rounded bg-gray-100"
+                        className="w-full p-2 mt-1 border-none rounded"
                     />
                 </div>
                 <div>
@@ -44,7 +44,7 @@ const WorkInformation = () => {
                         type="text"
                         value={workInfo.supervisor}
                         readOnly
-                        className="w-full p-2 mt-1 border border-gray-300 rounded bg-gray-100"
+                        className="w-full p-2 mt-1 border-none rounded"
                     />
                 </div>
             </div>

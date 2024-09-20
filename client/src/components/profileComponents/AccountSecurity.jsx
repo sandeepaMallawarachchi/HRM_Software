@@ -49,7 +49,8 @@ const AccountSecurity = () => {
                             name="currentPassword"
                             value={currentPassword}
                             onChange={handleChange}
-                            className="mt-1 block w-full border rounded-md p-2"
+                            className="mt-1 block w-full border-none rounded-md p-2"
+                            placeholder='********'
                             required
                         />
                     </div>
@@ -60,7 +61,8 @@ const AccountSecurity = () => {
                             name="newPassword"
                             value={newPassword}
                             onChange={handleChange}
-                            className="mt-1 block w-full border rounded-md p-2"
+                            className="mt-1 block w-full border-none rounded-md p-2"
+                            placeholder='********'
                             required
                         />
                     </div>
@@ -71,7 +73,8 @@ const AccountSecurity = () => {
                             name="confirmPassword"
                             value={confirmPassword}
                             onChange={handleChange}
-                            className="mt-1 block w-full border rounded-md p-2"
+                            className="mt-1 block w-full border-none rounded-md p-2"
+                            placeholder='********'
                             required
                         />
                     </div>
