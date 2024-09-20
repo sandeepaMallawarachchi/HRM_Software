@@ -16,6 +16,10 @@ const Header = () => {
                 return 'Profile';
             case '/support':
                 return 'Support';
+            case '/leave':
+                return 'Leave Request';
+            case '/payroll':
+                return 'Payroll';
             default:
                 return 'Dashboard';
         }
