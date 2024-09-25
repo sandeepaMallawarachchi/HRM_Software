@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaTachometerAlt, FaWallet, FaCalendarCheck, FaListAlt, FaBars } from 'react-icons/fa';
+import { FaHome, FaWallet, FaCalendarCheck, FaListAlt, FaBars } from 'react-icons/fa';
 import { HiOutlineX } from 'react-icons/hi';
 import { Link, NavLink } from 'react-router-dom';
 import logo from '../images/logo.png';
@@ -44,7 +44,7 @@ const Sidebar = () => {
             }`
           }
         >
-          <FaTachometerAlt size={20} className={`mr-2 ${isCollapsed ? 'mx-auto' : ''}`} />
+          <FaHome size={20} className={`mr-2 ${isCollapsed ? 'mx-auto' : ''}`} />
           {!isCollapsed && <span>Dashboard</span>}
         </NavLink>
         <NavLink
