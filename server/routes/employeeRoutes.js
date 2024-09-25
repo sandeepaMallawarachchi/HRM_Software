@@ -3,17 +3,9 @@ const router = express.Router();
 const pool = require("../database"); // Adjust the path as needed
 const bcrypt = require("bcrypt");
 
-router.post("/register", async (req, res) => {
-  const {
-    username,
-    email,
-    password,
-    phone,
-    address,
-    country,
-    gender,
-    maritalStatus,
-  } = req.body;
+//create login credentials
+router.post("/loginCredentials", async (req, res) => {
+  const { username, email, password } = req.body;
 
   try {
     // Hash the password before saving
