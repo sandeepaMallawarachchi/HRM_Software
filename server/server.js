@@ -1,8 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const employeeRoutes = require("./routes/employeeRoutes");
-const login = require("./routes/login");
+
+const login = require("./routes/employeeRoutes");
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Use the employee routes
-app.use("/employees", employeeRoutes);
+
 app.use("/login", login);
 
 app.listen(port, () => {

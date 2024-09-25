@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
 import Header from "./components/Header";
@@ -9,18 +9,23 @@ import Leave from "./pages/Leave";
 import Payroll from "./pages/Payroll";
 import EmployeeRegistration from "./components/profileComponents/EmployeeRegistration";
 import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
-import PrivateRoute from "./components/PrivateRoute";
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false); // replace with real authentication logic
+
+  useEffect(() => {
+    // Check if the auth token exists in localStorage on initial load
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      setIsAuthenticated(true); // Set authenticated if token exists
+    }
+  }, []);
 
   return (
     <BrowserRouter>
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
 
         {/* Private routes */}
         {isAuthenticated && (

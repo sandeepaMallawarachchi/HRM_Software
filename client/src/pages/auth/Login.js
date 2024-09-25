@@ -1,23 +1,23 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../images/logo.png";
-import axios from "axios"; // Assuming you're using Axios for HTTP requests
+import axios from "axios";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // For navigation after successful login
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null); // Reset any previous errors
+    setError(null);
     setLoading(true);
 
     try {
       // Send login credentials to the backend
-      const res = await axios.post(" /login ", {
+      const res = await axios.post("http://localhost:4000/login", {
         email,
         password,
       }); // Ensure URL is correct

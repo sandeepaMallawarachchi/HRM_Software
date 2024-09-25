@@ -3,49 +3,40 @@ const router = express.Router();
 const pool = require("../database"); // Adjust the path as needed
 const bcrypt = require("bcrypt");
 
-//create login credentials
-router.post("/loginCredentials", async (req, res) => {
-  const { username, email, password } = req.body;
+// Login with email and password
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
 
   try {
-    // Hash the password before saving
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newEmployee = {
-      username,
-      email,
-      password: hashedPassword,
-      phone,
-      address,
-      country,
-      gender,
-      maritalStatus,
-    };
-
-    // Use connection pool to insert the new employee
-    const [results] = await pool.query(
-      "INSERT INTO employees (username, email, password, phone, address, country, gender, marital_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [
-        newEmployee.username,
-        newEmployee.email,
-        newEmployee.password,
-        newEmployee.phone,
-        newEmployee.address,
-        newEmployee.country,
-        newEmployee.gender,
-        newEmployee.maritalStatus,
-      ]
+    // Fetch the employee record by email
+    const [rows] = await pool.query(
+      "SELECT * FROM logindetails WHERE email = ?",
+      [email]
     );
 
-    res
-      .status(201)
-      .json({
-        message: "Employee registered successfully",
-        employeeId: results.insertId,
-      });
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No employee found with this email" });
+    }
+
+    const employee = rows[0];
+
+    // Compare the provided password with the hashed password
+    const isPasswordMatch = await bcrypt.compare(password, employee.password);
+
+    if (!isPasswordMatch) {
+      return res.status(401).json({ error: "Invalid password" });
+    }
+
+    // If login is successful, you can send a token or success response
+    res.status(200).json({
+      message: "Login successful",
+      employeeId: employee.id, // Assuming the employee ID is stored in `id`
+    });
   } catch (error) {
-    console.error("Error saving employee data:", error);
-    res.status(500).json({ error: "Error saving employee data" });
+    console.error("Error during login:", error);
+    res.status(500).json({ error: "Error during login" });
   }
 });
 
