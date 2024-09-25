@@ -1,9 +1,19 @@
-const connection = require('./database');
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const employeeRoutes = require('./routes/employeeRoutes');
 
-connection.query('SELECT 1 + 1 AS solution', (error, results) => {
-    if (error) {
-        console.error('Error executing query:', error);
-        return;
-    }
-    console.log('The solution is: ', results[0].solution);
+const app = express();
+const port = process.env.PORT || 4000;
+
+// Middleware
+app.use(cors()); // Enable CORS
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Use the employee routes
+app.use('/employees', employeeRoutes);
+
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
 });
