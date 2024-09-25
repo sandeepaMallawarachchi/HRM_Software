@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios'
 import defaultAvatar from '../images/avatar.png'; // Ensure you import your default avatar
 import AccountSecurity from './profileComponents/AccountSecurity';
 import PersonalDetails from './profileComponents/PersonalDetails';
@@ -10,6 +11,31 @@ const Profile = () => {
     const [visibleSection, setVisibleSection] = useState('account');
     const [avatar, setAvatar] = useState(defaultAvatar); // Set the default avatar here
     const [isHovered, setIsHovered] = useState(false);
+    const [empDetails, setEmpDetails] = useState('');
+
+    useEffect(() => {
+        const fetchName = async () => {
+            // Retrieve id from localStorage
+            // const id = localStorage.getItem("id");
+            const id = 1;
+
+            if (!id) {
+                console.error("ID is not found in localStorage");
+                return;
+            }
+
+            try {
+                const response = await axios.get(
+                    `http://localhost:4000/employees/getEmployee/${id}`
+                );
+                setEmpDetails(response.data);
+            } catch (err) {
+                console.log("Error fetching employee:", err);
+            }
+        };
+
+        fetchName();
+    }, []);
 
     const handleSectionToggle = (section) => {
         setVisibleSection(visibleSection === section ? null : section);
@@ -42,7 +68,7 @@ const Profile = () => {
                             {isHovered && (
                                 <label className="absolute inset-0 flex items-center justify-center cursor-pointer">
                                     <span className="bg-white rounded-full p-2 shadow-lg bg-opacity-50">
-                                        <FaEdit/>
+                                        <FaEdit />
                                     </span>
                                     <input
                                         type="file"
@@ -58,7 +84,7 @@ const Profile = () => {
                     {/* Profile Info */}
                     <div className="grid grid-cols-1 gap-5 pl-5">
                         <div>
-                            <h2 className="text-lg font-semibold text-gray-700">Sandeepa Mallawarachchi</h2>
+                            <h2 className="text-lg font-semibold text-gray-700">{empDetails.username}</h2>
                             <p className="text-sm text-gray-500">Senior Software Engineer</p>
                         </div>
                         <div>

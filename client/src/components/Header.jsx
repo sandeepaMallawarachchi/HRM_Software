@@ -1,13 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaBell, FaEnvelope, FaAngleDown } from 'react-icons/fa';
 import avatar from '../images/avatar.png';
 import { Link, useLocation } from 'react-router-dom';
 import Support from './profileComponents/Support';
+import axios from 'axios'
 
 const Header = () => {
 
     const location = useLocation();
     const [showSupportModal, setShowSupportModal] = useState(false);
+    const [empName, setEmpName] = useState('');
+
+    useEffect(() => {
+        const fetchName = async () => {
+            // Retrieve id from localStorage
+            // const id = localStorage.getItem("id");
+            const id = 1;
+
+            if (!id) {
+                console.error("ID is not found in localStorage");
+                return;
+            }
+
+            try {
+                const response = await axios.get(
+                    `http://localhost:4000/employees/getEmployee/${id}`
+                );
+                setEmpName(response.data);
+            } catch (err) {
+                console.log("Error fetching employee name:", err);
+            }
+        };
+
+        fetchName();
+    }, []);
 
     // Function to determine the title based on the current route
     const getPageTitle = () => {
@@ -20,6 +46,8 @@ const Header = () => {
                 return 'Leave Request';
             case '/payroll':
                 return 'Payroll';
+            case '/registration':
+                return 'Registration';
             default:
                 return 'Dashboard';
         }
@@ -46,7 +74,7 @@ const Header = () => {
                     className="w-10 h-10 rounded-full border border-gray-300"
                 />
                 <span className="text-white cursor-pointer">
-                    Sandeepa Mallawarachchi
+                    {empName.username}
                 </span>
                 <FaAngleDown className="text-white cursor-pointer hover:text-orange-300" size={20} />
 

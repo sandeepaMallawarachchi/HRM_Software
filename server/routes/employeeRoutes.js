@@ -32,4 +32,21 @@ router.post('/register', async (req, res) => {
     }
 });
 
+router.get('/getEmployee/:id', async (req, res) => {
+    const employeeId = req.params.id;
+
+    try {
+        const [rows] = await pool.query('SELECT * FROM employees WHERE id = ?', [employeeId]);
+        
+        if (rows.length > 0) {
+            res.status(200).json(rows[0]);
+        } else {
+            res.status(404).json({ message: 'Employee not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching employee details:', error);
+        res.status(500).json({ error: 'Error fetching employee details' });
+    }
+});
+
 module.exports = router;
