@@ -67,7 +67,7 @@ const Support = ({ onClose }) => {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 underline"
+                            className="px-4 py-2 hover:underline text-gray-500"
                         >
                             Cancel
                         </button>

@@ -7,6 +7,7 @@ import Sidebar from './components/Sidebar';
 import Profile from './components/Profile';
 import Leave from './pages/Leave';
 import Payroll from './pages/Payroll';
+import EmployeeRegistration from './components/profileComponents/EmployeeRegistration';
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
               <Route path="/profile" element={<Profile />} />
               <Route path="/leave" element={<Leave />} />
               <Route path="/payroll" element={<Payroll />} />
+              <Route path="/registration" element={<EmployeeRegistration />} />
             </Routes>
           </div>
         </div>
