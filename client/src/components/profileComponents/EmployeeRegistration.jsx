@@ -17,10 +17,31 @@ const EmployeeRegistration = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Form submitted:', formData);
+        try {
+            const response = await fetch('http://localhost:4000/employees/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+    
+            const data = await response.json();
+            if (response.ok) {
+                console.log('Registration successful:', data);
+                alert('Registration successful')
+            } else {
+                console.error('Registration failed:', data.error);
+                alert('Registration failed!')
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            alert('Error submiting form!')
+        }
     };
+    
 
     return (
         <div className="mt-10 bg-[#eaeaea] p-6 rounded-lg mx-10">
