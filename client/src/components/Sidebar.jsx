@@ -58,7 +58,7 @@ const Sidebar = () => {
           {!isCollapsed && <span>Payroll</span>}
         </NavLink>
         <NavLink
-          to="/attendance"
+          to="/registration"
           className={({ isActive }) =>
             `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white' : ''
             }`
