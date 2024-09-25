@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* header */
 .header {
     position: sticky;
     top: 0;
@@ -12,6 +13,7 @@
     z-index: 1000;
 }
 
+/* sidebar */
 .sidebar {
     transition: width 0.3s ease;
 }
@@ -50,3 +52,26 @@
     outline: none;
     color: white !important;
 } */
+
+/* swap forms */
+.form-transition-enter {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+.form-transition-enter-active {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 500ms, transform 500ms;
+}
+
+.form-transition-exit {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.form-transition-exit-active {
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: opacity 500ms, transform 500ms;
+}
