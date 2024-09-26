@@ -17,7 +17,7 @@ export default function Login() {
 
     try {
       // Send login credentials to the backend
-      const res = await axios.post("http://localhost:4000/login", {
+      const res = await axios.post("http://localhost:4000/employee/login", {
         email,
         password,
       }); // Ensure URL is correct

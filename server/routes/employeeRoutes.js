@@ -1,38 +1,47 @@
 const express = require("express");
-const router = express.Router();
-const pool = require("../database"); // Adjust the path as needed
 const bcrypt = require("bcrypt");
+const router = express.Router();
+const LoginDetails = require("../models/LoginDetails"); // Adjust the path to match your project structure
 
-// Login with email and password
+// Employee login
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
+  // Check if both email and password are provided
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password are required" });
+  }
+
   try {
-    // Fetch the employee record by email
-    const [rows] = await pool.query(
-      "SELECT * FROM logindetails WHERE email = ?",
-      [email]
-    );
+    // Fetch employee details from the database by email
+    LoginDetails.findByEmail(email, async (err, result) => {
+      if (err) {
+        console.error("Error fetching employee data:", err);
+        return res.status(500).json({ error: "Error fetching employee data" });
+      }
 
-    if (rows.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "No employee found with this email" });
-    }
+      // If no employee with the given email was found
+      if (result.length === 0) {
+        return res
+          .status(404)
+          .json({ error: "No employee found with this email" });
+      }
 
-    const employee = rows[0];
+      const employee = result[0]; // Assuming result is an array of rows and we need the first one
 
-    // Compare the provided password with the hashed password
-    const isPasswordMatch = await bcrypt.compare(password, employee.password);
+      // Compare the provided password with the stored hashed password
+      const isPasswordMatch = await bcrypt.compare(password, employee.password);
 
-    if (!isPasswordMatch) {
-      return res.status(401).json({ error: "Invalid password" });
-    }
+      if (!isPasswordMatch) {
+        return res.status(401).json({ error: "Invalid password" });
+      }
 
-    // If login is successful, you can send a token or success response
-    res.status(200).json({
-      message: "Login successful",
-      employeeId: employee.id, // Assuming the employee ID is stored in `id`
+      // Successful login: return a success message (you could also issue a JWT or session token here)
+      res.status(200).json({
+        message: "Login successful",
+        employeeId: employee.id, // Assuming `id` is the employee's identifier
+        email: employee.email,
+      });
     });
   } catch (error) {
     console.error("Error during login:", error);

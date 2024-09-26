@@ -1,21 +1,19 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-
-const login = require("./routes/employeeRoutes");
+const employeeRoutes = require("./routes/employeeRoutes"); // Adjust the path as necessary
 
 const app = express();
-const port = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4000;
 
 // Middleware
-app.use(cors()); // Enable CORS
+app.use(cors());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
 // Use the employee routes
+app.use("/employee", employeeRoutes); // Now POST requests can be made to /employee/login
 
-app.use("/login", login);
-
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
