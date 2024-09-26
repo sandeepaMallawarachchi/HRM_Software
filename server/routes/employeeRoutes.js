@@ -1,25 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../database'); // Adjust the path as needed
 const bcrypt = require('bcrypt');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const pool = require('../database');
 
-//create login credentials
+// Create login credentials
 router.post('/loginCredentials', async (req, res) => {
     const { username, email, password } = req.body;
 
     try {
-        // Hash the password before saving
         const hashedPassword = await bcrypt.hash(password, 10);
+        const newEmployeeLogin = { username, email, password: hashedPassword };
 
-        const newEmployeeLogin = {
-            username,
-            email,
-            password: hashedPassword,
-        };
-
-        // Use connection pool to insert the new employee
-        const [results] = await pool.query('INSERT INTO logindetails (username, email, password) VALUES (?, ?, ?)',
-            [newEmployeeLogin.username, newEmployeeLogin.email, newEmployeeLogin.password]);
+        const [results] = await pool.query(
+            'INSERT INTO logindetails (username, email, password) VALUES (?, ?, ?)',
+            [newEmployeeLogin.username, newEmployeeLogin.email, newEmployeeLogin.password]
+        );
 
         res.status(201).json({ message: 'Employee Login Details Created successfully', employeeId: results.insertId });
     } catch (error) {
@@ -28,23 +26,17 @@ router.post('/loginCredentials', async (req, res) => {
     }
 });
 
-//create work details
+// Create work details
 router.post('/workDetails', async (req, res) => {
     const { workEmail, workPhone, department, location, designation, supervisor } = req.body;
 
     try {
-        const newWorkDetails = {
-            workEmail,
-            workPhone,
-            department,
-            location,
-            designation,
-            supervisor,
-        };
+        const newWorkDetails = { workEmail, workPhone, department, location, designation, supervisor };
 
-        // Use connection pool to insert the new employee
-        const [results] = await pool.query('INSERT INTO workdetails (workEmail, workPhone, department, location, designation, supervisor) VALUES (?, ?, ?, ?, ?, ?)',
-            [newWorkDetails.workEmail, newWorkDetails.workPhone, newWorkDetails.department, newWorkDetails.location, newWorkDetails.designation, newWorkDetails.supervisor]);
+        const [results] = await pool.query(
+            'INSERT INTO workdetails (workEmail, workPhone, department, location, designation, supervisor) VALUES (?, ?, ?, ?, ?, ?)',
+            [newWorkDetails.workEmail, newWorkDetails.workPhone, newWorkDetails.department, newWorkDetails.location, newWorkDetails.designation, newWorkDetails.supervisor]
+        );
 
         res.status(201).json({ message: 'Employee Work Details Created successfully', employeeId: results.insertId });
     } catch (error) {
@@ -53,12 +45,12 @@ router.post('/workDetails', async (req, res) => {
     }
 });
 
-//get employee by id
+// Get employee by id
 router.get('/getEmployee/:id', async (req, res) => {
     const employeeId = req.params.id;
 
     try {
-        const [rows] = await pool.query('SELECT * FROM employees WHERE id = ?', [employeeId]);
+        const [rows] = await pool.query('SELECT * FROM logindetails WHERE id = ?', [employeeId]);
 
         if (rows.length > 0) {
             res.status(200).json(rows[0]);
@@ -68,6 +60,74 @@ router.get('/getEmployee/:id', async (req, res) => {
     } catch (error) {
         console.error('Error fetching employee details:', error);
         res.status(500).json({ error: 'Error fetching employee details' });
+    }
+});
+
+// Get employee work details by id
+router.get('/getWorkDetails/:id', async (req, res) => {
+    const employeeId = req.params.id;
+
+    try {
+        const [rows] = await pool.query('SELECT * FROM workdetails WHERE id = ?', [employeeId]);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows[0]);
+        } else {
+            res.status(404).json({ message: 'Work details not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching work details:', error);
+        res.status(500).json({ error: 'Error fetching work details' });
+    }
+});
+
+// Upload profile picture
+const uploadDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Upload profile picture
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage });
+
+router.post('/uploadProfileImage/:id', upload.single('profileImage'), (req, res) => {
+    const empId = req.params.id;
+    const imagePath = `/uploads/${req.file.filename}`;
+
+    const sql = "UPDATE employees SET profilepic = ? WHERE id = ?";
+    pool.query(sql, [imagePath, empId], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Error updating profile image.');
+        }
+        res.status(200).json({ imageUrl: imagePath });
+    });
+});
+
+//get profile picture by id
+router.get('/getProfileImage/:id', async (req, res) => {
+    const empId = req.params.id;
+
+    try {
+        const [rows] = await pool.query('SELECT profilepic FROM employees WHERE id = ?', [empId]);
+
+        if (rows.length > 0) {
+            res.status(200).json({ imageUrl: rows[0].profilepic });
+        } else {
+            res.status(404).json({ message: 'Employee not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching profile image:', error);
+        res.status(500).json({ error: 'Error fetching profile image' });
     }
 });
 

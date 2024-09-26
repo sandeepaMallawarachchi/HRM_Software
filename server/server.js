@@ -14,6 +14,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Use the employee routes
 app.use('/employees', employeeRoutes);
 
+app.use('/uploads', express.static('uploads'));
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
