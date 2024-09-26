@@ -1,61 +1,68 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios'
-import defaultAvatar from '../images/avatar.png'; // Ensure you import your default avatar
+import axios from 'axios';
+import defaultAvatar from '../images/avatar.png';
 import AccountSecurity from './profileComponents/AccountSecurity';
 import PersonalDetails from './profileComponents/PersonalDetails';
 import WorkInformation from './profileComponents/WorkInformation';
 import Resume from './profileComponents/Resume';
-import { FaEdit } from 'react-icons/fa';
+import { FaCamera } from 'react-icons/fa';
 
 const Profile = () => {
     const [visibleSection, setVisibleSection] = useState('account');
-    const [avatar, setAvatar] = useState(defaultAvatar); // Set the default avatar here
+    const [avatar, setAvatar] = useState(defaultAvatar);
     const [isHovered, setIsHovered] = useState(false);
     const [empDetails, setEmpDetails] = useState('');
+    const [workDetails, setWorkDetails] = useState('');
+    const id = 1;
 
     useEffect(() => {
-        const fetchName = async () => {
-            // Retrieve id from localStorage
-            // const id = localStorage.getItem("id");
-            const id = 1;
-
-            if (!id) {
-                console.error("ID is not found in localStorage");
-                return;
-            }
-
+        const fetchData = async () => {
             try {
-                const response = await axios.get(
-                    `http://localhost:4000/employees/getEmployee/${id}`
-                );
-                setEmpDetails(response.data);
+                // Get employee details
+                const employeeResponse = await axios.get(`http://localhost:4000/employees/getEmployee/${id}`);
+                setEmpDetails(employeeResponse.data);
+
+                // Set avatar based on profile picture or default avatar
+                const profilePic = employeeResponse.data.profilepic;
+                setAvatar(profilePic ? `http://localhost:4000${profilePic}` : defaultAvatar);
+
+                // Get work details
+                const workResponse = await axios.get(`http://localhost:4000/employees/getWorkDetails/${id}`);
+                setWorkDetails(workResponse.data);
             } catch (err) {
-                console.log("Error fetching employee:", err);
+                console.log("Error fetching data:", err);
             }
         };
 
-        fetchName();
+        fetchData();
     }, []);
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('profileImage', file);
+
+            try {
+                const response = await axios.post(`http://localhost:4000/employees/uploadProfileImage/${id}`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                setAvatar(`http://localhost:4000/employees/${response.data.imageUrl}`);
+            } catch (err) {
+                console.log('Error uploading profile image:', err);
+            }
+        }
+    };
 
     const handleSectionToggle = (section) => {
         setVisibleSection(visibleSection === section ? null : section);
     };
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setAvatar(reader.result); // Update avatar with new image
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
     return (
         <div className="p-6 h-auto">
             <div className="bg-white rounded-lg shadow-lg p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Left Column - Profile Picture, Profile Info, and Contact Info */}
                 <div className="space-y-6">
                     {/* Profile Picture */}
                     <div
@@ -68,7 +75,7 @@ const Profile = () => {
                             {isHovered && (
                                 <label className="absolute inset-0 flex items-center justify-center cursor-pointer">
                                     <span className="bg-white rounded-full p-2 shadow-lg bg-opacity-50">
-                                        <FaEdit />
+                                        <FaCamera /> {/* Changed icon to FaCamera */}
                                     </span>
                                     <input
                                         type="file"
@@ -85,19 +92,19 @@ const Profile = () => {
                     <div className="grid grid-cols-1 gap-5 pl-5">
                         <div>
                             <h2 className="text-lg font-semibold text-gray-700">{empDetails.username}</h2>
-                            <p className="text-sm text-gray-500">Senior Software Engineer</p>
+                            <p className="text-sm text-gray-500">{workDetails.designation}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-400">Supervisor</p>
-                            <p className="text-sm text-gray-700">John Doe</p>
+                            <p className="text-sm text-gray-700">{workDetails.supervisor}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-400">Work Email</p>
-                            <p className="text-sm text-gray-700">sandeepa.mallawarachchi@hrm.com</p>
+                            <p className="text-sm text-gray-700">{workDetails.workEmail}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-400">Work Phone</p>
-                            <p className="text-sm text-gray-700">+94 712345678</p>
+                            <p className="text-sm text-gray-700">{workDetails.workPhone}</p>
                         </div>
                     </div>
                 </div>
