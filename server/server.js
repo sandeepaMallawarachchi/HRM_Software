@@ -11,16 +11,12 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Use the employee routes
-app.use("/employee", employeeRoutes); // Now POST requests can be made to /employee/login
+app.use("/employees", employeeRoutes); // Now POST requests can be made to /employee/login
 
-<<<<<<< HEAD
+// Serve static files from the uploads directory
+app.use("/uploads", express.static("uploads"));
+
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-=======
-app.use('/uploads', express.static('uploads'));
-
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
->>>>>>> developer
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
