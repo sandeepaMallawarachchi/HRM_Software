@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
 import Header from './components/Header';
 import Dashboard from './pages/Dashboard';
@@ -11,7 +11,7 @@ import EmployeeRegistration from './components/profileComponents/EmployeeRegistr
 
 const App = () => {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <div className="flex h-screen">
         <Sidebar />
         <div className="flex-1 flex flex-col ml-[-35px]">
@@ -27,7 +27,7 @@ const App = () => {
           </div>
         </div>
       </div>
-    </BrowserRouter>
+    </HashRouter>
   );
 };
 

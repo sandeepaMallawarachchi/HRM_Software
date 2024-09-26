@@ -26,6 +26,24 @@ router.post('/loginCredentials', async (req, res) => {
     }
 });
 
+// Get employee by id
+router.get('/getEmployee/:id', async (req, res) => {
+    const employeeId = req.params.id;
+
+    try {
+        const [rows] = await pool.query('SELECT * FROM logindetails WHERE id = ?', [employeeId]);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows[0]);
+        } else {
+            res.status(404).json({ message: 'Employee not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching employee details:', error);
+        res.status(500).json({ error: 'Error fetching employee details' });
+    }
+});
+
 // Create work details
 router.post('/workDetails', async (req, res) => {
     const { workEmail, workPhone, department, location, designation, supervisor } = req.body;
@@ -45,24 +63,6 @@ router.post('/workDetails', async (req, res) => {
     }
 });
 
-// Get employee by id
-router.get('/getEmployee/:id', async (req, res) => {
-    const employeeId = req.params.id;
-
-    try {
-        const [rows] = await pool.query('SELECT * FROM logindetails WHERE id = ?', [employeeId]);
-
-        if (rows.length > 0) {
-            res.status(200).json(rows[0]);
-        } else {
-            res.status(404).json({ message: 'Employee not found' });
-        }
-    } catch (error) {
-        console.error('Error fetching employee details:', error);
-        res.status(500).json({ error: 'Error fetching employee details' });
-    }
-});
-
 // Get employee work details by id
 router.get('/getWorkDetails/:id', async (req, res) => {
     const employeeId = req.params.id;
@@ -78,6 +78,57 @@ router.get('/getWorkDetails/:id', async (req, res) => {
     } catch (error) {
         console.error('Error fetching work details:', error);
         res.status(500).json({ error: 'Error fetching work details' });
+    }
+});
+
+// Save personal details
+router.post('/savePersonalDetails/:id', async (req, res) => {
+    const { id } = req.params;
+    const {
+        name, email, phone, emergency_contact, address,
+        date_of_birth, gender, country, marital_status, dependents
+    } = req.body;
+
+    try {
+        const [existing] = await pool.query('SELECT * FROM personaldetails WHERE id = ?', [id]);
+        
+        if (existing.length > 0) {
+            // Update existing record
+            await pool.query(
+                'UPDATE personaldetails SET name = ?, email = ?, phone = ?, emergency_contact = ?, address = ?, date_of_birth = ?, gender = ?, country = ?, marital_status = ?, dependents = ? WHERE id = ?',
+                [name, email, phone, emergency_contact, address, date_of_birth, gender, country, marital_status, dependents, id]
+            );
+            return res.json({ message: 'Personal details updated successfully' });
+        } else {
+            // Insert new record
+            await pool.query(
+                'INSERT INTO personaldetails (id, name, email, phone, emergency_contact, address, date_of_birth, gender, country, marital_status, dependents) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [id, name, email, phone, emergency_contact, address, date_of_birth, gender, country, marital_status, dependents]
+            );
+            return res.status(201).json({ message: 'Personal details created successfully' });
+        }
+    } catch (error) {
+        console.error("Error saving personal details:", error);
+        return res.status(500).json({ message: 'Error saving personal details' });
+    }
+});
+
+
+// Get personal details by ID
+router.get('/getPersonalDetails/:id', async (req, res) => {
+    const employeeId = req.params.id;
+
+    try {
+        const [rows] = await pool.query('SELECT * FROM personaldetails WHERE id = ?', [employeeId]);
+        
+        if (rows.length > 0) {
+            res.status(200).json(rows[0]);
+        } else {
+            res.status(404).json({ message: 'Personal details not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching Personal details:', error);
+        res.status(500).json({ error: 'Error fetching Personal details' });
     }
 });
 
