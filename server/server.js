@@ -13,7 +13,14 @@ app.use(bodyParser.json());
 // Use the employee routes
 app.use("/employee", employeeRoutes); // Now POST requests can be made to /employee/login
 
+<<<<<<< HEAD
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+=======
+app.use('/uploads', express.static('uploads'));
+
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+>>>>>>> developer
 });
