@@ -1,12 +1,22 @@
-import React from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 
 const WorkInformation = () => {
-    const workInfo = {
-        department: 'Engineering',
-        location: 'Colombo',
-        designation: 'Senior Software Engineer',
-        supervisor: "John Doe",
-    };
+    const [workDetails, setWorkDetails] = useState({});
+    const id = 1;
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const workResponse = await axios.get(`http://localhost:4000/employees/getWorkDetails/${id}`);
+                setWorkDetails(workResponse.data);
+            } catch (err) {
+                console.log("Error fetching data:", err);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     return (
         <div className="mt-4 bg-[#eaeaea] p-6 rounded-lg">
@@ -15,7 +25,7 @@ const WorkInformation = () => {
                     <label className="text-sm text-gray-500">Department:</label>
                     <input
                         type="text"
-                        value={workInfo.department}
+                        value={workDetails.department}
                         readOnly
                         className="w-full p-2 mt-1 border-none rounded"
                     />
@@ -24,7 +34,7 @@ const WorkInformation = () => {
                     <label className="text-sm text-gray-500">Location:</label>
                     <input
                         type="text"
-                        value={workInfo.location}
+                        value={workDetails.location}
                         readOnly
                         className="w-full p-2 mt-1 border-none rounded"
                     />
@@ -33,7 +43,7 @@ const WorkInformation = () => {
                     <label className="text-sm text-gray-500">Designation:</label>
                     <input
                         type="text"
-                        value={workInfo.designation}
+                        value={workDetails.designation}
                         readOnly
                         className="w-full p-2 mt-1 border-none rounded"
                     />
@@ -42,7 +52,7 @@ const WorkInformation = () => {
                     <label className="text-sm text-gray-500">Supervisor:</label>
                     <input
                         type="text"
-                        value={workInfo.supervisor}
+                        value={workDetails.supervisor}
                         readOnly
                         className="w-full p-2 mt-1 border-none rounded"
                     />

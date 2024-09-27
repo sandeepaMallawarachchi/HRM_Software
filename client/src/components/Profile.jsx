@@ -1,34 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import defaultAvatar from '../images/avatar.png';
-import AccountSecurity from './profileComponents/AccountSecurity';
-import PersonalDetails from './profileComponents/PersonalDetails';
-import WorkInformation from './profileComponents/WorkInformation';
-import Resume from './profileComponents/Resume';
+import AccountSecurity from '../pages/profileComponents/AccountSecurity';
+import PersonalDetails from '../pages/profileComponents/PersonalDetails';
+import WorkInformation from '../pages/profileComponents/WorkInformation';
+import Resume from '../pages/profileComponents/Resume';
 import { FaCamera } from 'react-icons/fa';
 
 const Profile = () => {
     const [visibleSection, setVisibleSection] = useState('account');
     const [avatar, setAvatar] = useState(defaultAvatar);
     const [isHovered, setIsHovered] = useState(false);
-    const [empDetails, setEmpDetails] = useState('');
-    const [workDetails, setWorkDetails] = useState('');
+    const [workDetails, setWorkDetails] = useState({});
+    const [personalDetails, setPersonalDetails] = useState({});
     const id = 1;
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Get employee details
                 const employeeResponse = await axios.get(`http://localhost:4000/employees/getEmployee/${id}`);
-                setEmpDetails(employeeResponse.data);
 
-                // Set avatar based on profile picture or default avatar
                 const profilePic = employeeResponse.data.profilepic;
                 setAvatar(profilePic ? `http://localhost:4000${profilePic}` : defaultAvatar);
 
-                // Get work details
                 const workResponse = await axios.get(`http://localhost:4000/employees/getWorkDetails/${id}`);
                 setWorkDetails(workResponse.data);
+
+                const personalResponse = await axios.get(`http://localhost:4000/employees/getPersonalDetails/${id}`);
+                setPersonalDetails(personalResponse.data);
             } catch (err) {
                 console.log("Error fetching data:", err);
             }
@@ -42,14 +41,19 @@ const Profile = () => {
         if (file) {
             const formData = new FormData();
             formData.append('profileImage', file);
-
             try {
                 const response = await axios.post(`http://localhost:4000/employees/uploadProfileImage/${id}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-                setAvatar(`http://localhost:4000/employees/${response.data.imageUrl}`);
+
+                console.log(response.data); // Log the entire response to check structure
+                if (response.data.imageUrl) {
+                    setAvatar(`http://localhost:4000${response.data.imageUrl}`); // Update this line
+                } else {
+                    console.log('Image URL not found in response');
+                }
             } catch (err) {
                 console.log('Error uploading profile image:', err);
             }
@@ -64,7 +68,6 @@ const Profile = () => {
         <div className="p-6 h-auto">
             <div className="bg-white rounded-lg shadow-lg p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-6">
-                    {/* Profile Picture */}
                     <div
                         className="flex justify-center mt-8 relative"
                         onMouseEnter={() => setIsHovered(true)}
@@ -75,7 +78,7 @@ const Profile = () => {
                             {isHovered && (
                                 <label className="absolute inset-0 flex items-center justify-center cursor-pointer">
                                     <span className="bg-white rounded-full p-2 shadow-lg bg-opacity-50">
-                                        <FaCamera /> {/* Changed icon to FaCamera */}
+                                        <FaCamera />
                                     </span>
                                     <input
                                         type="file"
@@ -88,30 +91,27 @@ const Profile = () => {
                         </div>
                     </div>
 
-                    {/* Profile Info */}
                     <div className="grid grid-cols-1 gap-5 pl-5">
                         <div>
-                            <h2 className="text-lg font-semibold text-gray-700">{empDetails.username}</h2>
-                            <p className="text-sm text-gray-500">{workDetails.designation}</p>
+                            <h2 className="text-2xl font-semibold text-gray-700">{personalDetails.name}</h2>
+                            <p className="text-lg text-gray-500">{workDetails.designation}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-400">Supervisor</p>
-                            <p className="text-sm text-gray-700">{workDetails.supervisor}</p>
+                            <p className="text-lg text-gray-700">{workDetails.supervisor}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-400">Work Email</p>
-                            <p className="text-sm text-gray-700">{workDetails.workEmail}</p>
+                            <p className="text-lg text-gray-700">{workDetails.workEmail}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-400">Work Phone</p>
-                            <p className="text-sm text-gray-700">{workDetails.workPhone}</p>
+                            <p className="text-lg text-gray-700">{workDetails.workPhone}</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Right Column - Section Toggles and Display */}
                 <div className="md:col-span-2 space-y-4">
-                    {/* Buttons to toggle sections */}
                     <div className="flex space-x-6 mt-4">
                         <button
                             onClick={() => handleSectionToggle('account')}
@@ -139,7 +139,6 @@ const Profile = () => {
                         </button>
                     </div>
 
-                    {/* Conditional Rendering of Sections */}
                     {visibleSection === 'account' && <AccountSecurity />}
                     {visibleSection === 'personal' && <PersonalDetails />}
                     {visibleSection === 'work' && <WorkInformation />}
