@@ -7,7 +7,7 @@ import Sidebar from './components/Sidebar';
 import Profile from './components/Profile';
 import Leave from './pages/Leave';
 import Payroll from './pages/Payroll';
-import EmployeeRegistration from './components/profileComponents/EmployeeRegistration';
+import EmployeeRegistration from './pages/profileComponents/EmployeeRegistration';
 
 const App = () => {
   return (

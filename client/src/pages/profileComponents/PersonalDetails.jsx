@@ -175,7 +175,7 @@ const PersonalDetails = () => {
                     <input
                         type="number"
                         name="dependents"
-                        value={details.dependents || ''}
+                        value={details.dependents || 0}
                         onChange={handleChange}
                         className="border-none rounded-md p-2 w-full"
                         placeholder="Enter number of dependents"

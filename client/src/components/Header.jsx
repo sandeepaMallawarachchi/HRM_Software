@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaBell, FaEnvelope, FaAngleDown } from 'react-icons/fa';
 import avatar from '../images/avatar.png';
 import { Link, useLocation } from 'react-router-dom';
-import Support from './profileComponents/Support';
+import Support from '../pages/profileComponents/Support';
 import axios from 'axios'
 
 const Header = () => {

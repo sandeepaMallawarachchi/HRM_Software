@@ -182,4 +182,26 @@ router.get('/getProfileImage/:id', async (req, res) => {
     }
 });
 
+//add experinces
+router.post('/experience', async (req, res) => {
+    const { date_from, date_to, institution } = req.body;
+
+    try {
+        const newExperience = { date_from, date_to, institution };
+
+        const [results] = await pool.query(
+            'INSERT INTO experience (date_from, date_to, institution) VALUES (?, ?, ?, ?, ?, ?)',
+            [newExperience.date_from, newExperience.date_to, newExperience.institution]
+        );
+
+        res.status(201).json({ message: 'Employee experience created successfully', employeeId: results.insertId });
+    } catch (error) {
+        console.error('Error saving employee experience:', error);
+        res.status(500).json({ error: 'Error saving employee experience' });
+    }
+});
+
+//get experience bt id
+
+
 module.exports = router;
