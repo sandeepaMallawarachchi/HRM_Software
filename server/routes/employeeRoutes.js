@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const router = express.Router();
-
+const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -41,9 +41,12 @@ router.post("/loginCredentials", async (req, res) => {
     }
 });
 
-// Login employee
+// Use the secret key from environment variables
+const JWT_SECRET = process.env.JWT_SECRET;
+
+//employee login
 router.post("/login", async (req, res) => {
-    const { email, password } = req.body; // Only use email
+    const { email, password } = req.body;
 
     try {
         // Retrieve employee by email
@@ -64,10 +67,10 @@ router.post("/login", async (req, res) => {
             return res.status(401).json({ message: "Invalid password" });
         }
 
-        // Successful login
-        res
-            .status(200)
-            .json({ message: "Login successful", employeeId: employee.id });
+        // Successful login: create a token
+        const token = jwt.sign({ id: employee.id }, JWT_SECRET, { expiresIn: '1h' });
+
+        res.status(200).json({ message: "Login successful", token, employeeId: employee.id });
     } catch (error) {
         console.error("Error during login:", error);
         res.status(500).json({ error: "Error during login" });

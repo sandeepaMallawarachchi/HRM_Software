@@ -13,7 +13,7 @@ const Profile = () => {
     const [isHovered, setIsHovered] = useState(false);
     const [workDetails, setWorkDetails] = useState({});
     const [personalDetails, setPersonalDetails] = useState({});
-    const id = 1;
+    const id = localStorage.getItem("id");
 
     useEffect(() => {
         const fetchData = async () => {
