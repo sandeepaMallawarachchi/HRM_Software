@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
 import Header from './components/Header';
@@ -9,9 +9,10 @@ import Leave from './pages/Leave';
 import Payroll from './pages/Payroll';
 import EmployeeRegistration from './pages/profileComponents/EmployeeRegistration';
 import Login from "./pages/auth/Login";
+import PrivateRoute from './components/PrivateRoute'; // Import the PrivateRoute component
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Replace with real authentication logic
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     // Check if the auth token exists in localStorage on initial load
@@ -22,23 +23,26 @@ const App = () => {
   }, []);
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <div className="flex h-screen">
-        <Sidebar />
+        {isAuthenticated && <Sidebar />} {/* Show Sidebar only if authenticated */}
         <div className="flex-1 flex flex-col ml-[-35px]">
-          <Header />
+          {isAuthenticated && <Header />} {/* Show Header only if authenticated */}
           <div className="flex-1 p-4 pl-10 overflow-auto bg-[#f6f5fb]">
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/leave" element={<Leave />} />
-              <Route path="/payroll" element={<Payroll />} />
-              <Route path="/registration" element={<EmployeeRegistration />} />
+              {/* If user is not authenticated, show the login page at root */}
+              <Route path="/" element={isAuthenticated ? <Dashboard /> : <Login setIsAuthenticated={setIsAuthenticated} />} />
+
+              {/* Protecting other routes using PrivateRoute */}
+              <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+              <Route path="/leave" element={<PrivateRoute><Leave /></PrivateRoute>} />
+              <Route path="/payroll" element={<PrivateRoute><Payroll /></PrivateRoute>} />
+              <Route path="/registration" element={<PrivateRoute><EmployeeRegistration /></PrivateRoute>} />
             </Routes>
           </div>
         </div>
       </div>
-    </BrowserRouter>
+    </HashRouter>
   );
 };
 
