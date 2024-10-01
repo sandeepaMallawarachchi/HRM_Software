@@ -91,7 +91,7 @@ router.post('/savePersonalDetails/:id', async (req, res) => {
 
     try {
         const [existing] = await pool.query('SELECT * FROM personaldetails WHERE id = ?', [id]);
-        
+
         if (existing.length > 0) {
             // Update existing record
             await pool.query(
@@ -120,7 +120,7 @@ router.get('/getPersonalDetails/:id', async (req, res) => {
 
     try {
         const [rows] = await pool.query('SELECT * FROM personaldetails WHERE id = ?', [employeeId]);
-        
+
         if (rows.length > 0) {
             res.status(200).json(rows[0]);
         } else {
@@ -183,15 +183,16 @@ router.get('/getProfileImage/:id', async (req, res) => {
 });
 
 //add experinces
-router.post('/experience', async (req, res) => {
-    const { date_from, date_to, institution } = req.body;
+router.post('/experience/:empId', async (req, res) => {
+    const empId = req.params.empId;
+    const { date_from, date_to, company, role } = req.body;
 
     try {
-        const newExperience = { date_from, date_to, institution };
+        const newExperience = { empId, date_from, date_to, company, role };
 
         const [results] = await pool.query(
-            'INSERT INTO experience (date_from, date_to, institution) VALUES (?, ?, ?, ?, ?, ?)',
-            [newExperience.date_from, newExperience.date_to, newExperience.institution]
+            'INSERT INTO experience (empId, date_from, date_to, company, role) VALUES (?, ?, ?, ?, ?)',
+            [newExperience.empId, newExperience.date_from, newExperience.date_to, newExperience.company, newExperience.role]
         );
 
         res.status(201).json({ message: 'Employee experience created successfully', employeeId: results.insertId });
@@ -201,7 +202,64 @@ router.post('/experience', async (req, res) => {
     }
 });
 
-//get experience bt id
+//get experience by id
+router.get('/getexperience/:empId', async (req, res) => {
+    const employeeId = req.params.empId;
 
+    try {
+        const [rows] = await pool.query('SELECT * FROM experience WHERE empId = ?', [employeeId]);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows); // Return all experience records
+        } else {
+            res.status(404).json({ message: 'Experience details not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching experience details:', error);
+        res.status(500).json({ error: 'Error fetching experience details' });
+    }
+});
+
+//update experience
+router.put('/updateExperience/:empId/:expId', async (req, res) => {
+    const empId = req.params.empId;
+    const expId = req.params.expId;
+    const { date_from, date_to, company, role } = req.body;
+
+    try {
+        const [results] = await pool.query(
+            'UPDATE experience SET date_from = ?, date_to = ?, company = ?, role = ? WHERE empId = ? AND id = ?',
+            [date_from, date_to, company, role, empId, expId]
+        );
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Experience not found' });
+        }
+
+        res.status(200).json({ message: 'Employee experience updated successfully' });
+    } catch (error) {
+        console.error('Error updating employee experience:', error);
+        res.status(500).json({ error: 'Error updating employee experience' });
+    }
+});
+
+//delete experience
+router.delete('/deleteExperience/:id', async (req, res) => {
+    const experienceId = parseInt(req.params.id, 10); // Convert to integer
+
+    try {
+        const result = await pool.query('DELETE FROM experience WHERE id = ?', [experienceId]);
+        console.log(result); // Log the result of the query
+
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: 'Experience deleted successfully.' });
+        } else {
+            res.status(404).json({ message: 'Experience not found.' });
+        }
+    } catch (error) {
+        console.error('Error deleting experience:', error.message); // Log the error message
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
 
 module.exports = router;
