@@ -8,10 +8,21 @@ import Profile from './components/Profile';
 import Leave from './pages/Leave';
 import Payroll from './pages/Payroll';
 import EmployeeRegistration from './pages/profileComponents/EmployeeRegistration';
+import Login from "./pages/auth/Login";
 
 const App = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Replace with real authentication logic
+
+  useEffect(() => {
+    // Check if the auth token exists in localStorage on initial load
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      setIsAuthenticated(true); // Set authenticated if token exists
+    }
+  }, []);
+
   return (
-    <HashRouter>
+    <BrowserRouter>
       <div className="flex h-screen">
         <Sidebar />
         <div className="flex-1 flex flex-col ml-[-35px]">
@@ -27,7 +38,7 @@ const App = () => {
           </div>
         </div>
       </div>
-    </HashRouter>
+    </BrowserRouter>
   );
 };
 
