@@ -13,20 +13,20 @@ const Profile = () => {
     const [isHovered, setIsHovered] = useState(false);
     const [workDetails, setWorkDetails] = useState({});
     const [personalDetails, setPersonalDetails] = useState({});
-    const id = localStorage.getItem("id");
+    const empId = localStorage.getItem("empId");
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const employeeResponse = await axios.get(`http://localhost:4000/employees/getEmployee/${id}`);
+                const employeeResponse = await axios.get(`http://localhost:4000/employees/getEmployee/${empId}`);
 
                 const profilePic = employeeResponse.data.profilepic;
                 setAvatar(profilePic ? `http://localhost:4000${profilePic}` : defaultAvatar);
 
-                const workResponse = await axios.get(`http://localhost:4000/employees/getWorkDetails/${id}`);
+                const workResponse = await axios.get(`http://localhost:4000/employees/getWorkDetails/${empId}`);
                 setWorkDetails(workResponse.data);
 
-                const personalResponse = await axios.get(`http://localhost:4000/employees/getPersonalDetails/${id}`);
+                const personalResponse = await axios.get(`http://localhost:4000/employees/getPersonalDetails/${empId}`);
                 setPersonalDetails(personalResponse.data);
             } catch (err) {
                 console.log("Error fetching data:", err);
@@ -42,7 +42,7 @@ const Profile = () => {
             const formData = new FormData();
             formData.append('profileImage', file);
             try {
-                const response = await axios.post(`http://localhost:4000/employees/uploadProfileImage/${id}`, formData, {
+                const response = await axios.post(`http://localhost:4000/employees/uploadProfileImage/${empId}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },

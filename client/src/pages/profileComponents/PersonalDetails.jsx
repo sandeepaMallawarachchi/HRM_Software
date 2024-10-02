@@ -15,12 +15,12 @@ const PersonalDetails = () => {
         dependents: 0
     });
     const [isChanged, setIsChanged] = useState(false);
-    const id = 1;
+    const empId = localStorage.getItem("empId");
 
     useEffect(() => {
         const fetchDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/employees/getPersonalDetails/${id}`);
+                const response = await axios.get(`http://localhost:4000/employees/getPersonalDetails/${empId}`);
                 const data = response.data || {};
 
                 // Manually format the date without time zone adjustments
@@ -38,7 +38,7 @@ const PersonalDetails = () => {
             }
         };
         fetchDetails();
-    }, [id]);
+    }, [empId]);
 
     const handleChange = (e) => {
         setDetails({ ...details, [e.target.name]: e.target.value });
@@ -47,7 +47,7 @@ const PersonalDetails = () => {
 
     const handleSave = async () => {
         try {
-            const response = await axios.post(`http://localhost:4000/employees/savePersonalDetails/${id}`, details);
+            const response = await axios.post(`http://localhost:4000/employees/savePersonalDetails/${empId}`, details);
             console.log(response.data.message);
             alert('Details updated successfully');
             setIsChanged(false);

@@ -23,7 +23,7 @@ export default function Login({ setIsAuthenticated }) {
 
       const { token, employeeId } = res.data;
       localStorage.setItem("authToken", token);
-      localStorage.setItem("id", employeeId);
+      localStorage.setItem("empId", employeeId);
 
       // Set authenticated state
       setIsAuthenticated(true);
@@ -54,10 +54,6 @@ export default function Login({ setIsAuthenticated }) {
       <div className="w-[500px] px-4 flex items-center justify-center">
         <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-blueGray-200 border-0">
           <div className="flex-auto px-4 py-5">
-            <div className="text-blueGray-400 text-center mb-3 font-bold">
-              <small>Or sign in with credentials</small>
-            </div>
-
             {error && (
               <div
                 className="text-red-600 text-center mb-3 font-bold"

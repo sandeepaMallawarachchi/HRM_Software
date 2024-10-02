@@ -13,15 +13,15 @@ const Header = () => {
 
     useEffect(() => {
         const fetchName = async () => {
-            const id = localStorage.getItem("id");
+            const empId = localStorage.getItem("empId");
 
-            if (!id) {
-                console.error("ID is not found in localStorage");
+            if (!empId) {
+                console.error("Employee Id is not found in localStorage");
                 return;
             }
 
             try {
-                const response = await axios.get(`http://localhost:4000/employees/getEmployee/${id}`);
+                const response = await axios.get(`http://localhost:4000/employees/getPersonalDetails/${empId}`);
                 setEmpName(response.data);
             } catch (err) {
                 console.log("Error fetching employee name:", err);
@@ -77,7 +77,7 @@ const Header = () => {
                     className="w-10 h-10 rounded-full border border-gray-300"
                 />
                 <span className="text-white cursor-pointer">
-                    {empName.username}
+                    {empName.name}
                 </span>
                 <FaAngleDown className="text-white cursor-pointer hover:text-orange-300" size={20} />
 
