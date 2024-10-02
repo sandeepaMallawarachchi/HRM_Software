@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FaBell, FaEnvelope, FaAngleDown } from 'react-icons/fa';
-import avatar from '../images/avatar.png';
+import defaultAvatar from '../images/avatar.png';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Support from '../pages/profileComponents/Support';
 import axios from 'axios';
@@ -10,6 +10,7 @@ const Header = () => {
     const navigate = useNavigate();
     const [showSupportModal, setShowSupportModal] = useState(false);
     const [empName, setEmpName] = useState('');
+    const [avatar, setAvatar] = useState(defaultAvatar);
 
     useEffect(() => {
         const fetchName = async () => {
@@ -23,6 +24,11 @@ const Header = () => {
             try {
                 const response = await axios.get(`http://localhost:4000/employees/getPersonalDetails/${empId}`);
                 setEmpName(response.data);
+
+                if (response.data.profilepic) {
+                    setAvatar(`http://localhost:4000${response.data.profilepic}`);
+                }
+
             } catch (err) {
                 console.log("Error fetching employee name:", err);
             }

@@ -20,9 +20,14 @@ const App = () => {
     const token = localStorage.getItem("authToken");
     if (token) {
       setIsAuthenticated(true);
-      console.log(token);
+      console.log("Authenticated:", token);
     }
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    setIsAuthenticated(false);
+  };
 
   return (
     <HashRouter>
@@ -34,7 +39,7 @@ const App = () => {
           <div className="flex-1 p-4 pl-10 overflow-auto bg-[#f6f5fb]">
             <Routes>
               {/* Redirect root to Login page */}
-              <Route path="/" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
+              <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login setIsAuthenticated={setIsAuthenticated} />} />
 
               {/* Dashboard at /dashboard, protected by PrivateRoute */}
               <Route path="/dashboard" element={<PrivateRoute isAuthenticated={isAuthenticated}><Dashboard /></PrivateRoute>} />
@@ -46,7 +51,7 @@ const App = () => {
               <Route path="/registration" element={<PrivateRoute isAuthenticated={isAuthenticated}><EmployeeRegistration /></PrivateRoute>} />
 
               {/* Logout Route */}
-              <Route path="/logout" element={<Logout setIsAuthenticated={setIsAuthenticated} />} />
+              <Route path="/logout" element={<Logout handleLogout={handleLogout} />} />
 
               {/* Optional: Redirect authenticated users from login to dashboard */}
               {/* <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login setIsAuthenticated={setIsAuthenticated} />} /> */}

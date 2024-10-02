@@ -246,22 +246,19 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Endpoint to upload profile picture
-router.post(
-    "/uploadProfileImage/:empId",
-    upload.single("profileImage"),
-    (req, res) => {
-        const empId = req.params.empId;
-        const imagePath = `/uploads/${req.file.filename}`;
+router.post("/uploadProfileImage/:empId", upload.single("profileImage"), (req, res) => {
+    const empId = req.params.empId;
+    const imagePath = `/uploads/${req.file.filename}`;
 
-        const sql = "UPDATE employees SET profilepic = ? WHERE empId = ?";
-        pool.query(sql, [imagePath, empId], (err, result) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).send("Error updating profile image.");
-            }
-            res.status(200).json({ imageUrl: imagePath });
-        });
-    }
+    const sql = "UPDATE personaldetails SET profilepic = ? WHERE empId = ?";
+    pool.query(sql, [imagePath, empId], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send("Error updating profile image.");
+        }
+        res.status(200).json({ imageUrl: imagePath });
+    });
+}
 );
 
 // Get profile picture by id
@@ -270,7 +267,7 @@ router.get("/getProfileImage/:empId", async (req, res) => {
 
     try {
         const [rows] = await pool.query(
-            "SELECT profilepic FROM employees WHERE empId = ?",
+            "SELECT profilepic FROM personaldetails WHERE empId = ?",
             [empId]
         );
 
@@ -356,7 +353,7 @@ router.delete('/deleteExperience/:empId/:expId', async (req, res) => {
 
     try {
         const [result] = await pool.query('DELETE FROM experience WHERE empId = ? and id = ?', [empId, expId]);
-        
+
         if (result.affectedRows > 0) {
             res.status(200).json({ message: 'Experience deleted successfully.' });
         } else {

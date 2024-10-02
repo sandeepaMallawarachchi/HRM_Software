@@ -50,7 +50,6 @@ const Resume = () => {
     }
   };
 
-
   // Handle deleting the experience
   const handleDeleteExperience = async (expId) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this experience?");
@@ -69,13 +68,12 @@ const Resume = () => {
     }
   };
 
-
   // Handle selecting experience for editing
   const handleEditClick = (exp) => {
     const formattedExp = {
       ...exp,
       date_from: new Date(exp.date_from).toISOString().split('T')[0],
-      date_to: new Date(exp.date_to).toISOString().split('T')[0],
+      date_to: exp.date_to ? new Date(exp.date_to).toISOString().split('T')[0] : null, // Handle null case
     };
     setEditExperience(formattedExp);
   };
@@ -92,7 +90,7 @@ const Resume = () => {
               <div>
                 <p className="font-semibold text-lg">{exp.company}</p>
                 <p>{exp.role}</p>
-                <p>{new Date(exp.date_from).toLocaleDateString()} to {new Date(exp.date_to).toLocaleDateString()}</p>
+                <p>{new Date(exp.date_from).toLocaleDateString()} to {exp.date_to ? new Date(exp.date_to).toLocaleDateString() : 'Current'}</p>
               </div>
             </div>
             <button
@@ -145,17 +143,51 @@ const Modal = ({ title, children, onClose }) => (
   </div>
 );
 
-const Form = ({ data, setData, onSubmit, isEdit }) => (
-  <>
-    <InputField label="Company" type="text" value={data.company} onChange={(e) => setData({ ...data, company: e.target.value })} />
-    <InputField label="Role" type="text" value={data.role} onChange={(e) => setData({ ...data, role: e.target.value })} />
-    <InputField label="From" type="date" value={data.date_from} onChange={(e) => setData({ ...data, date_from: e.target.value })} />
-    <InputField label="To" type="date" value={data.date_to} onChange={(e) => setData({ ...data, date_to: e.target.value })} />
-    <button onClick={onSubmit} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-[20px] transition-all">
-      {isEdit ? 'Update' : 'Add'}
-    </button>
-  </>
-);
+const Form = ({ data, setData, onSubmit, isEdit }) => {
+  const [isCurrent, setIsCurrent] = useState(data.date_to === null);
+
+  const handleToggleCurrent = () => {
+    setIsCurrent(!isCurrent);
+    if (!isCurrent) {
+      // Set date_to to null if "Current" is selected
+      setData({ ...data, date_to: null });
+    } else {
+      // Reset the date_to when "Current" is deselected
+      setData({ ...data, date_to: '' });
+    }
+  };
+
+  return (
+    <>
+      <InputField label="Company" type="text" placeholder='Enter your company' value={data.company} onChange={(e) => setData({ ...data, company: e.target.value })} />
+      <InputField label="Role" type="text" placeholder='Enter your role' value={data.role} onChange={(e) => setData({ ...data, role: e.target.value })} />
+      <InputField label="From" type="date" value={data.date_from} onChange={(e) => setData({ ...data, date_from: e.target.value })} />
+
+      <div className="flex items-center mb-4">
+        <InputField
+          label="To"
+          type="date"
+          value={isCurrent ? 'Current' : data.date_to || ''}
+          onChange={(e) => setData({ ...data, date_to: e.target.value })}
+          disabled={isCurrent}
+        />
+        <label className="ml-3 flex items-center">
+          <input
+            type="checkbox"
+            checked={isCurrent}
+            onChange={handleToggleCurrent}
+            className="mr-1"
+          />
+          <span className={`text-gray-700 ${isCurrent ? 'font-bold' : ''}`}>Current</span>
+        </label>
+      </div>
+
+      <button onClick={onSubmit} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-[20px] transition-all">
+        {isEdit ? 'Update' : 'Add'}
+      </button>
+    </>
+  );
+};
 
 const InputField = ({ label, ...props }) => (
   <div className="mb-4">
