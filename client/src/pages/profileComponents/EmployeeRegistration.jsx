@@ -4,7 +4,7 @@ import { CSSTransition } from 'react-transition-group';
 const EmployeeRegistration = () => {
     const [formStep, setFormStep] = useState(1);
     const [loginFormData, setLoginFormData] = useState({
-        username: '',
+        empId: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -92,14 +92,14 @@ const EmployeeRegistration = () => {
                     <h2 className="text-2xl mb-4 text-gray-700">Login Credentials</h2>
                     <form onSubmit={handleLoginSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label className="block mb-1 text-gray-500">Username</label>
+                            <label className="block mb-1 text-gray-500">Employee Id</label>
                             <input
                                 required
-                                name="username"
-                                value={loginFormData.username}
+                                name="empId"
+                                value={loginFormData.empId}
                                 onChange={handleChange}
                                 className="border-none rounded-md p-2 w-full"
-                                placeholder="Enter your username"
+                                placeholder="Enter your employee Id"
                             />
                         </div>
 

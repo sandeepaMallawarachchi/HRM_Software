@@ -13,28 +13,30 @@ const Profile = () => {
     const [isHovered, setIsHovered] = useState(false);
     const [workDetails, setWorkDetails] = useState({});
     const [personalDetails, setPersonalDetails] = useState({});
-    const id = 1;
+    const empId = localStorage.getItem("empId");
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const employeeResponse = await axios.get(`http://localhost:4000/employees/getEmployee/${id}`);
-
-                const profilePic = employeeResponse.data.profilepic;
-                setAvatar(profilePic ? `http://localhost:4000${profilePic}` : defaultAvatar);
-
-                const workResponse = await axios.get(`http://localhost:4000/employees/getWorkDetails/${id}`);
-                setWorkDetails(workResponse.data);
-
-                const personalResponse = await axios.get(`http://localhost:4000/employees/getPersonalDetails/${id}`);
+                // Fetch personal details (this contains the profile picture)
+                const personalResponse = await axios.get(`http://localhost:4000/employees/getPersonalDetails/${empId}`);
                 setPersonalDetails(personalResponse.data);
+
+                // Update avatar with the profile picture from the personal details response
+                if (personalResponse.data.profilepic) {
+                    setAvatar(`http://localhost:4000${personalResponse.data.profilepic}`);
+                }
+
+                // Fetch work details
+                const workResponse = await axios.get(`http://localhost:4000/employees/getWorkDetails/${empId}`);
+                setWorkDetails(workResponse.data);
             } catch (err) {
                 console.log("Error fetching data:", err);
             }
         };
 
         fetchData();
-    }, []);
+    }, [empId]);
 
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
@@ -42,15 +44,16 @@ const Profile = () => {
             const formData = new FormData();
             formData.append('profileImage', file);
             try {
-                const response = await axios.post(`http://localhost:4000/employees/uploadProfileImage/${id}`, formData, {
+                const response = await axios.post(`http://localhost:4000/employees/uploadProfileImage/${empId}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
 
-                console.log(response.data); // Log the entire response to check structure
+                // Check if the response has the image URL
                 if (response.data.imageUrl) {
-                    setAvatar(`http://localhost:4000${response.data.imageUrl}`); // Update this line
+                    // Update avatar state with the new image URL
+                    setAvatar(`http://localhost:4000${response.data.imageUrl}`);
                 } else {
                     console.log('Image URL not found in response');
                 }

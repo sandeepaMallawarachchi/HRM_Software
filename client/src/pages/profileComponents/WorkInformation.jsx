@@ -3,12 +3,12 @@ import React, { useEffect, useState } from 'react';
 
 const WorkInformation = () => {
     const [workDetails, setWorkDetails] = useState({});
-    const id = 1;
+    const empId = localStorage.getItem("empId");
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const workResponse = await axios.get(`http://localhost:4000/employees/getWorkDetails/${id}`);
+                const workResponse = await axios.get(`http://localhost:4000/employees/getWorkDetails/${empId}`);
                 setWorkDetails(workResponse.data);
             } catch (err) {
                 console.log("Error fetching data:", err);
