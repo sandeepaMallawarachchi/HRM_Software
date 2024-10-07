@@ -376,6 +376,88 @@ router.delete('/deleteExperience/:empId/:expId', async (req, res) => {
     }
 });
 
+//add education
+router.post('/education/:empId', async (req, res) => {
+    const empId = req.params.empId;
+    const { date_from, date_to, institution, degree } = req.body;
+
+    try {
+        const newEducation = { empId, date_from, date_to, institution, degree };
+
+        const [results] = await pool.query(
+            'INSERT INTO education (empId, date_from, date_to, institution) VALUES (?, ?, ?, ?, ?)',
+            [newEducation.empId, newEducation.date_from, newEducation.date_to, newEducation.institution, newEducation.degree]
+        );
+
+        res.status(201).json({ message: 'Employee education created successfully', employeeId: results.insertId });
+    } catch (error) {
+        console.error('Error saving employee education:', error);
+        res.status(500).json({ error: 'Error saving employee education' });
+    }
+});
+
+//get education by id
+router.get('/getEducation/:empId', async (req, res) => {
+    const employeeId = req.params.empId;
+
+    try {
+        const [rows] = await pool.query('SELECT * FROM education WHERE empId = ?', [employeeId]);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: 'Education details not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching education details:', error);
+        res.status(500).json({ error: 'Error fetching education details' });
+    }
+});
+
+//update education
+router.put('/updateEducation/:empId/:eduId', async (req, res) => {
+    const empId = req.params.empId;
+    const eduId = req.params.eduId;
+    const { date_from, date_to, institution, degree } = req.body;
+
+    try {
+        const [results] = await pool.query(
+            'UPDATE education SET date_from = ?, date_to = ?, institution = ?, degree = ? WHERE empId = ? AND id = ?',
+            [date_from, date_to, institution, degree, empId, eduId]
+        );
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'education not found' });
+        }
+
+        // Fetch the updated education
+        const [updatedEducation] = await pool.query('SELECT * FROM education WHERE id = ?', [eduId]);
+
+        res.status(200).json(updatedEducation[0]);
+    } catch (error) {
+        console.error('Error updating employee education:', error);
+        res.status(500).json({ error: 'Error updating employee education' });
+    }
+});
+
+//delete education
+router.delete('/deleteEducation/:empId/:eduId', async (req, res) => {
+    const empId = req.params.empId;
+    const eduId = req.params.eduId;
+
+    try {
+        const [result] = await pool.query('DELETE FROM eductaion WHERE empId = ? and id = ?', [empId, eduId]);
+
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: 'Education deleted successfully.' });
+        } else {
+            res.status(404).json({ message: 'Education not found.' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
 //save support details
 router.post('/support/:empId', async (req, res) => {
     const empId = req.params.empId;
