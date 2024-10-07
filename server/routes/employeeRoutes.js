@@ -385,7 +385,7 @@ router.post('/education/:empId', async (req, res) => {
         const newEducation = { empId, date_from, date_to, institution, degree };
 
         const [results] = await pool.query(
-            'INSERT INTO education (empId, date_from, date_to, institution) VALUES (?, ?, ?, ?, ?)',
+            'INSERT INTO education (empId, date_from, date_to, institution, degree) VALUES (?, ?, ?, ?, ?)',
             [newEducation.empId, newEducation.date_from, newEducation.date_to, newEducation.institution, newEducation.degree]
         );
 
@@ -446,7 +446,7 @@ router.delete('/deleteEducation/:empId/:eduId', async (req, res) => {
     const eduId = req.params.eduId;
 
     try {
-        const [result] = await pool.query('DELETE FROM eductaion WHERE empId = ? and id = ?', [empId, eduId]);
+        const [result] = await pool.query('DELETE FROM education WHERE empId = ? and id = ?', [empId, eduId]);
 
         if (result.affectedRows > 0) {
             res.status(200).json({ message: 'Education deleted successfully.' });

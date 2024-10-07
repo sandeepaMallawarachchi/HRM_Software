@@ -130,7 +130,7 @@ const Resume = () => {
     const formattedExp = {
       ...exp,
       date_from: new Date(exp.date_from).toISOString().split('T')[0],
-      date_to: exp.date_to ? new Date(exp.date_to).toISOString().split('T')[0] : null, // Handle null case
+      date_to: exp.date_to ? new Date(exp.date_to).toISOString().split('T')[0] : null,
     };
 
     setEditExperience(formattedExp);
@@ -141,7 +141,7 @@ const Resume = () => {
     const formattedEdu = {
       ...edu,
       date_from: new Date(edu.date_from).toISOString().split('T')[0],
-      date_to: edu.date_to ? new Date(edu.date_to).toISOString().split('T')[0] : null, // Handle null case
+      date_to: edu.date_to ? new Date(edu.date_to).toISOString().split('T')[0] : null,
     };
 
     setEditEducation(formattedEdu);
@@ -168,7 +168,7 @@ const Resume = () => {
                 handleDeleteExperience(exp.id); // Pass the experience ID to delete
               }}
               className="absolute top-4 right-4 text-orange-500 hover:text-orange-600">
-              <FaTrash />
+              <FaTrash size={20} />
             </button>
           </div>
         ))}
@@ -196,7 +196,7 @@ const Resume = () => {
                 handleDeleteEducation(edu.id); // Pass the experience ID to delete
               }}
               className="absolute top-4 right-4 text-orange-500 hover:text-orange-600">
-              <FaTrash />
+              <FaTrash size={20} />
             </button>
           </div>
         ))}
@@ -300,7 +300,7 @@ const ExperienceForm = ({ data, setData, onSubmit, isEdit, isCurrent, handleTogg
             type="checkbox"
             checked={isCurrent}
             onChange={handleToggleCurrent}
-            className="mr-1"
+            className="mr-1 rounded-sm"
           />
           <span className={`text-gray-700 ${isCurrent ? 'font-bold' : ''}`}>Current</span>
         </label>
