@@ -470,32 +470,35 @@ router.post('/resetPassword', async (req, res) => {
     try {
         const { resetCode, newPassword } = req.body;
 
+        // Fetch the user with the given reset code
         const [rows] = await pool.query('SELECT * FROM logindetails WHERE resetcode = ?', [resetCode]);
 
-        if (rows.length > 0) {
-            res.status(200).json(rows);
-        } else {
-            res.status(404).json({ message: 'Resetcode not found' });
+        // If no user is found with the reset code
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Reset code not found' });
         }
 
-        // Check if the reset code is not expired
-        if (rows.resetcodeexpires < Date.now()) {
-            return res.status(400).json({ message: "Reset code has expired" });
+        const user = rows[0];
+
+        // Check if the reset code is expired
+        if (new Date(user.resetCodeExpires) < Date.now()) {
+            return res.status(400).json({ message: 'Reset code has expired' });
         }
 
         // Hash the new password
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-        // Update the password
-        admin.password = hashedPassword;
-        admin.resetCode = undefined;
-        admin.resetCodeExpires = undefined;
-        await admin.save();
+        // Update the user's password and clear the reset code fields
+        await pool.query(
+            'UPDATE logindetails SET password = ?, resetcode = NULL, resetcodeexpires = NULL WHERE empId = ?',
+            [hashedPassword, user.empId]
+        );
 
-        res.status(200).json({ message: "Password updated successfully" });
+        res.status(200).json({ message: 'Password updated successfully' });
+
     } catch (error) {
         console.error("Error resetting password:", error.message);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
