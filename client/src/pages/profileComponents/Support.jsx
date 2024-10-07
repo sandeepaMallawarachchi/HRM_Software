@@ -2,21 +2,55 @@ import React, { useState } from 'react';
 
 const Support = ({ onClose }) => {
     const [formData, setFormData] = useState({
-        name: '',
+        subject: '',
         email: '',
         message: ''
     });
+
+    // Retrieve empId from localStorage
+    const empId = localStorage.getItem('empId');
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Form Data:', formData);
-        // Add form submission logic here
-        onClose();
+
+        if (!empId) {
+            console.error('Employee ID not found');
+            return;
+        }
+
+        const supportData = {
+            empId,
+            ...formData,
+        };
+
+        console.log('Form Data:', supportData);
+
+        try {
+            const response = await fetch(`http://localhost:4000/employees/support/${empId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(supportData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log('Support request submitted:', data);
+                alert('Support request submitted');
+                onClose();
+            } else {
+                console.error('Error submitting form:', data);
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+        }
     };
 
     return (
@@ -25,17 +59,6 @@ const Support = ({ onClose }) => {
                 <h2 className="text-2xl font-semibold mb-4">Contact Support</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label className="block text-gray-700 mb-2">Name</label>
-                        <input
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleInputChange}
-                            className="w-full px-3 py-2 border rounded-lg"
-                            required
-                        />
-                    </div>
-                    <div className="mb-4">
                         <label className="block text-gray-700 mb-2">Email</label>
                         <input
                             type="email"
@@ -43,6 +66,19 @@ const Support = ({ onClose }) => {
                             value={formData.email}
                             onChange={handleInputChange}
                             className="w-full px-3 py-2 border rounded-lg"
+                            placeholder='Enter your email'
+                            required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-700 mb-2">Subject</label>
+                        <input
+                            type="text"
+                            name="subject"
+                            value={formData.subject}
+                            onChange={handleInputChange}
+                            className="w-full px-3 py-2 border rounded-lg"
+                            placeholder='Enter your subject'
                             required
                         />
                     </div>
@@ -53,12 +89,13 @@ const Support = ({ onClose }) => {
                             value={formData.message}
                             onChange={handleInputChange}
                             className="w-full px-3 py-2 border rounded-lg"
+                            placeholder='Enter your message'
                             rows="4"
                             required
                         ></textarea>
                     </div>
                     <div className="flex justify-start space-x-4">
-                    <button
+                        <button
                             type="submit"
                             className="px-4 py-2 bg-orange-500 text-white rounded-[20px]"
                         >
