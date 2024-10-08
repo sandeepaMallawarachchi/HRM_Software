@@ -584,4 +584,42 @@ router.post('/resetPassword', async (req, res) => {
     }
 });
 
+//request leave
+router.post('/requestLeave/:empId', async (req, res) => {
+    const empId = req.params.empId;
+    const { date_from, date_to, description } = req.body;
+
+    try {
+        const newLeave = { empId, date_from, date_to, description };
+
+        const [results] = await pool.query(
+            'INSERT INTO leave (empId, date_from, date_to, description ) VALUES (?, ?, ?, ?)',
+            [newLeave.empId, newLeave.date_from, newLeave.date_to, newLeave.description]
+        );
+
+        res.status(201).json({ message: 'Employee leave created successfully', employeeId: results.insertId });
+    } catch (error) {
+        console.error('Error saving employee leave:', error);
+        res.status(500).json({ error: 'Error saving employee leave' });
+    }
+});
+
+//get leave request by id
+router.get('/getLeaveRequest/:empId', async (req, res) => {
+    const employeeId = req.params.empId;
+
+    try {
+        const [rows] = await pool.query('SELECT * FROM leave WHERE empId = ?', [employeeId]);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: 'Leave details not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching leave details:', error);
+        res.status(500).json({ error: 'Error fetching leave details' });
+    }
+});
+
 module.exports = router;
