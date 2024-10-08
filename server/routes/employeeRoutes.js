@@ -6,6 +6,18 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const pool = require("../database");
+const nodemailer = require("nodemailer");
+const { validationResult } = require("express-validator");
+const crypto = require("crypto");
+
+//send emails
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
 
 // Create login credentials
 router.post("/loginCredentials", async (req, res) => {
@@ -361,6 +373,319 @@ router.delete('/deleteExperience/:empId/:expId', async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+//add education
+router.post('/education/:empId', async (req, res) => {
+    const empId = req.params.empId;
+    const { date_from, date_to, institution, degree } = req.body;
+
+    try {
+        const newEducation = { empId, date_from, date_to, institution, degree };
+
+        const [results] = await pool.query(
+            'INSERT INTO education (empId, date_from, date_to, institution, degree) VALUES (?, ?, ?, ?, ?)',
+            [newEducation.empId, newEducation.date_from, newEducation.date_to, newEducation.institution, newEducation.degree]
+        );
+
+        res.status(201).json({ message: 'Employee education created successfully', employeeId: results.insertId });
+    } catch (error) {
+        console.error('Error saving employee education:', error);
+        res.status(500).json({ error: 'Error saving employee education' });
+    }
+});
+
+//get education by id
+router.get('/getEducation/:empId', async (req, res) => {
+    const employeeId = req.params.empId;
+
+    try {
+        const [rows] = await pool.query('SELECT * FROM education WHERE empId = ?', [employeeId]);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: 'Education details not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching education details:', error);
+        res.status(500).json({ error: 'Error fetching education details' });
+    }
+});
+
+//update education
+router.put('/updateEducation/:empId/:eduId', async (req, res) => {
+    const empId = req.params.empId;
+    const eduId = req.params.eduId;
+    const { date_from, date_to, institution, degree } = req.body;
+
+    try {
+        const [results] = await pool.query(
+            'UPDATE education SET date_from = ?, date_to = ?, institution = ?, degree = ? WHERE empId = ? AND id = ?',
+            [date_from, date_to, institution, degree, empId, eduId]
+        );
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'education not found' });
+        }
+
+        // Fetch the updated education
+        const [updatedEducation] = await pool.query('SELECT * FROM education WHERE id = ?', [eduId]);
+
+        res.status(200).json(updatedEducation[0]);
+    } catch (error) {
+        console.error('Error updating employee education:', error);
+        res.status(500).json({ error: 'Error updating employee education' });
+    }
+});
+
+//delete education
+router.delete('/deleteEducation/:empId/:eduId', async (req, res) => {
+    const empId = req.params.empId;
+    const eduId = req.params.eduId;
+
+    try {
+        const [result] = await pool.query('DELETE FROM education WHERE empId = ? and id = ?', [empId, eduId]);
+
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: 'Education deleted successfully.' });
+        } else {
+            res.status(404).json({ message: 'Education not found.' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+//save support details
+router.post('/support/:empId', async (req, res) => {
+    const empId = req.params.empId;
+    const { email, subject, message } = req.body;
+
+    // Validate input
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        // Create a new contact entry
+        const newSupport = { empId, email, subject, message };
+
+        const [results] = await pool.query(
+            'INSERT INTO support (empId, email, subject, message) VALUES (?, ?, ?, ?)',
+            [newSupport.empId, newSupport.email, newSupport.subject, newSupport.message]
+        );
+
+        // Respond with the newly created support entry and query result
+        res.status(201).json({
+            message: 'Support entry created successfully',
+            support: newSupport,
+            supportId: results.insertId
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+router.post('/requestPasswordReset', async (req, res) => {
+    try {
+        const { empId, email } = req.body;
+
+        if (!empId && !email) {
+            return res.status(400).json({ message: "Please provide either employee ID or email." });
+        }
+
+        // Query the database using either empId or email
+        let query = '';
+        let queryParam = '';
+
+        if (empId) {
+            query = 'SELECT * FROM logindetails WHERE empId = ?';
+            queryParam = empId;
+        } else if (email) {
+            query = 'SELECT * FROM logindetails WHERE email = ?';
+            queryParam = email;
+        }
+
+        const [rows] = await pool.query(query, [queryParam]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Employee not found" });
+        }
+
+        const employee = rows[0];
+
+        // Generate a random 6-digit code
+        const resetCode = crypto.randomInt(100000, 999999);
+
+        // Save the reset code and its expiration time (you'll need to adjust this part for your DB model)
+        const resetCodeExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+        await pool.query(
+            'UPDATE logindetails SET resetcode = ?, resetcodeexpires = ? WHERE empId = ?',
+            [resetCode, resetCodeExpires, employee.empId]
+        );
+
+        // Send the reset code via email
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: employee.email,
+            subject: "Password Reset Request",
+            text: `Your password reset code is ${resetCode}. It will expire in 15 minutes.`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.status(200).json({ message: "Reset code sent to email" });
+    } catch (error) {
+        console.error("Error requesting password reset:", error.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+//reset password
+router.post('/resetPassword', async (req, res) => {
+    try {
+        const { resetCode, newPassword } = req.body;
+
+        // Fetch the user with the given reset code
+        const [rows] = await pool.query('SELECT * FROM logindetails WHERE resetcode = ?', [resetCode]);
+
+        // If no user is found with the reset code
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Reset code not found' });
+        }
+
+        const user = rows[0];
+
+        // Check if the reset code is expired
+        if (new Date(user.resetCodeExpires) < Date.now()) {
+            return res.status(400).json({ message: 'Reset code has expired' });
+        }
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update the user's password and clear the reset code fields
+        await pool.query(
+            'UPDATE logindetails SET password = ?, resetcode = NULL, resetcodeexpires = NULL WHERE empId = ?',
+            [hashedPassword, user.empId]
+        );
+
+        res.status(200).json({ message: 'Password updated successfully' });
+
+    } catch (error) {
+        console.error("Error resetting password:", error.message);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+router.post('/requestLeave/:empId', async (req, res) => {
+    const empId = req.params.empId;
+    const { date_from, date_to, description } = req.body;
+    const createdAt = new Date();
+
+    try {
+        const newLeave = { empId, date_from, date_to, description, createdAt };
+
+        // Adjust the query to insert the createdAt field
+        const [results] = await pool.query(
+            'INSERT INTO leave_requests (empId, date_from, date_to, description, createdAt) VALUES (?, ?, ?, ?, ?)',
+            [newLeave.empId, newLeave.date_from, newLeave.date_to, newLeave.description, newLeave.createdAt]
+        );
+
+        res.status(201).json({ message: 'Employee leave created successfully', leaveId: results.insertId });
+    } catch (error) {
+        console.error('Error saving employee leave:', error);
+        res.status(500).json({ error: 'Error saving employee leave' });
+    }
+});
+
+//get leave request by id
+router.get('/getLeaveRequest/:empId', async (req, res) => {
+    const employeeId = req.params.empId;
+
+    try {
+        const [rows] = await pool.query('SELECT * FROM leave_requests WHERE empId = ?', [employeeId]);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: 'Leave details not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching leave details:', error);
+        res.status(500).json({ error: 'Error fetching leave details' });
+    }
+});
+
+//update leave request
+router.put('/updateLeave/:empId/:leaveId', async (req, res) => {
+    const leaveId = req.params.leaveId;
+    const empId = req.params.empId;
+    const { date_from, date_to, description } = req.body;
+
+    try {
+        // Get the leave request's creation time
+        const [leave] = await pool.query('SELECT createdAt FROM leave_requests WHERE empId = ? and id = ?', [empId, leaveId]);
+
+        if (!leave.length) {
+            return res.status(404).json({ error: 'Leave request not found' });
+        }
+
+        // Calculate the time difference in minutes
+        const leaveCreatedAt = new Date(leave[0].createdAt);
+        const currentTime = new Date();
+        const diffInMinutes = Math.floor((currentTime - leaveCreatedAt) / 1000 / 60);
+
+        // Allow update only if within 30 minutes
+        if (diffInMinutes <= 30) {
+            await pool.query(
+                'UPDATE leave_requests SET date_from = ?, date_to = ?, description = ?, createdAt = ? WHERE empId = ? AND id = ?',
+                [date_from, date_to, description, currentTime, empId, leaveId] // Corrected parameter order
+            );
+            res.status(200).json({ message: 'Leave request updated successfully' });
+        } else {
+            res.status(403).json({ error: 'You can only update the leave request within 30 minutes of its creation', timeDifference: diffInMinutes });
+        }
+    } catch (error) {
+        console.error('Error updating leave request:', error);
+        res.status(500).json({ error: 'Error updating leave request' });
+    }
+});
+
+//delete leave request
+router.delete('/deleteLeave/:empId/:leaveId', async (req, res) => {
+    const leaveId = req.params.leaveId;
+    const empId = req.params.empId;
+
+    try {
+        // Get the leave request's creation time
+        const [leave] = await pool.query('SELECT createdAt FROM leave_requests WHERE empId = ? and id = ?', [empId, leaveId]);
+
+        if (!leave.length) {
+            return res.status(404).json({ error: 'Leave request not found' });
+        }
+
+        // Calculate the time difference in minutes
+        const leaveCreatedAt = new Date(leave[0].createdAt);
+        const currentTime = new Date();
+        const diffInMinutes = Math.floor((currentTime - leaveCreatedAt) / 1000 / 60);
+
+        // Allow delete only if within 30 minutes
+        if (diffInMinutes <= 30) {
+            await pool.query('DELETE FROM leave_requests WHERE empId = ? AND id = ?', [empId, leaveId]);
+            res.status(200).json({ message: 'Leave request deleted successfully' });
+        } else {
+            res.status(403).json({ error: 'You can only delete the leave request within 30 minutes of its creation', timeDifference: diffInMinutes });
+        }
+    } catch (error) {
+        console.error('Error deleting leave request:', error);
+        res.status(500).json({ error: 'Error deleting leave request' });
     }
 });
 

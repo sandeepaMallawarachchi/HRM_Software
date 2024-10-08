@@ -1,13 +1,17 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import logo from "../../images/logo.png";
 import axios from "axios";
+import { FaKey, FaEnvelope } from 'react-icons/fa';
+import ForgotPasswordModal from "./ForgotPassword";
 
 export default function Login({ setIsAuthenticated }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false); // State for modal
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -25,17 +29,11 @@ export default function Login({ setIsAuthenticated }) {
       localStorage.setItem("authToken", token);
       localStorage.setItem("empId", employeeId);
 
-      // Set authenticated state
       setIsAuthenticated(true);
-
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
-      if (err.response && err.response.status === 400) {
-        setError("Invalid login credentials");
-      } else {
-        setError("An error occurred. Please try again later.");
-      }
+      setError("Invalid login credentials");
     } finally {
       setLoading(false);
     }
@@ -43,6 +41,11 @@ export default function Login({ setIsAuthenticated }) {
 
   return (
     <div className="container mx-auto h-screen flex">
+      <ForgotPasswordModal
+        isOpen={isForgotPasswordOpen}
+        onClose={() => setIsForgotPasswordOpen(false)}
+      />
+      
       <div className="w-6/12 px-4 flex items-center justify-center">
         <img
           src={logo}
@@ -53,10 +56,11 @@ export default function Login({ setIsAuthenticated }) {
 
       <div className="w-[500px] px-4 flex items-center justify-center">
         <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-blueGray-200 border-0">
+          <h1 className="text-3xl text-gray-600 font-semibold text-center my-5">Login</h1>
           <div className="flex-auto px-4 py-5">
             {error && (
               <div
-                className="text-red-600 text-center mb-3 font-bold"
+                className="text-red-600 text-center mb-3"
                 aria-live="assertive"
               >
                 {error}
@@ -66,14 +70,15 @@ export default function Login({ setIsAuthenticated }) {
             <form onSubmit={handleSubmit}>
               <div className="relative w-full mb-3">
                 <label
-                  className="block uppercase text-blueGray-600 text-xs font-bold mb-1"
+                  className="block uppercase text-gray-600 text-xs font-bold mb-1"
                   htmlFor="email"
                 >
+                  <FaEnvelope className="inline-block mr-2" />
                   Email
                 </label>
                 <input
                   type="email"
-                  className="border-0 px-3 py-2 placeholder-blueGray-300 text-blueGray-600 bg-white rounded-md text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                  className="mt-1 block w-full border rounded-md p-2"
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -81,16 +86,17 @@ export default function Login({ setIsAuthenticated }) {
                 />
               </div>
 
-              <div className="relative w-full mb-3">
+              <div className="relative w-full mb-3 mt-5">
                 <label
-                  className="block uppercase text-blueGray-600 text-xs font-bold mb-1"
+                  className="block uppercase text-gray-600 text-xs font-bold mb-1"
                   htmlFor="password"
                 >
+                  <FaKey className="inline-block mr-2" />
                   Password
                 </label>
                 <input
                   type="password"
-                  className="border-0 px-3 py-2 placeholder-blueGray-300 text-blueGray-600 bg-white rounded-md text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                  className="mt-1 block w-full border rounded-md p-2"
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -103,7 +109,7 @@ export default function Login({ setIsAuthenticated }) {
                   <input
                     id="customCheckLogin"
                     type="checkbox"
-                    className="form-checkbox border-0 rounded text-blueGray-700 ml-1 w-5 h-5 ease-linear transition-all duration-150"
+                    className="form-checkbox border rounded text-blueGray-700 ml-1 w-5 h-5 ease-linear transition-all duration-150"
                   />
                   <span className="ml-2 text-sm font-semibold text-blueGray-600">
                     Remember me
@@ -123,9 +129,12 @@ export default function Login({ setIsAuthenticated }) {
             </form>
 
             <div className="flex flex-col items-center mt-4">
-              <Link to="/forgot-password" className="text-blueGray-600 text-sm">
+              <button
+                onClick={() => setIsForgotPasswordOpen(true)}
+                className="text-orange-500 text-sm underline"
+              >
                 Forgot Password?
-              </Link>
+              </button>
             </div>
           </div>
         </div>
