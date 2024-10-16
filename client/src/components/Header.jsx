@@ -49,6 +49,8 @@ const Header = () => {
                 return 'Payroll';
             case '/registration':
                 return 'Registration';
+            case '/attendance':
+                return 'Attendance';
             default:
                 return 'Dashboard';
         }
