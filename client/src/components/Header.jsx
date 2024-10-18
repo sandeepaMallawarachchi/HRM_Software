@@ -44,13 +44,13 @@ const Header = () => {
             case '/support':
                 return 'Support';
             case '/leave':
-                return 'Leave Request';
+                return 'Leave & Attendance';
             case '/payroll':
                 return 'Payroll';
             case '/registration':
                 return 'Registration';
             case '/attendance':
-                return 'Attendance';
+                return 'Attendance & Time';
             default:
                 return 'Dashboard';
         }

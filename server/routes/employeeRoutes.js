@@ -587,15 +587,15 @@ router.post('/resetPassword', async (req, res) => {
 //request leave
 router.post('/requestLeave/:empId', async (req, res) => {
     const empId = req.params.empId;
-    const { date_from, date_to, time_from, time_to, description } = req.body;
+    const { leave_type, date_from, date_to, time_from, time_to, description, status } = req.body;
     const createdAt = new Date();
 
     try {
-        const newLeave = { empId, date_from, date_to, time_from, time_to, description, createdAt };
+        const newLeave = { empId, leave_type, date_from, date_to, time_from, time_to, description, status, createdAt };
 
         const [results] = await pool.query(
-            'INSERT INTO leave_requests (empId, date_from, date_to, time_from, time_to, description, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [newLeave.empId, newLeave.date_from, newLeave.date_to, newLeave.time_from, newLeave.time_to, newLeave.description, newLeave.createdAt]
+            'INSERT INTO leave_requests (empId, leave_type, date_from, date_to, time_from, time_to, description, status, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [newLeave.empId, newLeave.leave_type, newLeave.date_from, newLeave.date_to, newLeave.time_from, newLeave.time_to, newLeave.description, newLeave.status, newLeave.createdAt]
         );
 
         res.status(201).json({ message: 'Employee leave created successfully', leaveId: results.insertId });
@@ -641,6 +641,33 @@ router.delete('/deleteLeave/:empId/:leaveId', async (req, res) => {
     } catch (error) {
         console.error('Error deleting leave request:', error);
         res.status(500).json({ error: 'Error deleting leave request' });
+    }
+});
+
+//get leave analysis by empId
+router.get('/leaveAnalysis/:empId', async (req, res) => {
+    const employeeId = req.params.empId;
+
+    try {
+        const [rows] = await pool.query(
+            `SELECT leave_type, 
+                    COUNT(*) AS total_leaves, 
+                    SUM(TIMESTAMPDIFF(HOUR, CONCAT(date_from, ' ', time_from), CONCAT(date_to, ' ', time_to))) AS total_hours,
+                    SUM(DATEDIFF(date_to, date_from) + 1) AS total_days
+             FROM leave_requests 
+             WHERE empId = ? 
+             GROUP BY leave_type`,
+            [employeeId]
+        );
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: 'No leave data found' });
+        }
+    } catch (error) {
+        console.error('Error fetching leave analysis:', error);
+        res.status(500).json({ error: 'Error fetching leave analysis' });
     }
 });
 

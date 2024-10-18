@@ -2,41 +2,12 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
 
-const LeaveRequest = () => {
+const MyLeaves = () => {
     const empId = localStorage.getItem('empId');
-    const [leaveRequest, setLeaveRequest] = useState({
-        date_from: '',
-        date_to: '',
-        time_from: '',
-        time_to: '',
-        description: '',
-    });
     const [leaveRequestList, setLeaveRequestList] = useState([]);
     const [filteredLeaveRequestList, setFilteredLeaveRequestList] = useState([]);
     const [yearFilter, setYearFilter] = useState('');
     const [monthFilter, setMonthFilter] = useState('');
-
-    // Update leaveRequest state based on form inputs
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setLeaveRequest(prevState => ({
-            ...prevState,
-            [name]: value,
-        }));
-    };
-
-    const handleNewRequest = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post(`http://localhost:4000/employees/requestLeave/${empId}`, leaveRequest);
-            setLeaveRequestList(prev => [...prev, { ...leaveRequest, id: response.data.id }]);
-            setLeaveRequest({ date_from: '', date_to: '', time_from: '', time_to: '', description: '' });
-            alert('New leave request added successfully');
-        } catch (err) {
-            console.error("Error adding leave request:", err);
-            alert('Error adding leave request!');
-        }
-    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -93,74 +64,9 @@ const LeaveRequest = () => {
     }, [yearFilter, monthFilter, leaveRequestList]);
 
     return (
-        <div className="p-6 px-20 bg-[#eaeaea] rounded-lg shadow-md mx-10 my-10">
-            {/* Leave Request Form */}
-            <h2 className="text-xl mb-4">Request Leave</h2>
-            <form className="space-y-4" onSubmit={handleNewRequest}>
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-gray-700">Date From</label>
-                        <input
-                            type="date"
-                            name="date_from"
-                            value={leaveRequest.date_from}
-                            onChange={handleInputChange}
-                            className="border-none rounded-md p-2 w-full"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-gray-700">Date To</label>
-                        <input
-                            type="date"
-                            name="date_to"
-                            value={leaveRequest.date_to}
-                            onChange={handleInputChange}
-                            className="border-none rounded-md p-2 w-full"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-gray-700">Time From</label>
-                        <input
-                            type="time"
-                            name="time_from"
-                            value={leaveRequest.time_from}
-                            onChange={handleInputChange}
-                            className="border-none rounded-md p-2 w-full"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-gray-700">Time To</label>
-                        <input
-                            type="time"
-                            name="time_to"
-                            value={leaveRequest.time_to}
-                            onChange={handleInputChange}
-                            className="border-none rounded-md p-2 w-full"
-                            required
-                        />
-                    </div>
-                </div>
-                <div>
-                    <label className="block text-gray-700">Description</label>
-                    <textarea
-                        name="description"
-                        value={leaveRequest.description}
-                        onChange={handleInputChange}
-                        className="border-none rounded-md p-2 w-full"
-                        placeholder="Describe the reason for your leave"
-                        required
-                    />
-                </div>
-                <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-[20px]">
-                    Submit Leave Request
-                </button>
-            </form>
-
+        <div className="p-6 px-20 bg-[#eaeaea] rounded-lg shadow-md">
             {/* Filters */}
-            <div className="flex space-x-4 mt-10">
+            <div className="flex space-x-4 mt-5">
                 <div>
                     <label className="block text-gray-700">Filter by Year</label>
                     <select
@@ -201,13 +107,13 @@ const LeaveRequest = () => {
                 <table className="min-w-full bg-white border text-gray-600 rounded-lg">
                     <thead>
                         <tr>
+                            <th className="py-2 px-4 border-b">Leave Type</th>
                             <th className="py-2 px-4 border-b">Date From</th>
                             <th className="py-2 px-4 border-b">Date To</th>
                             <th className="py-2 px-4 border-b">Time From</th>
                             <th className="py-2 px-4 border-b">Time To</th>
                             <th className="py-2 px-4 border-b">Description</th>
                             <th className="py-2 px-4 border-b">Status</th>
-                            <th className="py-2 px-4 border-b">Comments</th>
                             <th className="py-2 px-4 border-b">Action</th>
                         </tr>
                     </thead>
@@ -215,18 +121,16 @@ const LeaveRequest = () => {
                         {filteredLeaveRequestList.length > 0 ? (
                             filteredLeaveRequestList.map((leave, index) => (
                                 <tr key={index}>
+                                    <td className="py-2 px-4 border-b">{leave.leave_type}</td>
                                     <td className="py-2 px-4 border-b">{formatDate(leave.date_from)}</td>
                                     <td className="py-2 px-4 border-b">{formatDate(leave.date_to)}</td>
                                     <td className="py-2 px-4 border-b">{leave.time_from}</td>
                                     <td className="py-2 px-4 border-b">{leave.time_to}</td>
-                                    <td className="py-2 px-4 border-b">{leave.description}</td>
+                                    <td className="py-2 px-4 border-b">{leave.description || '-'}</td>
                                     <td className="py-2 px-4 border-b">{leave.status}</td>
-                                    <td className="py-2 px-4 border-b">{leave.comments || '-'}</td>
                                     <td className="py-2 px-4 border-b space-x-4">
                                         <button className='text-orange-500'
-                                            onClick={(e) => {
-                                                handleDelete(leave.id);
-                                            }}
+                                            onClick={() => handleDelete(leave.id)}
                                         >
                                             <FaTrash size={20} />
                                         </button>
@@ -245,4 +149,4 @@ const LeaveRequest = () => {
     );
 };
 
-export default LeaveRequest;
+export default MyLeaves;

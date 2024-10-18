@@ -65,7 +65,7 @@ const Sidebar = () => {
           }
         >
           <FaCalendarCheck size={20} className={`mr-2 ${isCollapsed ? 'mx-auto' : ''}`} />
-          {!isCollapsed && <span>Attendance</span>}
+          {!isCollapsed && <span>Attendance & Time</span>}
         </NavLink>
         <NavLink
           to="/leave"
@@ -75,7 +75,7 @@ const Sidebar = () => {
           }
         >
           <FaListAlt size={20} className={`mr-2 ${isCollapsed ? 'mx-auto' : ''}`} />
-          {!isCollapsed && <span>Leave Request</span>}
+          {!isCollapsed && <span>Leave & Attendance</span>}
         </NavLink>
         <NavLink
           to="/learning"

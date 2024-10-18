@@ -10,8 +10,8 @@ import EmployeeRegistration from './pages/profileComponents/EmployeeRegistration
 import Login from "./pages/auth/Login";
 import PrivateRoute from './components/PrivateRoute';
 import Logout from './pages/auth/Logout';
-import LeaveRequest from './pages/LeaveRequest';
-import Attendance from './pages/Attendance';
+import LeaveAndAttendance from './pages/LeaveAndAttendance'
+
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -50,8 +50,8 @@ const App = () => {
               {/* <Route path="/leave" element={<PrivateRoute isAuthenticated={isAuthenticated}><Leave /></PrivateRoute>} /> */}
               <Route path="/payroll" element={<PrivateRoute isAuthenticated={isAuthenticated}><Payroll /></PrivateRoute>} />
               <Route path="/registration" element={<PrivateRoute isAuthenticated={isAuthenticated}><EmployeeRegistration /></PrivateRoute>} />
-              <Route path="/leave" element={<PrivateRoute isAuthenticated={isAuthenticated}><LeaveRequest /></PrivateRoute>} />
-              <Route path="/attendance" element={<PrivateRoute isAuthenticated={isAuthenticated}><Attendance /></PrivateRoute>} />
+              <Route path="/leave" element={<PrivateRoute isAuthenticated={isAuthenticated}><LeaveAndAttendance /></PrivateRoute>} />
+              {/* <Route path="/attendance" element={<PrivateRoute isAuthenticated={isAuthenticated}><Attendance /></PrivateRoute>} /> */}
 
               {/* Logout Route */}
               <Route path="/logout" element={<Logout handleLogout={handleLogout} />} />
