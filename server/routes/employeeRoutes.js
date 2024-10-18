@@ -584,20 +584,21 @@ router.post('/resetPassword', async (req, res) => {
     }
 });
 
-//request leave
 router.post('/requestLeave/:empId', async (req, res) => {
     const empId = req.params.empId;
     const { date_from, date_to, description } = req.body;
+    const createdAt = new Date();
 
     try {
-        const newLeave = { empId, date_from, date_to, description };
+        const newLeave = { empId, date_from, date_to, description, createdAt };
 
+        // Adjust the query to insert the createdAt field
         const [results] = await pool.query(
-            'INSERT INTO leave (empId, date_from, date_to, description ) VALUES (?, ?, ?, ?)',
-            [newLeave.empId, newLeave.date_from, newLeave.date_to, newLeave.description]
+            'INSERT INTO leave_requests (empId, date_from, date_to, description, createdAt) VALUES (?, ?, ?, ?, ?)',
+            [newLeave.empId, newLeave.date_from, newLeave.date_to, newLeave.description, newLeave.createdAt]
         );
 
-        res.status(201).json({ message: 'Employee leave created successfully', employeeId: results.insertId });
+        res.status(201).json({ message: 'Employee leave created successfully', leaveId: results.insertId });
     } catch (error) {
         console.error('Error saving employee leave:', error);
         res.status(500).json({ error: 'Error saving employee leave' });
@@ -609,7 +610,7 @@ router.get('/getLeaveRequest/:empId', async (req, res) => {
     const employeeId = req.params.empId;
 
     try {
-        const [rows] = await pool.query('SELECT * FROM leave WHERE empId = ?', [employeeId]);
+        const [rows] = await pool.query('SELECT * FROM leave_requests WHERE empId = ?', [employeeId]);
 
         if (rows.length > 0) {
             res.status(200).json(rows);
@@ -619,6 +620,72 @@ router.get('/getLeaveRequest/:empId', async (req, res) => {
     } catch (error) {
         console.error('Error fetching leave details:', error);
         res.status(500).json({ error: 'Error fetching leave details' });
+    }
+});
+
+//update leave request
+router.put('/updateLeave/:empId/:leaveId', async (req, res) => {
+    const leaveId = req.params.leaveId;
+    const empId = req.params.empId;
+    const { date_from, date_to, description } = req.body;
+
+    try {
+        // Get the leave request's creation time
+        const [leave] = await pool.query('SELECT createdAt FROM leave_requests WHERE empId = ? and id = ?', [empId, leaveId]);
+
+        if (!leave.length) {
+            return res.status(404).json({ error: 'Leave request not found' });
+        }
+
+        // Calculate the time difference in minutes
+        const leaveCreatedAt = new Date(leave[0].createdAt);
+        const currentTime = new Date();
+        const diffInMinutes = Math.floor((currentTime - leaveCreatedAt) / 1000 / 60);
+
+        // Allow update only if within 30 minutes
+        if (diffInMinutes <= 30) {
+            await pool.query(
+                'UPDATE leave_requests SET date_from = ?, date_to = ?, description = ?, createdAt = ? WHERE empId = ? AND id = ?',
+                [date_from, date_to, description, currentTime, empId, leaveId] // Corrected parameter order
+            );
+            res.status(200).json({ message: 'Leave request updated successfully' });
+        } else {
+            res.status(403).json({ error: 'You can only update the leave request within 30 minutes of its creation', timeDifference: diffInMinutes });
+        }
+    } catch (error) {
+        console.error('Error updating leave request:', error);
+        res.status(500).json({ error: 'Error updating leave request' });
+    }
+});
+
+//delete leave request
+router.delete('/deleteLeave/:empId/:leaveId', async (req, res) => {
+    const leaveId = req.params.leaveId;
+    const empId = req.params.empId;
+
+    try {
+        // Get the leave request's creation time
+        const [leave] = await pool.query('SELECT createdAt FROM leave_requests WHERE empId = ? and id = ?', [empId, leaveId]);
+
+        if (!leave.length) {
+            return res.status(404).json({ error: 'Leave request not found' });
+        }
+
+        // Calculate the time difference in minutes
+        const leaveCreatedAt = new Date(leave[0].createdAt);
+        const currentTime = new Date();
+        const diffInMinutes = Math.floor((currentTime - leaveCreatedAt) / 1000 / 60);
+
+        // Allow delete only if within 30 minutes
+        if (diffInMinutes <= 30) {
+            await pool.query('DELETE FROM leave_requests WHERE empId = ? AND id = ?', [empId, leaveId]);
+            res.status(200).json({ message: 'Leave request deleted successfully' });
+        } else {
+            res.status(403).json({ error: 'You can only delete the leave request within 30 minutes of its creation', timeDifference: diffInMinutes });
+        }
+    } catch (error) {
+        console.error('Error deleting leave request:', error);
+        res.status(500).json({ error: 'Error deleting leave request' });
     }
 });
 
