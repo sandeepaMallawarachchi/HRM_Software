@@ -4,11 +4,19 @@ import { CSSTransition } from 'react-transition-group';
 const EmployeeRegistration = () => {
     const [formStep, setFormStep] = useState(1);
     const [loginFormData, setLoginFormData] = useState({
-        username: '',
+        empId: '',
         email: '',
         password: '',
         confirmPassword: '',
     });
+
+    const [errors, setErrors] = useState({ passwordError: '', confirmPasswordError: '' });
+
+    // Validate password
+    const validatePassword = (password) => {
+        const regex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9]).{8,}$/;
+        return regex.test(password);
+    };
 
     const [workFormData, setWorkFormData] = useState({
         workEmail: '',
@@ -31,6 +39,25 @@ const EmployeeRegistration = () => {
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
+
+        let passwordError = '';
+        let confirmPasswordError = '';
+
+        // Password validation
+        if (!validatePassword(loginFormData.password)) {
+            passwordError = 'Password must be at least 8 characters long, contain one uppercase letter, one number, and one special character.';
+        }
+
+        // Confirm password validation
+        if (loginFormData.password !== loginFormData.confirmPassword) {
+            confirmPasswordError = 'Passwords do not match.';
+        }
+
+        if (passwordError || confirmPasswordError) {
+            setErrors({ passwordError, confirmPasswordError });
+            return; // Stop form submission if validation fails
+        }
+
         try {
             const response = await fetch('http://localhost:4000/employees/loginCredentials', {
                 method: 'POST',
@@ -92,14 +119,14 @@ const EmployeeRegistration = () => {
                     <h2 className="text-2xl mb-4 text-gray-700">Login Credentials</h2>
                     <form onSubmit={handleLoginSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label className="block mb-1 text-gray-500">Username</label>
+                            <label className="block mb-1 text-gray-500">Employee Id</label>
                             <input
                                 required
-                                name="username"
-                                value={loginFormData.username}
+                                name="empId"
+                                value={loginFormData.empId}
                                 onChange={handleChange}
                                 className="border-none rounded-md p-2 w-full"
-                                placeholder="Enter your username"
+                                placeholder="Enter your employee Id"
                             />
                         </div>
 
@@ -127,6 +154,7 @@ const EmployeeRegistration = () => {
                                 placeholder="Enter your password"
                                 type="password"
                             />
+                            {errors.passwordError && <p className="text-red-600 mt-1">{errors.passwordError}</p>}
                         </div>
 
                         <div>
@@ -140,6 +168,7 @@ const EmployeeRegistration = () => {
                                 placeholder="Confirm your password"
                                 type="password"
                             />
+                            {errors.confirmPasswordError && <p className="text-red-600 mt-1">{errors.confirmPasswordError}</p>}
                         </div>
                         <div className="col-span-2 flex justify-start mt-6">
                             <button

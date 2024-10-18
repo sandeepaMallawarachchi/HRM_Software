@@ -1,13 +1,17 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import logo from "../../images/logo.png";
 import axios from "axios";
+import { FaKey, FaEnvelope } from 'react-icons/fa';
+import ForgotPasswordModal from "./ForgotPassword";
 
-export default function Login() {
+export default function Login({ setIsAuthenticated }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false); // State for modal
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -16,56 +20,47 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // Send login credentials to the backend
       const res = await axios.post("http://localhost:4000/employees/login", {
         email,
         password,
-      }); // Ensure URL is correct
+      });
 
-      // Get the token from the response
-      const { token } = res.data;
-
-      // Store the token in localStorage
+      const { token, employeeId } = res.data;
       localStorage.setItem("authToken", token);
+      localStorage.setItem("empId", employeeId);
 
-      // Navigate to the dashboard or home page
-      navigate("/");
+      setIsAuthenticated(true);
+      navigate("/dashboard");
     } catch (err) {
       console.error(err);
-      // Display specific error message based on response
-      if (err.response && err.response.status === 400) {
-        setError("Invalid login credentials");
-      } else {
-        setError("An error occurred. Please try again later.");
-      }
+      setError("Invalid login credentials");
     } finally {
-      setLoading(false); // Ensure loading is reset whether the request fails or succeeds
+      setLoading(false);
     }
   };
 
   return (
     <div className="container mx-auto h-screen flex">
-      {/* Left side for the company logo */}
+      <ForgotPasswordModal
+        isOpen={isForgotPasswordOpen}
+        onClose={() => setIsForgotPasswordOpen(false)}
+      />
+      
       <div className="w-6/12 px-4 flex items-center justify-center">
         <img
-          src={logo} // Use the imported logo variable
-          alt="Company Logo" // Descriptive alt text
-          className="h-24" // Adjust height as needed
+          src={logo}
+          alt="Company Logo"
+          className="h-24"
         />
       </div>
 
-      {/* Right side for the login form */}
-      <div className="w-6/12 px-4 flex items-center justify-center">
+      <div className="w-[500px] px-4 flex items-center justify-center">
         <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-blueGray-200 border-0">
+          <h1 className="text-3xl text-gray-600 font-semibold text-center my-5">Login</h1>
           <div className="flex-auto px-4 py-5">
-            <div className="text-blueGray-400 text-center mb-3 font-bold">
-              <small>Or sign in with credentials</small>
-            </div>
-
-            {/* Display error message */}
             {error && (
               <div
-                className="text-red-500 text-center mb-3 font-bold"
+                className="text-red-600 text-center mb-3"
                 aria-live="assertive"
               >
                 {error}
@@ -75,14 +70,15 @@ export default function Login() {
             <form onSubmit={handleSubmit}>
               <div className="relative w-full mb-3">
                 <label
-                  className="block uppercase text-blueGray-600 text-xs font-bold mb-1"
+                  className="block uppercase text-gray-600 text-xs font-bold mb-1"
                   htmlFor="email"
                 >
+                  <FaEnvelope className="inline-block mr-2" />
                   Email
                 </label>
                 <input
                   type="email"
-                  className="border-0 px-3 py-2 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                  className="mt-1 block w-full border rounded-md p-2"
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -90,16 +86,17 @@ export default function Login() {
                 />
               </div>
 
-              <div className="relative w-full mb-3">
+              <div className="relative w-full mb-3 mt-5">
                 <label
-                  className="block uppercase text-blueGray-600 text-xs font-bold mb-1"
+                  className="block uppercase text-gray-600 text-xs font-bold mb-1"
                   htmlFor="password"
                 >
+                  <FaKey className="inline-block mr-2" />
                   Password
                 </label>
                 <input
                   type="password"
-                  className="border-0 px-3 py-2 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                  className="mt-1 block w-full border rounded-md p-2"
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -112,7 +109,7 @@ export default function Login() {
                   <input
                     id="customCheckLogin"
                     type="checkbox"
-                    className="form-checkbox border-0 rounded text-blueGray-700 ml-1 w-5 h-5 ease-linear transition-all duration-150"
+                    className="form-checkbox border rounded text-blueGray-700 ml-1 w-5 h-5 ease-linear transition-all duration-150"
                   />
                   <span className="ml-2 text-sm font-semibold text-blueGray-600">
                     Remember me
@@ -122,21 +119,22 @@ export default function Login() {
 
               <div className="text-center mt-4">
                 <button
-                  style={{ backgroundColor: "#fa7c10" }}
-                  className="text-black text-sm font-bold uppercase px-4 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
+                  className="text-white text-sm font-bold uppercase bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-[20px] shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
                   type="submit"
-                  disabled={loading} // Disable button while loading
+                  disabled={loading}
                 >
                   {loading ? "Signing In..." : "Sign In"}
                 </button>
               </div>
             </form>
 
-            {/* Links for Forgot Password and Create New Account */}
             <div className="flex flex-col items-center mt-4">
-              <Link to="/forgot-password" className="text-blueGray-600 text-sm">
+              <button
+                onClick={() => setIsForgotPasswordOpen(true)}
+                className="text-orange-500 text-sm underline"
+              >
                 Forgot Password?
-              </Link>
+              </button>
             </div>
           </div>
         </div>

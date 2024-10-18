@@ -1,37 +1,100 @@
-const express = require('express');
+const express = require("express");
+const bcrypt = require("bcrypt");
 const router = express.Router();
-const bcrypt = require('bcrypt');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const pool = require('../database');
+const jwt = require("jsonwebtoken");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+const pool = require("../database");
+const nodemailer = require("nodemailer");
+const { validationResult } = require("express-validator");
+const crypto = require("crypto");
+
+//send emails
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
 
 // Create login credentials
-router.post('/loginCredentials', async (req, res) => {
-    const { username, email, password } = req.body;
+router.post("/loginCredentials", async (req, res) => {
+    const { empId, email, password } = req.body;
 
     try {
+        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newEmployeeLogin = { username, email, password: hashedPassword };
+        // Log the hashed password for debugging
+        console.log("Hashed Password:", hashedPassword);
+
+        const newEmployeeLogin = { empId, email, password: hashedPassword };
 
         const [results] = await pool.query(
-            'INSERT INTO logindetails (username, email, password) VALUES (?, ?, ?)',
-            [newEmployeeLogin.username, newEmployeeLogin.email, newEmployeeLogin.password]
+            "INSERT INTO logindetails (empId, email, password) VALUES (?, ?, ?)",
+            [
+                newEmployeeLogin.empId,
+                newEmployeeLogin.email,
+                newEmployeeLogin.password,
+            ]
         );
 
-        res.status(201).json({ message: 'Employee Login Details Created successfully', employeeId: results.insertId });
+        // Get the newly created employee ID
+        const employeeId = results.empId; // Use results.insertId to get the new employee's ID
+
+        // Send success response with employee ID
+        res
+            .status(201)
+            .json({ message: "Employee Login Created successfully", employeeId });
     } catch (error) {
-        console.error('Error saving employee login data:', error);
-        res.status(500).json({ error: 'Error saving employee login data' });
+        console.error("Error saving employee login data:", error);
+        res.status(500).json({ error: "Error saving employee login data" });
+    }
+});
+
+// Use the secret key from environment variables
+const JWT_SECRET = process.env.JWT_SECRET;
+
+//employee login
+router.post("/login", async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        // Retrieve employee by email
+        const [rows] = await pool.query(
+            "SELECT * FROM logindetails WHERE email = ?",
+            [email]
+        );
+
+        if (rows.length === 0) {
+            return res.status(401).json({ message: "Invalid email" });
+        }
+
+        const employee = rows[0];
+
+        // Compare password with hashed password
+        const match = await bcrypt.compare(password, employee.password);
+        if (!match) {
+            return res.status(401).json({ message: "Invalid password" });
+        }
+
+        // Successful login: create a token
+        const token = jwt.sign({ empId: employee.empId }, JWT_SECRET, { expiresIn: '1h' });
+
+        res.status(200).json({ message: "Login successful", token, employeeId: employee.empId });
+    } catch (error) {
+        console.error("Error during login:", error);
+        res.status(500).json({ error: "Error during login" });
     }
 });
 
 // Get employee by id
-router.get('/getEmployee/:id', async (req, res) => {
-    const employeeId = req.params.id;
+router.get('/getEmployee/:empId', async (req, res) => {
+    const employeeId = req.params.empId;
 
     try {
-        const [rows] = await pool.query('SELECT * FROM logindetails WHERE id = ?', [employeeId]);
+        const [rows] = await pool.query('SELECT * FROM logindetails WHERE empId = ?', [employeeId]);
 
         if (rows.length > 0) {
             res.status(200).json(rows[0]);
@@ -45,65 +108,109 @@ router.get('/getEmployee/:id', async (req, res) => {
 });
 
 // Create work details
-router.post('/workDetails', async (req, res) => {
-    const { workEmail, workPhone, department, location, designation, supervisor } = req.body;
+router.post("/workDetails", async (req, res) => {
+    const {
+        workEmail,
+        workPhone,
+        department,
+        location,
+        designation,
+        supervisor,
+    } = req.body;
 
     try {
-        const newWorkDetails = { workEmail, workPhone, department, location, designation, supervisor };
+        const newWorkDetails = {
+            workEmail,
+            workPhone,
+            department,
+            location,
+            designation,
+            supervisor,
+        };
 
         const [results] = await pool.query(
-            'INSERT INTO workdetails (workEmail, workPhone, department, location, designation, supervisor) VALUES (?, ?, ?, ?, ?, ?)',
-            [newWorkDetails.workEmail, newWorkDetails.workPhone, newWorkDetails.department, newWorkDetails.location, newWorkDetails.designation, newWorkDetails.supervisor]
+            "INSERT INTO workdetails (workEmail, workPhone, department, location, designation, supervisor) VALUES (?, ?, ?, ?, ?, ?)",
+            [
+                newWorkDetails.workEmail,
+                newWorkDetails.workPhone,
+                newWorkDetails.department,
+                newWorkDetails.location,
+                newWorkDetails.designation,
+                newWorkDetails.supervisor,
+            ]
         );
 
-        res.status(201).json({ message: 'Employee Work Details Created successfully', employeeId: results.insertId });
+        res.status(201).json({
+            message: "Employee Work Details Created successfully",
+            employeeId: results.insertId,
+        });
     } catch (error) {
-        console.error('Error saving employee work data:', error);
-        res.status(500).json({ error: 'Error saving employee work data' });
+        console.error("Error saving employee work data:", error);
+        res.status(500).json({ error: "Error saving employee work data" });
     }
 });
 
-// Get employee work details by id
-router.get('/getWorkDetails/:id', async (req, res) => {
-    const employeeId = req.params.id;
+// Get employee by id
+router.get('/getEmployee/:empId', async (req, res) => {
+    const employeeId = req.params.empId;
 
     try {
-        const [rows] = await pool.query('SELECT * FROM workdetails WHERE id = ?', [employeeId]);
+        const [rows] = await pool.query('SELECT * FROM logindetails WHERE empId = ?', [employeeId]);
 
         if (rows.length > 0) {
             res.status(200).json(rows[0]);
         } else {
-            res.status(404).json({ message: 'Work details not found' });
+            res.status(404).json({ message: 'Employee not found' });
         }
     } catch (error) {
-        console.error('Error fetching work details:', error);
-        res.status(500).json({ error: 'Error fetching work details' });
+        console.error('Error fetching employee details:', error);
+        res.status(500).json({ error: 'Error fetching employee details' });
+    }
+});
+
+// Get employee work details by id
+router.get("/getWorkDetails/:empId", async (req, res) => {
+    const employeeId = req.params.empId;
+
+    try {
+        const [rows] = await pool.query("SELECT * FROM workdetails WHERE empId = ?", [
+            employeeId,
+        ]);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows[0]);
+        } else {
+            res.status(404).json({ message: "Work details not found" });
+        }
+    } catch (error) {
+        console.error("Error fetching work details:", error);
+        res.status(500).json({ error: "Error fetching work details" });
     }
 });
 
 // Save personal details
-router.post('/savePersonalDetails/:id', async (req, res) => {
-    const { id } = req.params;
+router.post('/savePersonalDetails/:empId', async (req, res) => {
+    const { empId } = req.params;
     const {
         name, email, phone, emergency_contact, address,
         date_of_birth, gender, country, marital_status, dependents
     } = req.body;
 
     try {
-        const [existing] = await pool.query('SELECT * FROM personaldetails WHERE id = ?', [id]);
-        
+        const [existing] = await pool.query('SELECT * FROM personaldetails WHERE empId = ?', [empId]);
+
         if (existing.length > 0) {
             // Update existing record
             await pool.query(
-                'UPDATE personaldetails SET name = ?, email = ?, phone = ?, emergency_contact = ?, address = ?, date_of_birth = ?, gender = ?, country = ?, marital_status = ?, dependents = ? WHERE id = ?',
-                [name, email, phone, emergency_contact, address, date_of_birth, gender, country, marital_status, dependents, id]
+                'UPDATE personaldetails SET name = ?, email = ?, phone = ?, emergency_contact = ?, address = ?, date_of_birth = ?, gender = ?, country = ?, marital_status = ?, dependents = ? WHERE empId = ?',
+                [name, email, phone, emergency_contact, address, date_of_birth, gender, country, marital_status, dependents, empId]
             );
             return res.json({ message: 'Personal details updated successfully' });
         } else {
             // Insert new record
             await pool.query(
-                'INSERT INTO personaldetails (id, name, email, phone, emergency_contact, address, date_of_birth, gender, country, marital_status, dependents) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                [id, name, email, phone, emergency_contact, address, date_of_birth, gender, country, marital_status, dependents]
+                'INSERT INTO personaldetails (empId, name, email, phone, emergency_contact, address, date_of_birth, gender, country, marital_status, dependents) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [empId, name, email, phone, emergency_contact, address, date_of_birth, gender, country, marital_status, dependents]
             );
             return res.status(201).json({ message: 'Personal details created successfully' });
         }
@@ -115,12 +222,12 @@ router.post('/savePersonalDetails/:id', async (req, res) => {
 
 
 // Get personal details by ID
-router.get('/getPersonalDetails/:id', async (req, res) => {
-    const employeeId = req.params.id;
+router.get('/getPersonalDetails/:empId', async (req, res) => {
+    const employeeId = req.params.empId;
 
     try {
-        const [rows] = await pool.query('SELECT * FROM personaldetails WHERE id = ?', [employeeId]);
-        
+        const [rows] = await pool.query('SELECT * FROM personaldetails WHERE empId = ?', [employeeId]);
+
         if (rows.length > 0) {
             res.status(200).json(rows[0]);
         } else {
@@ -133,65 +240,71 @@ router.get('/getPersonalDetails/:id', async (req, res) => {
 });
 
 // Upload profile picture
-const uploadDir = path.join(__dirname, '..', 'uploads');
+const uploadDir = path.join(__dirname, "..", "uploads");
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Upload profile picture
+// Configure multer storage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname));
-    }
+    },
 });
 
 const upload = multer({ storage });
 
-router.post('/uploadProfileImage/:id', upload.single('profileImage'), (req, res) => {
-    const empId = req.params.id;
+// Endpoint to upload profile picture
+router.post("/uploadProfileImage/:empId", upload.single("profileImage"), (req, res) => {
+    const empId = req.params.empId;
     const imagePath = `/uploads/${req.file.filename}`;
 
-    const sql = "UPDATE employees SET profilepic = ? WHERE id = ?";
+    const sql = "UPDATE personaldetails SET profilepic = ? WHERE empId = ?";
     pool.query(sql, [imagePath, empId], (err, result) => {
         if (err) {
             console.error(err);
-            return res.status(500).send('Error updating profile image.');
+            return res.status(500).send("Error updating profile image.");
         }
         res.status(200).json({ imageUrl: imagePath });
     });
-});
+}
+);
 
-//get profile picture by id
-router.get('/getProfileImage/:id', async (req, res) => {
-    const empId = req.params.id;
+// Get profile picture by id
+router.get("/getProfileImage/:empId", async (req, res) => {
+    const empId = req.params.empId;
 
     try {
-        const [rows] = await pool.query('SELECT profilepic FROM employees WHERE id = ?', [empId]);
+        const [rows] = await pool.query(
+            "SELECT profilepic FROM personaldetails WHERE empId = ?",
+            [empId]
+        );
 
         if (rows.length > 0) {
             res.status(200).json({ imageUrl: rows[0].profilepic });
         } else {
-            res.status(404).json({ message: 'Employee not found' });
+            res.status(404).json({ message: "Employee not found" });
         }
     } catch (error) {
-        console.error('Error fetching profile image:', error);
-        res.status(500).json({ error: 'Error fetching profile image' });
+        console.error("Error fetching profile image:", error);
+        res.status(500).json({ error: "Error fetching profile image" });
     }
 });
 
 //add experinces
-router.post('/experience', async (req, res) => {
-    const { date_from, date_to, institution } = req.body;
+router.post('/experience/:empId', async (req, res) => {
+    const empId = req.params.empId;
+    const { date_from, date_to, company, role } = req.body;
 
     try {
-        const newExperience = { date_from, date_to, institution };
+        const newExperience = { empId, date_from, date_to, company, role };
 
         const [results] = await pool.query(
-            'INSERT INTO experience (date_from, date_to, institution) VALUES (?, ?, ?, ?, ?, ?)',
-            [newExperience.date_from, newExperience.date_to, newExperience.institution]
+            'INSERT INTO experience (empId, date_from, date_to, company, role) VALUES (?, ?, ?, ?, ?)',
+            [newExperience.empId, newExperience.date_from, newExperience.date_to, newExperience.company, newExperience.role]
         );
 
         res.status(201).json({ message: 'Employee experience created successfully', employeeId: results.insertId });
@@ -201,7 +314,379 @@ router.post('/experience', async (req, res) => {
     }
 });
 
-//get experience bt id
+//get experience by id
+router.get('/getexperience/:empId', async (req, res) => {
+    const employeeId = req.params.empId;
 
+    try {
+        const [rows] = await pool.query('SELECT * FROM experience WHERE empId = ?', [employeeId]);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows); // Return all experience records
+        } else {
+            res.status(404).json({ message: 'Experience details not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching experience details:', error);
+        res.status(500).json({ error: 'Error fetching experience details' });
+    }
+});
+
+//update experience
+router.put('/updateExperience/:empId/:expId', async (req, res) => {
+    const empId = req.params.empId;
+    const expId = req.params.expId;
+    const { date_from, date_to, company, role } = req.body;
+
+    try {
+        const [results] = await pool.query(
+            'UPDATE experience SET date_from = ?, date_to = ?, company = ?, role = ? WHERE empId = ? AND id = ?',
+            [date_from, date_to, company, role, empId, expId]
+        );
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Experience not found' });
+        }
+
+        // Fetch the updated experience
+        const [updatedExperience] = await pool.query('SELECT * FROM experience WHERE id = ?', [expId]);
+
+        res.status(200).json(updatedExperience[0]);  // Return the updated experience
+    } catch (error) {
+        console.error('Error updating employee experience:', error);
+        res.status(500).json({ error: 'Error updating employee experience' });
+    }
+});
+
+//delete experience
+router.delete('/deleteExperience/:empId/:expId', async (req, res) => {
+    const empId = req.params.empId;
+    const expId = req.params.expId;
+
+    try {
+        const [result] = await pool.query('DELETE FROM experience WHERE empId = ? and id = ?', [empId, expId]);
+
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: 'Experience deleted successfully.' });
+        } else {
+            res.status(404).json({ message: 'Experience not found.' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+//add education
+router.post('/education/:empId', async (req, res) => {
+    const empId = req.params.empId;
+    const { date_from, date_to, institution, degree } = req.body;
+
+    try {
+        const newEducation = { empId, date_from, date_to, institution, degree };
+
+        const [results] = await pool.query(
+            'INSERT INTO education (empId, date_from, date_to, institution, degree) VALUES (?, ?, ?, ?, ?)',
+            [newEducation.empId, newEducation.date_from, newEducation.date_to, newEducation.institution, newEducation.degree]
+        );
+
+        res.status(201).json({ message: 'Employee education created successfully', employeeId: results.insertId });
+    } catch (error) {
+        console.error('Error saving employee education:', error);
+        res.status(500).json({ error: 'Error saving employee education' });
+    }
+});
+
+//get education by id
+router.get('/getEducation/:empId', async (req, res) => {
+    const employeeId = req.params.empId;
+
+    try {
+        const [rows] = await pool.query('SELECT * FROM education WHERE empId = ?', [employeeId]);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: 'Education details not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching education details:', error);
+        res.status(500).json({ error: 'Error fetching education details' });
+    }
+});
+
+//update education
+router.put('/updateEducation/:empId/:eduId', async (req, res) => {
+    const empId = req.params.empId;
+    const eduId = req.params.eduId;
+    const { date_from, date_to, institution, degree } = req.body;
+
+    try {
+        const [results] = await pool.query(
+            'UPDATE education SET date_from = ?, date_to = ?, institution = ?, degree = ? WHERE empId = ? AND id = ?',
+            [date_from, date_to, institution, degree, empId, eduId]
+        );
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'education not found' });
+        }
+
+        // Fetch the updated education
+        const [updatedEducation] = await pool.query('SELECT * FROM education WHERE id = ?', [eduId]);
+
+        res.status(200).json(updatedEducation[0]);
+    } catch (error) {
+        console.error('Error updating employee education:', error);
+        res.status(500).json({ error: 'Error updating employee education' });
+    }
+});
+
+//delete education
+router.delete('/deleteEducation/:empId/:eduId', async (req, res) => {
+    const empId = req.params.empId;
+    const eduId = req.params.eduId;
+
+    try {
+        const [result] = await pool.query('DELETE FROM education WHERE empId = ? and id = ?', [empId, eduId]);
+
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: 'Education deleted successfully.' });
+        } else {
+            res.status(404).json({ message: 'Education not found.' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+//save support details
+router.post('/support/:empId', async (req, res) => {
+    const empId = req.params.empId;
+    const { email, subject, message } = req.body;
+
+    // Validate input
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        // Create a new contact entry
+        const newSupport = { empId, email, subject, message };
+
+        const [results] = await pool.query(
+            'INSERT INTO support (empId, email, subject, message) VALUES (?, ?, ?, ?)',
+            [newSupport.empId, newSupport.email, newSupport.subject, newSupport.message]
+        );
+
+        // Respond with the newly created support entry and query result
+        res.status(201).json({
+            message: 'Support entry created successfully',
+            support: newSupport,
+            supportId: results.insertId
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+router.post('/requestPasswordReset', async (req, res) => {
+    try {
+        const { empId, email } = req.body;
+
+        if (!empId && !email) {
+            return res.status(400).json({ message: "Please provide either employee ID or email." });
+        }
+
+        // Query the database using either empId or email
+        let query = '';
+        let queryParam = '';
+
+        if (empId) {
+            query = 'SELECT * FROM logindetails WHERE empId = ?';
+            queryParam = empId;
+        } else if (email) {
+            query = 'SELECT * FROM logindetails WHERE email = ?';
+            queryParam = email;
+        }
+
+        const [rows] = await pool.query(query, [queryParam]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Employee not found" });
+        }
+
+        const employee = rows[0];
+
+        // Generate a random 6-digit code
+        const resetCode = crypto.randomInt(100000, 999999);
+
+        // Save the reset code and its expiration time (you'll need to adjust this part for your DB model)
+        const resetCodeExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+        await pool.query(
+            'UPDATE logindetails SET resetcode = ?, resetcodeexpires = ? WHERE empId = ?',
+            [resetCode, resetCodeExpires, employee.empId]
+        );
+
+        // Send the reset code via email
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: employee.email,
+            subject: "Password Reset Request",
+            text: `Your password reset code is ${resetCode}. It will expire in 15 minutes.`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.status(200).json({ message: "Reset code sent to email" });
+    } catch (error) {
+        console.error("Error requesting password reset:", error.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+//reset password
+router.post('/resetPassword', async (req, res) => {
+    try {
+        const { resetCode, newPassword } = req.body;
+
+        // Fetch the user with the given reset code
+        const [rows] = await pool.query('SELECT * FROM logindetails WHERE resetcode = ?', [resetCode]);
+
+        // If no user is found with the reset code
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Reset code not found' });
+        }
+
+        const user = rows[0];
+
+        // Check if the reset code is expired
+        if (new Date(user.resetCodeExpires) < Date.now()) {
+            return res.status(400).json({ message: 'Reset code has expired' });
+        }
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update the user's password and clear the reset code fields
+        await pool.query(
+            'UPDATE logindetails SET password = ?, resetcode = NULL, resetcodeexpires = NULL WHERE empId = ?',
+            [hashedPassword, user.empId]
+        );
+
+        res.status(200).json({ message: 'Password updated successfully' });
+
+    } catch (error) {
+        console.error("Error resetting password:", error.message);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+router.post('/requestLeave/:empId', async (req, res) => {
+    const empId = req.params.empId;
+    const { date_from, date_to, description } = req.body;
+    const createdAt = new Date();
+
+    try {
+        const newLeave = { empId, date_from, date_to, description, createdAt };
+
+        // Adjust the query to insert the createdAt field
+        const [results] = await pool.query(
+            'INSERT INTO leave_requests (empId, date_from, date_to, description, createdAt) VALUES (?, ?, ?, ?, ?)',
+            [newLeave.empId, newLeave.date_from, newLeave.date_to, newLeave.description, newLeave.createdAt]
+        );
+
+        res.status(201).json({ message: 'Employee leave created successfully', leaveId: results.insertId });
+    } catch (error) {
+        console.error('Error saving employee leave:', error);
+        res.status(500).json({ error: 'Error saving employee leave' });
+    }
+});
+
+//get leave request by id
+router.get('/getLeaveRequest/:empId', async (req, res) => {
+    const employeeId = req.params.empId;
+
+    try {
+        const [rows] = await pool.query('SELECT * FROM leave_requests WHERE empId = ?', [employeeId]);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: 'Leave details not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching leave details:', error);
+        res.status(500).json({ error: 'Error fetching leave details' });
+    }
+});
+
+//update leave request
+router.put('/updateLeave/:empId/:leaveId', async (req, res) => {
+    const leaveId = req.params.leaveId;
+    const empId = req.params.empId;
+    const { date_from, date_to, description } = req.body;
+
+    try {
+        // Get the leave request's creation time
+        const [leave] = await pool.query('SELECT createdAt FROM leave_requests WHERE empId = ? and id = ?', [empId, leaveId]);
+
+        if (!leave.length) {
+            return res.status(404).json({ error: 'Leave request not found' });
+        }
+
+        // Calculate the time difference in minutes
+        const leaveCreatedAt = new Date(leave[0].createdAt);
+        const currentTime = new Date();
+        const diffInMinutes = Math.floor((currentTime - leaveCreatedAt) / 1000 / 60);
+
+        // Allow update only if within 30 minutes
+        if (diffInMinutes <= 30) {
+            await pool.query(
+                'UPDATE leave_requests SET date_from = ?, date_to = ?, description = ?, createdAt = ? WHERE empId = ? AND id = ?',
+                [date_from, date_to, description, currentTime, empId, leaveId] // Corrected parameter order
+            );
+            res.status(200).json({ message: 'Leave request updated successfully' });
+        } else {
+            res.status(403).json({ error: 'You can only update the leave request within 30 minutes of its creation', timeDifference: diffInMinutes });
+        }
+    } catch (error) {
+        console.error('Error updating leave request:', error);
+        res.status(500).json({ error: 'Error updating leave request' });
+    }
+});
+
+//delete leave request
+router.delete('/deleteLeave/:empId/:leaveId', async (req, res) => {
+    const leaveId = req.params.leaveId;
+    const empId = req.params.empId;
+
+    try {
+        // Get the leave request's creation time
+        const [leave] = await pool.query('SELECT createdAt FROM leave_requests WHERE empId = ? and id = ?', [empId, leaveId]);
+
+        if (!leave.length) {
+            return res.status(404).json({ error: 'Leave request not found' });
+        }
+
+        // Calculate the time difference in minutes
+        const leaveCreatedAt = new Date(leave[0].createdAt);
+        const currentTime = new Date();
+        const diffInMinutes = Math.floor((currentTime - leaveCreatedAt) / 1000 / 60);
+
+        // Allow delete only if within 30 minutes
+        if (diffInMinutes <= 30) {
+            await pool.query('DELETE FROM leave_requests WHERE empId = ? AND id = ?', [empId, leaveId]);
+            res.status(200).json({ message: 'Leave request deleted successfully' });
+        } else {
+            res.status(403).json({ error: 'You can only delete the leave request within 30 minutes of its creation', timeDifference: diffInMinutes });
+        }
+    } catch (error) {
+        console.error('Error deleting leave request:', error);
+        res.status(500).json({ error: 'Error deleting leave request' });
+    }
+});
 
 module.exports = router;

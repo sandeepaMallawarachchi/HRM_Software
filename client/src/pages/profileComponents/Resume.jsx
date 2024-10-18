@@ -1,60 +1,150 @@
-import React, { useState } from 'react';
-import { FaTrash } from 'react-icons/fa';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { FaTrash, FaBuilding, FaUniversity } from 'react-icons/fa';
 
 const Resume = () => {
-  const [experienceList, setExperienceList] = useState([
-    { id: 1, date: '04/26/1999 - Current', company: 'Evans, Cooper and White', role: 'Therapist, speech and language' },
-    { id: 2, date: '11/26/1998 - Current', company: 'Rivera, Shaw and Hughes', role: 'Landscape architect' },
-    { id: 3, date: '02/24/2002 - 07/27/2007', company: 'Hughes, Parker and Barber', role: 'Engineer, drilling' },
-  ]);
-
-  const [educationList, setEducationList] = useState([
-    { id: 1, date: '06/26/1997 - 03/17/1999', institution: 'Parke State School' },
-  ]);
-
-  const [newExperience, setNewExperience] = useState({ dateFrom: '', dateTo: '', company: '', role: '' });
-  const [newEducation, setNewEducation] = useState({ dateFrom: '', dateTo: '', institution: '' });
-
+  
+  const empId = localStorage.getItem("empId");
+  const [experienceList, setExperienceList] = useState([]);
+  const [newExperience, setNewExperience] = useState({ date_from: '', date_to: '', company: '', role: '' });
   const [editExperience, setEditExperience] = useState(null);
-  const [editEducation, setEditEducation] = useState(null);
-
   const [isAddingExperience, setIsAddingExperience] = useState(false);
+
+  const [educationList, setEducationList] = useState([]);
+  const [newEducation, setNewEducation] = useState({ date_from: '', date_to: '', institution: '', degree: '' });
+  const [editEducation, setEditEducation] = useState(null);
   const [isAddingEducation, setIsAddingEducation] = useState(false);
 
-  // Add new experience
-  const handleAddExperience = () => {
-    setExperienceList([...experienceList, { id: Date.now(), ...newExperience }]);
-    setNewExperience({ dateFrom: '', dateTo: '', company: '', role: '' });
-    setIsAddingExperience(false);
+  // Fetch experiences and education when component mounts
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const experienceResponse = await axios.get(`http://localhost:4000/employees/getExperience/${empId}`);
+        setExperienceList(experienceResponse.data);
+
+        const educationResponse = await axios.get(`http://localhost:4000/employees/getEducation/${empId}`);
+        setEducationList(educationResponse.data);
+      } catch (err) {
+        console.log("Error fetching data:", err);
+      }
+    };
+    fetchData();
+  }, [empId]);
+
+  //add experience
+  const handleAddExperience = async () => {
+    try {
+      const response = await axios.post(`http://localhost:4000/employees/experience/${empId}`, newExperience);
+      setExperienceList(prev => [...prev, { ...newExperience, id: response.data.id }]); // Use the returned ID
+      setNewExperience({ date_from: '', date_to: '', company: '', role: '' });
+      setIsAddingExperience(false);
+      alert('New experience added successfully');
+    } catch (err) {
+      console.error("Error adding experience:", err);
+      alert('Error adding experience!');
+    }
   };
 
-  // Delete experience
-  const handleDeleteExperience = (id) => {
-    setExperienceList(experienceList.filter(exp => exp.id !== id));
+  //add education
+  const handleAddEducation = async () => {
+    try {
+      const response = await axios.post(`http://localhost:4000/employees/education/${empId}`, newEducation);
+      setEducationList(prev => [...prev, { ...newEducation, id: response.data.id }]); // Use the returned ID
+      setNewEducation({ date_from: '', date_to: '', institution: '', degree: '' });
+      setIsAddingEducation(false);
+      alert('New education added successfully');
+    } catch (err) {
+      console.error("Error adding education:", err);
+      alert('Error adding education!');
+    }
   };
 
-  // Add new education
-  const handleAddEducation = () => {
-    setEducationList([...educationList, { id: Date.now(), ...newEducation }]);
-    setNewEducation({ dateFrom: '', dateTo: '', institution: '' });
-    setIsAddingEducation(false);
+  // Handle updating the experience
+  const handleUpdateExperience = async () => {
+    try {
+      const response = await axios.put(`http://localhost:4000/employees/updateExperience/${empId}/${editExperience.id}`, editExperience);
+      setExperienceList(prev =>
+        prev.map(exp => (exp.id === editExperience.id ? response.data : exp)) // Update the correct experience
+      );
+      setEditExperience(null);
+      alert('Experience updated successfully!');
+    } catch (error) {
+      console.error('Error updating experience:', error);
+      alert('Failed to update experience.');
+    }
   };
 
-  // Delete education
-  const handleDeleteEducation = (id) => {
-    setEducationList(educationList.filter(edu => edu.id !== id));
+  // Handle updating the education
+  const handleUpdateEducation = async () => {
+    try {
+      const response = await axios.put(`http://localhost:4000/employees/updateEducation/${empId}/${editEducation.id}`, editEducation);
+      setEducationList(prev =>
+        prev.map(edu => (edu.id === editEducation.id ? response.data : edu)) // Update the correct experience
+      );
+      setEditEducation(null);
+      alert('Education updated successfully!');
+    } catch (error) {
+      console.error('Error updating education:', error);
+      alert('Failed to update education.');
+    }
   };
 
-  // Save edited experience
-  const handleSaveExperience = () => {
-    setExperienceList(experienceList.map(exp => (exp.id === editExperience.id ? editExperience : exp)));
-    setEditExperience(null);
+  // Handle deleting the experience
+  const handleDeleteExperience = async (expId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this experience?");
+
+    if (confirmDelete) {
+      try {
+        await axios.delete(`http://localhost:4000/employees/deleteExperience/${empId}/${expId}`);
+        setExperienceList(prev => prev.filter(exp => exp.id !== expId));
+        alert('Experience deleted successfully.');
+      } catch (error) {
+        console.error("Error deleting experience:", error);
+        alert('Failed to delete experience.');
+      }
+    } else {
+      console.log('Deletion canceled.');
+    }
   };
 
-  // Save edited education
-  const handleSaveEducation = () => {
-    setEducationList(educationList.map(edu => (edu.id === editEducation.id ? editEducation : edu)));
-    setEditEducation(null);
+  // Handle deleting the education
+  const handleDeleteEducation = async (eduId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this education?");
+
+    if (confirmDelete) {
+      try {
+        await axios.delete(`http://localhost:4000/employees/deleteEducation/${empId}/${eduId}`);
+        setEducationList(prev => prev.filter(edu => edu.id !== eduId));
+        alert('Education deleted successfully.');
+      } catch (error) {
+        console.error("Error deleting education:", error);
+        alert('Failed to delete education.');
+      }
+    } else {
+      console.log('Deletion canceled.');
+    }
+  };
+
+  // Handle selecting experience for editing
+  const handleExperienceEditClick = (exp) => {
+    const formattedExp = {
+      ...exp,
+      date_from: new Date(exp.date_from).toISOString().split('T')[0],
+      date_to: exp.date_to ? new Date(exp.date_to).toISOString().split('T')[0] : null,
+    };
+
+    setEditExperience(formattedExp);
+  };
+
+   // Handle selecting education for editing
+   const handleEducationEditClick = (edu) => {
+    const formattedEdu = {
+      ...edu,
+      date_from: new Date(edu.date_from).toISOString().split('T')[0],
+      date_to: edu.date_to ? new Date(edu.date_to).toISOString().split('T')[0] : null,
+    };
+
+    setEditEducation(formattedEdu);
   };
 
   return (
@@ -63,14 +153,22 @@ const Resume = () => {
       <div className="mb-8">
         <h3 className="text-lg mb-4 text-gray-500">Experience</h3>
         {experienceList.map(exp => (
-          <div key={exp.id} className="bg-white p-4 mb-4 rounded-lg shadow-sm relative">
-            <p onClick={() => setEditExperience(exp)} className="cursor-pointer">{exp.date}</p>
-            <p onClick={() => setEditExperience(exp)} className="font-semibold cursor-pointer">{exp.company}</p>
-            <p onClick={() => setEditExperience(exp)} className="cursor-pointer">{exp.role}</p>
+          <div key={exp.id} onClick={() => handleExperienceEditClick(exp)} className="bg-white p-4 mb-4 rounded-lg shadow-sm relative cursor-pointer">
+            <div className="flex items-center">
+              <FaBuilding className="text-4xl text-gray-400 mr-10" />
+              <div>
+                <p className="font-semibold text-lg">{exp.company}</p>
+                <p>{exp.role}</p>
+                <p>{new Date(exp.date_from).toLocaleDateString()} to {exp.date_to ? new Date(exp.date_to).toLocaleDateString() : 'Current'}</p>
+              </div>
+            </div>
             <button
-              onClick={() => handleDeleteExperience(exp.id)}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent triggering the edit click when deleting
+                handleDeleteExperience(exp.id); // Pass the experience ID to delete
+              }}
               className="absolute top-4 right-4 text-orange-500 hover:text-orange-600">
-              <FaTrash />
+              <FaTrash size={20} />
             </button>
           </div>
         ))}
@@ -80,16 +178,25 @@ const Resume = () => {
       </div>
 
       {/* Education Section */}
-      <div>
+      <div className="mb-8">
         <h3 className="text-lg mb-4 text-gray-500">Education</h3>
         {educationList.map(edu => (
-          <div key={edu.id} className="bg-white p-4 mb-4 rounded-lg shadow-sm relative">
-            <p onClick={() => setEditEducation(edu)} className="cursor-pointer">{edu.date}</p>
-            <p onClick={() => setEditEducation(edu)} className="font-semibold cursor-pointer">{edu.institution}</p>
+          <div key={edu.id} onClick={() => handleEducationEditClick(edu)} className="bg-white p-4 mb-4 rounded-lg shadow-sm relative cursor-pointer">
+            <div className="flex items-center">
+              <FaUniversity className="text-4xl text-gray-400 mr-10" />
+              <div>
+                <p className="font-semibold text-lg">{edu.institution}</p>
+                <p>{edu.degree}</p>
+                <p>{new Date(edu.date_from).toLocaleDateString()} to {edu.date_to ? new Date(edu.date_to).toLocaleDateString() : 'Current'}</p>
+              </div>
+            </div>
             <button
-              onClick={() => handleDeleteEducation(edu.id)}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent triggering the edit click when deleting
+                handleDeleteEducation(edu.id); // Pass the experience ID to delete
+              }}
               className="absolute top-4 right-4 text-orange-500 hover:text-orange-600">
-              <FaTrash />
+              <FaTrash size={20} />
             </button>
           </div>
         ))}
@@ -98,259 +205,176 @@ const Resume = () => {
         </button>
       </div>
 
-      {/* Add Experience Modal */}
+      {/* Modals for Adding and Editing Experience */}
       {isAddingExperience && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 shadow-lg">
-            <h3 className="mb-6 text-xl font-semibold text-gray-800">Add Experience</h3>
-
-            {/* From Date */}
-            <div className="mb-4">
-              <label htmlFor="from" className="block mb-1 text-sm text-gray-600">From</label>
-              <input
-                type="date"
-                value={newExperience.dateFrom}
-                onChange={(e) => setNewExperience({ ...newExperience, dateFrom: e.target.value })}
-                className="border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-
-            {/* To Date */}
-            <div className="mb-4">
-              <label htmlFor="to" className="block mb-1 text-sm text-gray-600">To</label>
-              <input
-                type="date"
-                value={newExperience.dateTo}
-                onChange={(e) => setNewExperience({ ...newExperience, dateTo: e.target.value })}
-                className="border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-
-            {/* Company */}
-            <div className="mb-4">
-              <label htmlFor="company" className="block mb-1 text-sm text-gray-600">Company</label>
-              <input
-                type="text"
-                value={newExperience.company}
-                onChange={(e) => setNewExperience({ ...newExperience, company: e.target.value })}
-                className="border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                placeholder="Company"
-              />
-            </div>
-
-            {/* Role */}
-            <div className="mb-6">
-              <label htmlFor="role" className="block mb-1 text-sm text-gray-600">Role</label>
-              <input
-                type="text"
-                value={newExperience.role}
-                onChange={(e) => setNewExperience({ ...newExperience, role: e.target.value })}
-                className="border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                placeholder="Role"
-              />
-            </div>
-
-            {/* Save and Cancel Buttons */}
-            <div className="flex justify-start space-x-4">
-              <button
-                onClick={handleAddExperience}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-[20px] transition-all">
-                Save
-              </button>
-              <button
-                onClick={() => setIsAddingExperience(false)}
-                className="text-gray-500 hover:text-gray-700 underline transition-all">
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal title="Add Experience" onClose={() => setIsAddingExperience(false)}>
+          <ExperienceForm
+            data={newExperience}
+            setData={setNewExperience}
+            onSubmit={handleAddExperience}
+            isEdit={false}
+          />
+        </Modal>
       )}
-
-      {/* Add Education Modal */}
-      {isAddingEducation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 shadow-lg">
-            <h3 className="mb-6 text-xl font-semibold text-gray-800">Add Education</h3>
-
-            {/* From Date */}
-            <div className="mb-4">
-              <label htmlFor="from" className="block mb-1 text-sm text-gray-600">From</label>
-              <input
-                type="date"
-                value={newEducation.dateFrom}
-                onChange={(e) => setNewEducation({ ...newEducation, dateFrom: e.target.value })}
-                className="border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-
-            {/* To Date */}
-            <div className="mb-4">
-              <label htmlFor="to" className="block mb-1 text-sm text-gray-600">To</label>
-              <input
-                type="date"
-                value={newEducation.dateTo}
-                onChange={(e) => setNewEducation({ ...newEducation, dateTo: e.target.value })}
-                className="border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-
-            {/* Institution */}
-            <div className="mb-6">
-              <label htmlFor="institution" className="block mb-1 text-sm text-gray-600">Institution</label>
-              <input
-                type="text"
-                value={newEducation.institution}
-                onChange={(e) => setNewEducation({ ...newEducation, institution: e.target.value })}
-                className="border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                placeholder="Institution"
-              />
-            </div>
-
-            {/* Save and Cancel Buttons */}
-            <div className="flex justify-start space-x-4">
-              <button
-                onClick={handleAddEducation}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-[20px] transition-all">
-                Save
-              </button>
-              <button
-                onClick={() => setIsAddingEducation(false)}
-                className="text-gray-500 hover:text-gray-700 underline transition-all">
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Experience Modal */}
       {editExperience && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 shadow-lg">
-            <h3 className="mb-6 text-xl font-semibold text-gray-800">Edit Experience</h3>
-
-            {/* From Date */}
-            <div className="mb-4">
-              <label htmlFor="from" className="block mb-1 text-sm text-gray-600">From</label>
-              <input
-                type="date"
-                value={editExperience.dateFrom}
-                onChange={(e) => setEditExperience({ ...editExperience, dateFrom: e.target.value })}
-                className="border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-
-            {/* To Date */}
-            <div className="mb-4">
-              <label htmlFor="to" className="block mb-1 text-sm text-gray-600">To</label>
-              <input
-                type="date"
-                value={editExperience.dateTo}
-                onChange={(e) => setEditExperience({ ...editExperience, dateTo: e.target.value })}
-                className="border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-
-            {/* Company */}
-            <div className="mb-4">
-              <label htmlFor="company" className="block mb-1 text-sm text-gray-600">Company</label>
-              <input
-                type="text"
-                value={editExperience.company}
-                onChange={(e) => setEditExperience({ ...editExperience, company: e.target.value })}
-                className="border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                placeholder="Company"
-              />
-            </div>
-
-            {/* Role */}
-            <div className="mb-6">
-              <label htmlFor="role" className="block mb-1 text-sm text-gray-600">Role</label>
-              <input
-                type="text"
-                value={editExperience.role}
-                onChange={(e) => setEditExperience({ ...editExperience, role: e.target.value })}
-                className="border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                placeholder="Role"
-              />
-            </div>
-
-            {/* Save and Cancel Buttons */}
-            <div className="flex justify-start space-x-4">
-              <button
-                onClick={handleSaveExperience}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-[20px] transition-all">
-                Save
-              </button>
-              <button
-                onClick={() => setEditExperience(null)}
-                className="text-gray-500 hover:text-gray-700 underline transition-all">
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal title="Edit Experience" onClose={() => setEditExperience(null)}>
+          <ExperienceForm
+            data={editExperience}
+            setData={setEditExperience}
+            onSubmit={handleUpdateExperience}
+            isEdit={true}
+          />
+        </Modal>
       )}
 
-      {/* Edit Education Modal */}
+      {/* Modals for Adding and Editing Education */}
+      {isAddingEducation && (
+        <Modal title="Add Education" onClose={() => setIsAddingEducation(false)}>
+          <EducationForm
+            data={newEducation}
+            setData={setNewEducation}
+            onSubmit={handleAddEducation}
+            isEdit={false}
+          />
+        </Modal>
+      )}
       {editEducation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 shadow-lg">
-            <h3 className="mb-6 text-xl font-semibold text-gray-800">Edit Education</h3>
-
-            {/* From Date */}
-            <div className="mb-4">
-              <label htmlFor="from" className="block mb-1 text-sm text-gray-600">From</label>
-              <input
-                type="date"
-                value={editEducation.dateFrom}
-                onChange={(e) => setEditEducation({ ...editEducation, dateFrom: e.target.value })}
-                className="border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-
-            {/* To Date */}
-            <div className="mb-4">
-              <label htmlFor="to" className="block mb-1 text-sm text-gray-600">To</label>
-              <input
-                type="date"
-                value={editEducation.dateTo}
-                onChange={(e) => setEditEducation({ ...editEducation, dateTo: e.target.value })}
-                className="border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-            </div>
-
-            {/* Institution */}
-            <div className="mb-6">
-              <label htmlFor="institution" className="block mb-1 text-sm text-gray-600">Institution</label>
-              <input
-                type="text"
-                value={editEducation.institution}
-                onChange={(e) => setEditEducation({ ...editEducation, institution: e.target.value })}
-                className="border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                placeholder="Institution"
-              />
-            </div>
-
-            {/* Save and Cancel Buttons */}
-            <div className="flex justify-start space-x-4">
-              <button
-                onClick={handleSaveEducation}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-[20px] transition-all">
-                Save
-              </button>
-              <button
-                onClick={() => setEditEducation(null)}
-                className="text-gray-500 hover:text-gray-700 underline transition-all">
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal title="Edit Education" onClose={() => setEditEducation(null)}>
+          <EducationForm
+            data={editEducation}
+            setData={setEditEducation}
+            onSubmit={handleUpdateEducation}
+            isEdit={true}
+          />
+        </Modal>
       )}
     </div>
   );
 };
+
+const Modal = ({ title, children, onClose }) => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white p-6 rounded-lg w-96 shadow-lg">
+      <h3 className="mb-6 text-xl font-semibold text-gray-800">{title}</h3>
+      {children}
+      <button onClick={onClose} className="text-gray-500 hover:text-gray-700 hover:underline transition-all ml-5">Close</button>
+    </div>
+  </div>
+);
+
+//experience form
+const ExperienceForm = ({ data, setData, onSubmit, isEdit, isCurrent, handleToggleCurrent }) => {
+  return (
+    <>
+      <InputField 
+        label="Company" 
+        type="text" 
+        placeholder='Enter your company' 
+        value={data.company} 
+        onChange={(e) => setData({ ...data, company: e.target.value })} 
+      />
+      <InputField 
+        label="Role" 
+        type="text" 
+        placeholder='Enter your role' 
+        value={data.role} 
+        onChange={(e) => setData({ ...data, role: e.target.value })} 
+      />
+      <InputField 
+        label="From" 
+        type="date" 
+        value={data.date_from} 
+        onChange={(e) => setData({ ...data, date_from: e.target.value })} 
+      />
+
+      <div className="flex items-center mb-4">
+        <InputField
+          label="To"
+          type="date"
+          value={isCurrent ? 'Current' : data.date_to || ''}
+          onChange={(e) => setData({ ...data, date_to: e.target.value })}
+          disabled={isCurrent}
+        />
+        <label className="ml-3 flex items-center">
+          <input
+            type="checkbox"
+            checked={isCurrent}
+            onChange={handleToggleCurrent}
+            className="mr-1 rounded-sm"
+          />
+          <span className={`text-gray-700 ${isCurrent ? 'font-bold' : ''}`}>Current</span>
+        </label>
+      </div>
+
+      <button 
+        onClick={onSubmit} 
+        className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-[20px] transition-all"
+      >
+        {isEdit ? 'Update' : 'Add'}
+      </button>
+    </>
+  );
+};
+
+//education form
+const EducationForm = ({ data, setData, onSubmit, isEdit, isCurrent, handleToggleCurrent }) => {
+  return (
+    <>
+      <InputField 
+        label="Institution" 
+        type="text" 
+        placeholder='Enter your institution' 
+        value={data.institution} 
+        onChange={(e) => setData({ ...data, institution: e.target.value })} 
+      />
+      <InputField 
+        label="Degree" 
+        type="text" 
+        placeholder='Enter your degree' 
+        value={data.degree} 
+        onChange={(e) => setData({ ...data, degree: e.target.value })} 
+      />
+      <InputField 
+        label="From" 
+        type="date" 
+        value={data.date_from} 
+        onChange={(e) => setData({ ...data, date_from: e.target.value })} 
+      />
+
+      <div className="flex items-center mb-4">
+        <InputField
+          label="To"
+          type="date"
+          value={isCurrent ? 'Current' : data.date_to || ''}
+          onChange={(e) => setData({ ...data, date_to: e.target.value })}
+          disabled={isCurrent}
+        />
+        <label className="ml-3 flex items-center">
+          <input
+            type="checkbox"
+            checked={isCurrent}
+            onChange={handleToggleCurrent}
+            className="mr-1"
+          />
+          <span className={`text-gray-700 ${isCurrent ? 'font-bold' : ''}`}>Current</span>
+        </label>
+      </div>
+
+      <button 
+        onClick={onSubmit} 
+        className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-[20px] transition-all"
+      >
+        {isEdit ? 'Update' : 'Add'}
+      </button>
+    </>
+  );
+};
+
+const InputField = ({ label, ...props }) => (
+  <div className="mb-4">
+    <label className="block text-gray-700 mb-1">{label}</label>
+    <input className="border rounded-lg w-full px-3 py-2" {...props} />
+  </div>
+);
 
 export default Resume;
