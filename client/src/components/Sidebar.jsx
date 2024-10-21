@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaHome, FaWallet, FaCalendarCheck, FaListAlt, FaBars } from 'react-icons/fa';
+import { FaHome, FaWallet, FaCalendarCheck, FaListAlt, FaBars, FaBook } from 'react-icons/fa';
 import { HiOutlineX } from 'react-icons/hi';
 import { Link, NavLink } from 'react-router-dom';
 import logo from '../images/logo.png';
@@ -58,14 +58,14 @@ const Sidebar = () => {
           {!isCollapsed && <span>Payroll</span>}
         </NavLink>
         <NavLink
-          to="/registration"
+          to="/attendance"
           className={({ isActive }) =>
             `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white' : ''
             }`
           }
         >
           <FaCalendarCheck size={20} className={`mr-2 ${isCollapsed ? 'mx-auto' : ''}`} />
-          {!isCollapsed && <span>Attendance</span>}
+          {!isCollapsed && <span>Attendance & Time</span>}
         </NavLink>
         <NavLink
           to="/leave"
@@ -75,8 +75,19 @@ const Sidebar = () => {
           }
         >
           <FaListAlt size={20} className={`mr-2 ${isCollapsed ? 'mx-auto' : ''}`} />
-          {!isCollapsed && <span>Leave Request</span>}
+          {!isCollapsed && <span>Leave & Attendance</span>}
         </NavLink>
+        <NavLink
+          to="/learning"
+          className={({ isActive }) =>
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white' : ''
+            }`
+          }
+        >
+          <FaBook size={20} className={`mr-2 ${isCollapsed ? 'mx-auto' : ''}`} />
+          {!isCollapsed && <span>Learning & Development</span>}
+        </NavLink>
+
       </div>
     </div>
   );
