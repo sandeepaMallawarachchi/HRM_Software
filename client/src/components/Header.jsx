@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { FaBell, FaEnvelope, FaAngleDown } from 'react-icons/fa';
 import defaultAvatar from '../images/avatar.png';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Support from '../pages/profileComponents/Support';
 import axios from 'axios';
 
 const Header = () => {
     const location = useLocation();
-    const navigate = useNavigate();
     const [showSupportModal, setShowSupportModal] = useState(false);
     const [empName, setEmpName] = useState('');
     const [avatar, setAvatar] = useState(defaultAvatar);
@@ -62,8 +61,9 @@ const Header = () => {
         const confirm = window.confirm("Are you sure you want to log out?");
         if (confirm) {
             localStorage.removeItem("authToken");
-            localStorage.removeItem("id");
-            navigate('/');
+            localStorage.removeItem("empId");
+    
+            window.location.href = '/';
         }
     };
 
