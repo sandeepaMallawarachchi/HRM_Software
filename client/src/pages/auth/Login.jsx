@@ -1,18 +1,15 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import logo from "../../images/logo.png";
 import axios from "axios";
 import { FaKey, FaEnvelope } from 'react-icons/fa';
 import ForgotPasswordModal from "./ForgotPassword";
 
-export default function Login({ setIsAuthenticated }) {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false); // State for modal
-
-  const navigate = useNavigate();
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,9 +25,7 @@ export default function Login({ setIsAuthenticated }) {
       const { token, employeeId } = res.data;
       localStorage.setItem("authToken", token);
       localStorage.setItem("empId", employeeId);
-
-      setIsAuthenticated(true);
-      navigate("/dashboard");
+      window.location.href = '/dashboard';
     } catch (err) {
       console.error(err);
       setError("Invalid login credentials");
@@ -45,7 +40,7 @@ export default function Login({ setIsAuthenticated }) {
         isOpen={isForgotPasswordOpen}
         onClose={() => setIsForgotPasswordOpen(false)}
       />
-      
+
       <div className="w-6/12 px-4 flex items-center justify-center">
         <img
           src={logo}
@@ -59,20 +54,14 @@ export default function Login({ setIsAuthenticated }) {
           <h1 className="text-3xl text-gray-600 font-semibold text-center my-5">Login</h1>
           <div className="flex-auto px-4 py-5">
             {error && (
-              <div
-                className="text-red-600 text-center mb-3"
-                aria-live="assertive"
-              >
+              <div className="text-red-600 text-center mb-3" aria-live="assertive">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit}>
               <div className="relative w-full mb-3">
-                <label
-                  className="block uppercase text-gray-600 text-xs font-bold mb-1"
-                  htmlFor="email"
-                >
+                <label className="block uppercase text-gray-600 text-xs font-bold mb-1" htmlFor="email">
                   <FaEnvelope className="inline-block mr-2" />
                   Email
                 </label>
@@ -87,10 +76,7 @@ export default function Login({ setIsAuthenticated }) {
               </div>
 
               <div className="relative w-full mb-3 mt-5">
-                <label
-                  className="block uppercase text-gray-600 text-xs font-bold mb-1"
-                  htmlFor="password"
-                >
+                <label className="block uppercase text-gray-600 text-xs font-bold mb-1" htmlFor="password">
                   <FaKey className="inline-block mr-2" />
                   Password
                 </label>
@@ -119,7 +105,7 @@ export default function Login({ setIsAuthenticated }) {
 
               <div className="text-center mt-4">
                 <button
-                  className="text-white text-sm font-bold uppercase bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-[20px] shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
+                  className="text-white text-sm uppercase bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-[20px] shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
                   type="submit"
                   disabled={loading}
                 >
@@ -142,3 +128,5 @@ export default function Login({ setIsAuthenticated }) {
     </div>
   );
 }
+
+export default Login;
