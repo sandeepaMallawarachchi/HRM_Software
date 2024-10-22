@@ -11,7 +11,7 @@
   border-radius: 8px;
   padding: 20px;
   width: 300px;
-  box-shadow: 0 4px 8px rgba(73, 166, 212, 0.5); /* Orange shadow */
+  box-shadow: 0 4px 8px rgb(56, 221, 227); /* Orange shadow */
   transition: box-shadow 0.3s ease; /* Smooth transition for hover effect */
 }
 

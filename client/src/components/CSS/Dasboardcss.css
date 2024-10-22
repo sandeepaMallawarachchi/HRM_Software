@@ -1,0 +1,12 @@
+.cards {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  /* padding: 20px;
+  width: 400px; */
+  box-shadow: 0 4px 8px rgb(56, 221, 227); /* Orange shadow */
+  transition: box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+.cards:hover {
+  box-shadow: 0 4px 16px rgba(225, 113, 44, 0.8); /* Darker orange shadow on hover */
+}

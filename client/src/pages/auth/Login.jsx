@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import logo from "../../images/logo.png";
+import logo from "../../images/hrm withoutbackground.png";
 import axios from "axios";
-import { FaKey, FaEnvelope } from 'react-icons/fa';
+import { FaKey, FaEnvelope } from "react-icons/fa";
 import ForgotPasswordModal from "./ForgotPassword";
+import backgroundVideo from "../../videos/hrm intro.mp4";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -25,7 +26,7 @@ const Login = () => {
       const { token, employeeId } = res.data;
       localStorage.setItem("authToken", token);
       localStorage.setItem("empId", employeeId);
-      window.location.href = '/dashboard';
+      window.location.href = "/dashboard";
     } catch (err) {
       console.error(err);
       setError("Invalid login credentials");
@@ -35,33 +36,44 @@ const Login = () => {
   };
 
   return (
-    <div className="container mx-auto h-screen flex">
+    <div className="container mx-auto h-screen flex ">
+      {/* Background Video */}
+      <video
+        className="absolute top-0 left-0 w-full h-full object-cover"
+        src={backgroundVideo}
+        autoPlay
+        muted
+      />
       <ForgotPasswordModal
         isOpen={isForgotPasswordOpen}
         onClose={() => setIsForgotPasswordOpen(false)}
       />
 
       <div className="w-6/12 px-4 flex items-center justify-center">
-        <img
-          src={logo}
-          alt="Company Logo"
-          className="h-24"
-        />
+        <img src={logo} alt="Company Logo" className="h-24" />
       </div>
 
       <div className="w-[500px] px-4 flex items-center justify-center">
         <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-blueGray-200 border-0">
-          <h1 className="text-3xl text-gray-600 font-semibold text-center my-5">Login</h1>
+          <h1 className="text-3xl text-gray-600 font-semibold text-center my-5">
+            Login
+          </h1>
           <div className="flex-auto px-4 py-5">
             {error && (
-              <div className="text-red-600 text-center mb-3" aria-live="assertive">
+              <div
+                className="text-red-600 text-center mb-3"
+                aria-live="assertive"
+              >
                 {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit}>
               <div className="relative w-full mb-3">
-                <label className="block uppercase text-gray-600 text-xs font-bold mb-1" htmlFor="email">
+                <label
+                  className="block uppercase text-gray-600 text-xs font-bold mb-1"
+                  htmlFor="email"
+                >
                   <FaEnvelope className="inline-block mr-2" />
                   Email
                 </label>
@@ -76,7 +88,10 @@ const Login = () => {
               </div>
 
               <div className="relative w-full mb-3 mt-5">
-                <label className="block uppercase text-gray-600 text-xs font-bold mb-1" htmlFor="password">
+                <label
+                  className="block uppercase text-gray-600 text-xs font-bold mb-1"
+                  htmlFor="password"
+                >
                   <FaKey className="inline-block mr-2" />
                   Password
                 </label>
@@ -127,6 +142,6 @@ const Login = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Login;
