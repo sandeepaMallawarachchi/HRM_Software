@@ -4,6 +4,7 @@ import defaultAvatar from '../images/avatar.png';
 import { Link, useLocation } from 'react-router-dom';
 import Support from '../pages/profileComponents/Support';
 import axios from 'axios';
+import ProfilePicture from './subComponents/ProfilePicture';
 
 const Header = () => {
     const location = useLocation();
@@ -62,7 +63,7 @@ const Header = () => {
         if (confirm) {
             localStorage.removeItem("authToken");
             localStorage.removeItem("empId");
-    
+
             window.location.href = '/';
         }
     };
@@ -79,11 +80,7 @@ const Header = () => {
             </div>
 
             <div className="relative flex items-center border border-white rounded-full p-2 px-3 space-x-3 backdrop-blur-lg group">
-                <img
-                    src={avatar}
-                    alt="avatar"
-                    className="w-10 h-10 rounded-full border border-gray-300"
-                />
+                <ProfilePicture />
                 <span className="text-white cursor-pointer">
                     {empName.name}
                 </span>

@@ -788,4 +788,26 @@ router.get('/attendanceAnalysis/:empId', async (req, res) => {
     }
 });
 
+//get attendance of current date
+router.get('/getCurrentDateAttendance/:empId', async (req, res) => {
+    const empId = req.params.empId;
+
+    try {
+        const [records] = await pool.query(
+            'SELECT punch_in_time, punch_out_time FROM attendance WHERE empId = ? AND punch_in_date = CURDATE()',
+            [empId]
+        );
+
+        if (records.length > 0) {
+            res.status(200).json(records[0]); 
+        } else {
+            res.status(200).json({ punch_in_time: null, punch_out_time: null });
+        }
+    } catch (error) {
+        console.error('Error fetching today\'s attendance:', error);
+        res.status(500).json({ error: 'Error fetching today\'s attendance' });
+    }
+});
+
+
 module.exports = router;

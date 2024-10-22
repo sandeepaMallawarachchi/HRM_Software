@@ -1,5 +1,5 @@
-import React from 'react';
-import {
+import React, { useEffect, useState } from 'react';
+import axios from 'axios'; import {
     Chart as ChartJS,
     CategoryScale,
     LinearScale,
@@ -9,10 +9,12 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import { Bar, Pie } from 'react-chartjs-2';
+import { Pie } from 'react-chartjs-2';
 import { FaSignInAlt, FaSignOutAlt, FaCalendarPlus, FaClipboardList } from 'react-icons/fa'
+import AttandanceAnalysisComponent from '../components/subComponents/AttandanceAnalysisComponent';
+import { Link } from 'react-router-dom';
+import ProfilePicture from '../components/subComponents/ProfilePicture';
 
-// Register the necessary Chart.js components
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -24,19 +26,33 @@ ChartJS.register(
 );
 
 const Dashboard = () => {
-    // Data for the bar chart (Time at Work)
-    const barData = {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [
-            {
-                label: 'Hours Worked',
-                data: [5, 6, 7, 5, 8, 0, 0],
-                backgroundColor: '#fa7c10',
-            },
-        ],
-    };
+    const empId = localStorage.getItem('empId');
+    const [punchInTime, setPunchInTime] = useState(null);
+    const [punchOutTime, setPunchOutTime] = useState(null);
+    const [punchedStatus, setPunchedStatus] = useState('Not Punched Yet');
 
-    // Data for the pie charts
+    useEffect(() => {
+        const fetchAttendance = async () => {
+            try {
+                const response = await axios.get(`http://localhost:4000/employees/getCurrentDateAttendance/${empId}`);
+
+                if (response.data.punch_in_time) {
+                    setPunchInTime(response.data.punch_in_time);
+                    setPunchedStatus('Punched In');
+                }
+
+                if (response.data.punch_out_time) {
+                    setPunchOutTime(response.data.punch_out_time);
+                    setPunchedStatus('Punched Out');
+                }
+            } catch (error) {
+                console.error('Error fetching today\'s attendance:', error);
+            }
+        };
+
+        fetchAttendance();
+    }, [empId]);
+
     const pieData = {
         labels: ['HR', 'Engineering', 'Marketing', 'Finance'],
         datasets: [
@@ -54,20 +70,23 @@ const Dashboard = () => {
 
     return (
         <div className="grid grid-cols-3 gap-6 p-6">
-            {/* Time at Work Card */}
-            <div className="col-span-1 bg-white rounded-lg shadow-md p-4">
-                <h2 className="text-lg font-semibold mb-4">Time at Work</h2>
-                <div className="flex items-center space-x-3">
-                    <div className="bg-gray-300 rounded-full w-12 h-12"></div>
-                    <div className="flex-1">
-                        <p className="text-orange-600 font-semibold">Not Punched In</p>
-                        <p className="text-sm">No hours recorded</p>
+            <Link to='/attendance'>
+                <div className="col-span-1 bg-white rounded-lg shadow-md p-4">
+                    <h2 className="text-lg font-semibold mb-4">Time at Work</h2>
+                    <div className="flex items-center space-x-3 mb-5">
+                        <div className="bg-gray-300 rounded-full">
+                            <ProfilePicture />
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-orange-600 font-semibold">{punchedStatus}</p>
+                            <p className="text-sm">{punchInTime || 'Not Punched In Yet'}</p>
+                            <p className="text-sm">{punchOutTime || 'Not Punched Out Yet'}</p>
+                        </div>
                     </div>
+                    <AttandanceAnalysisComponent />
                 </div>
-                <Bar data={barData} />
-            </div>
+            </Link>
 
-            {/* My Actions Card */}
             <div className="col-span-1 bg-white rounded-lg shadow-md p-4">
                 <h2 className="text-lg font-semibold mb-4">My Actions</h2>
                 <div className="text-center">
@@ -75,29 +94,24 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {/* Quick Launch Card */}
             <div className="col-span-1 bg-white rounded-lg shadow-md p-4">
                 <h2 className="text-lg font-semibold mb-4">Quick Launch</h2>
                 <div className="grid grid-cols-2 gap-4 text-center">
-                    {/* Punch-In */}
                     <div className="flex flex-col items-center justify-center p-4 bg-gray-100 rounded-full hover:bg-orange-400 cursor-pointer group">
                         <FaSignInAlt className="text-4xl text-gray-700 group-hover:text-white" />
                         <p className="mt-2 text-gray-700 group-hover:text-white">Punch In</p>
                     </div>
 
-                    {/* Punch-Out */}
                     <div className="flex flex-col items-center justify-center p-4 bg-gray-100 rounded-full hover:bg-orange-400 cursor-pointer group">
                         <FaSignOutAlt className="text-4xl text-gray-700 group-hover:text-white" />
                         <p className="mt-2 text-gray-700 group-hover:text-white">Punch Out</p>
                     </div>
 
-                    {/* Request Leave */}
                     <div className="flex flex-col items-center justify-center p-4 bg-gray-100 rounded-full hover:bg-orange-400 cursor-pointer group">
                         <FaCalendarPlus className="text-4xl text-gray-700 group-hover:text-white" />
                         <p className="mt-2 text-gray-700 group-hover:text-white">Request Leave</p>
                     </div>
 
-                    {/* My Leaves */}
                     <div className="flex flex-col items-center justify-center p-4 bg-gray-100 rounded-full hover:bg-orange-400 cursor-pointer group">
                         <FaClipboardList className="text-4xl text-gray-700 group-hover:text-white" />
                         <p className="mt-2 text-gray-700 group-hover:text-white">My Leaves</p>
@@ -105,7 +119,6 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {/* Buzz Latest Posts */}
             <div className="col-span-1 bg-white rounded-lg shadow-md p-4">
                 <h2 className="text-lg font-semibold mb-4">Buzz Latest Posts</h2>
                 <div className="text-center">
@@ -113,7 +126,6 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {/* Employees on Leave Today */}
             <div className="col-span-1 bg-white rounded-lg shadow-md p-4">
                 <h2 className="text-lg font-semibold mb-4">Employees on Leave Today</h2>
                 <div className="text-center">
@@ -121,7 +133,6 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {/* Employee Distribution by Sub Unit (Pie Chart) */}
             <div className="col-span-1 bg-white rounded-lg shadow-md p-4">
                 <h2 className="text-lg font-semibold mb-4">Employee Distribution by Sub Unit</h2>
                 <div className="relative w-full h-64">
