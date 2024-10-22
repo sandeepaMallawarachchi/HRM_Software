@@ -42,6 +42,8 @@ const App = () => {
             <Route path="/payroll" element={<ProtectedRoute element={<Payroll />} />} />
             <Route path="/registration" element={<ProtectedRoute element={<EmployeeRegistration />} />} />
             <Route path="/leave" element={<ProtectedRoute element={<LeaveAndAttendance />} />} />
+            <Route path="/attendance" element={<ProtectedRoute element={<AttendanceAndTime />} />} />
+            <Route path="/learn" element={<ProtectedRoute element={<LearningDevelopment />} />} />
           </Routes>
         </div>
       </div>
