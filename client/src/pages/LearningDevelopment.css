@@ -1,0 +1,50 @@
+.cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-around;
+}
+
+.card {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  width: 300px;
+  box-shadow: 0 4px 8px rgba(73, 166, 212, 0.5); /* Orange shadow */
+  transition: box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(225, 113, 44, 0.8); /* Darker orange shadow on hover */
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+ul {
+  list-style-type: disc; /* Bullet points */
+  margin-left: 20px; /* Indentation */
+  padding-left: 0; /* Remove default padding */
+}
+
+progress {
+  width: 100%; /* Full width progress bar */
+  height: 20px; /* Custom height */
+}
+
+/* Chrome, Safari, Opera */
+progress::-webkit-progress-value {
+  background-color: orange; /* Progress bar color */
+}
+
+/* Firefox */
+progress::-moz-progress-bar {
+  background-color: orange; /* Progress bar color */
+}
+
+/* For IE10+ */
+progress {
+  color: rgb(195, 95, 38); /* Progress bar color */
+}
