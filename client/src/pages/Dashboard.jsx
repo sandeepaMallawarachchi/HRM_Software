@@ -14,6 +14,7 @@ import { FaSignInAlt, FaSignOutAlt, FaCalendarPlus, FaClipboardList } from 'reac
 import AttandanceAnalysisComponent from '../components/subComponents/AttandanceAnalysisComponent';
 import { Link } from 'react-router-dom';
 import ProfilePicture from '../components/subComponents/ProfilePicture';
+import Actions from '../components/subComponents/Actions';
 
 ChartJS.register(
     CategoryScale,
@@ -89,8 +90,9 @@ const Dashboard = () => {
 
             <div className="col-span-1 bg-white rounded-lg shadow-md p-4">
                 <h2 className="text-lg font-semibold mb-4">My Actions</h2>
-                <div className="text-center">
-                    <p className="text-gray-500">No Pending Actions to Perform</p>
+                <div>
+                    {/* <p className="text-gray-500">No Pending Actions to Perform</p> */}
+                    <Actions />
                 </div>
             </div>
 
