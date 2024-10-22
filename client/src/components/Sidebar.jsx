@@ -9,7 +9,7 @@ import {
 } from "react-icons/fa";
 import { HiOutlineX } from "react-icons/hi";
 import { Link, NavLink } from "react-router-dom";
-import logo from "../images/logo.png";
+import logo from "../images/hrm withoutbackground.png";
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -42,8 +42,8 @@ const Sidebar = () => {
               isCollapsed ? "w-8 h-8" : "w-16 h-16"
             }`}
           />
-          <span className="mt-4 text-lg transition-all duration-300">
-            {!isCollapsed && "HRM"}
+          <span className="mt-4 text-lg transition-all duration-300 font-serif">
+            {!isCollapsed && "GLOBAL HRM"}
           </span>
         </Link>
       </div>

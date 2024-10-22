@@ -1,20 +1,16 @@
 import React, { useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import "./LearningDevelopment.css"; // for additional styling
+import "../components/CSS/LearningDevelopment.css"; // for additional styling
 
 const LearningDevelopment = () => {
   const [date, setDate] = useState(new Date());
 
   return (
     <div className="p-5">
-      <h1 className="text-2xl font-bold mb-4">
-        Learning and Development Dashboard
-      </h1>
-
       <div className="cards-container flex flex-wrap gap-5 justify-around">
         {/* Training and Courses Overview */}
-        <div className="card bg-gray-100 border border-gray-300 rounded-lg p-5 shadow-md">
+        <div className="card bg-gray-100 border border-gray-300 rounded-lg p-5 ">
           <h2 className="text-lg font-semibold">
             Training and Courses Overview
           </h2>
@@ -44,7 +40,7 @@ const LearningDevelopment = () => {
         </div>
 
         {/* Learning Progress */}
-        <div className="card bg-gray-100 border border-gray-300 rounded-lg p-5 shadow-md">
+        <div className="card bg-gray-100 border border-gray-300 rounded-lg p-5 ">
           <h2 className="text-lg font-semibold">Learning Progress</h2>
           <p>Overall Progress: 70%</p>
           <div>
@@ -73,7 +69,7 @@ const LearningDevelopment = () => {
         </div>
 
         {/* Certifications and Achievements */}
-        <div className="card bg-gradient-to-r from-orange-400 to-orange-300 text-white rounded-lg p-5 shadow-md transition-shadow duration-300 hover:shadow-lg">
+        <div className="card bg-gradient-to-r from-orange-400 to-orange-300 text-white rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
           <h2 className="text-lg font-semibold mb-2">
             Certifications and Achievements
           </h2>
@@ -111,7 +107,7 @@ const LearningDevelopment = () => {
         </div>
 
         {/* Skills and Competencies */}
-        <div className="card bg-gradient-to-r from-indigo-500 to-indigo-300 text-white rounded-lg p-5 shadow-md transition-shadow duration-300 hover:shadow-lg">
+        <div className="card bg-gradient-to-r from-indigo-500 to-indigo-300 text-white rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
           <h2 className="text-lg font-semibold mb-4">
             Skills and Competencies
           </h2>
@@ -144,7 +140,7 @@ const LearningDevelopment = () => {
         </div>
 
         {/* Learning Calendar */}
-        <div className="card bg-gray-100 border border-gray-300 rounded-lg p-5 shadow-md">
+        <div className="card bg-gray-100 border border-gray-300 rounded-lg p-5 ">
           <h2 className="text-lg font-semibold">Learning Calendar</h2>
           <Calendar onChange={setDate} value={date} />
           <p className="mt-2">Selected Date: {date.toDateString()}</p>
@@ -156,7 +152,7 @@ const LearningDevelopment = () => {
         </div>
 
         {/* Career Development Plan */}
-        <div className="card bg-gradient-to-r from-blue-500 to-blue-300 text-black rounded-lg p-5 shadow-md transition-shadow duration-300 hover:shadow-lg">
+        <div className="card bg-gradient-to-r from-blue-500 to-blue-300 text-black rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
           <h2 className="text-lg font-semibold mb-4">
             Career Development Plan
           </h2>
@@ -180,7 +176,7 @@ const LearningDevelopment = () => {
         </div>
 
         {/* Peer and Mentor Interaction */}
-        <div className="card bg-gradient-to-r from-blue-500 to-blue-300 text-black rounded-lg p-5 shadow-md transition-shadow duration-300 hover:shadow-lg">
+        <div className="card bg-gradient-to-r from-blue-500 to-blue-300 text-black rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
           <h2 className="text-lg  font-semibold mb-2">
             Peer and Mentor Interaction
           </h2>
@@ -203,7 +199,7 @@ const LearningDevelopment = () => {
         </div>
 
         {/* Personalized Recommendations */}
-        <div className="card bg-gradient-to-r from-green-400 to-green-300 text-black rounded-lg p-5 shadow-md transition-shadow duration-300 hover:shadow-lg">
+        <div className="card bg-gradient-to-r from-green-400 to-green-300 text-black rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
           <h2 className="text-lg font-semibold mb-2">
             Personalized Recommendations
           </h2>
@@ -220,7 +216,7 @@ const LearningDevelopment = () => {
         </div>
 
         {/* Performance Metrics */}
-        <div className="card bg-gradient-to-r from-purple-500 to-purple-300 text-white rounded-lg p-5 shadow-md transition-shadow duration-300 hover:shadow-lg">
+        <div className="card bg-gradient-to-r from-purple-500 to-purple-300 text-white rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
           <h2 className="text-lg font-semibold mb-2">Performance Metrics</h2>
           <ul className="list-disc list-inside ml-5">
             <li className="text-sm">
