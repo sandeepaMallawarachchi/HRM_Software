@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import PunchInOut from './subPages/PunchInOut'
 import MyAttendance from './subPages/MyAttendance'
+import AttendanceAnalysis from './subPages/AttendanceAnalysis'
 
 const AttendanceAndTime = () => {
 
@@ -25,10 +26,17 @@ const AttendanceAndTime = () => {
                 >
                     My Attendance Records
                 </button>
+                <button
+                    onClick={() => handleSectionToggle('analysis')}
+                    className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'analysis' ? 'bg-orange-500 text-white' : ''}`}
+                >
+                    Attendance Analysis
+                </button>
             </div>
 
             {visibleSection === 'punchinout' && <PunchInOut />}
             {visibleSection === 'attendance' && <MyAttendance />}
+            {visibleSection === 'analysis' && <AttendanceAnalysis />}
         </div>
     )
 }

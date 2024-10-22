@@ -91,7 +91,7 @@ const PunchInOut = () => {
                             className="border-none rounded-md p-2 w-full"
                             required
                         />
-                        {errors.time && <p className="text-red-500 text-sm">{errors.time}</p>}
+                        {errors.time && <p className="text-red-600 text-sm">{errors.time}</p>}
                     </div>
                 </div>
 

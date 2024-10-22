@@ -748,5 +748,44 @@ router.get('/getAttendance/:empId', async (req, res) => {
     }
 });
 
+//get attendance analysis by empId
+router.get('/attendanceAnalysis/:empId', async (req, res) => {
+    const empId = req.params.empId;
+
+    try {
+        // Query to get worked hours for the week (grouped by day of the week)
+        const weekQuery = `
+            SELECT 
+                DAYNAME(punch_in_date) AS dayOfWeek, 
+                ROUND(SUM(TIMESTAMPDIFF(MINUTE, punch_in_time, punch_out_time)) / 60, 2) AS workedHours
+            FROM attendance
+            WHERE empId = ? 
+            AND WEEK(punch_in_date) = WEEK(CURDATE())
+            GROUP BY dayOfWeek;
+        `;
+        const [weekData] = await pool.query(weekQuery, [empId]);
+
+        // Query to get total hours worked per month
+        const monthQuery = `
+            SELECT 
+                MONTHNAME(punch_in_date) AS month, 
+                ROUND(SUM(TIMESTAMPDIFF(MINUTE, punch_in_time, punch_out_time)) / 60, 2) AS workedHours
+            FROM attendance
+            WHERE empId = ? 
+            GROUP BY month
+            ORDER BY MONTH(punch_in_date);
+        `;
+        const [monthData] = await pool.query(monthQuery, [empId]);
+
+        // Sending the response with both week and month data
+        return res.status(200).json({
+            weekData, 
+            monthData 
+        });
+    } catch (error) {
+        console.error('Error fetching attendance analysis:', error);
+        return res.status(500).json({ error: 'Error fetching attendance analysis' });
+    }
+});
 
 module.exports = router;
