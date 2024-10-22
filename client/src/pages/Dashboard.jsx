@@ -10,6 +10,7 @@ import {
     Legend,
 } from 'chart.js';
 import { Bar, Pie } from 'react-chartjs-2';
+import { FaSignInAlt, FaSignOutAlt, FaCalendarPlus, FaClipboardList } from 'react-icons/fa'
 
 // Register the necessary Chart.js components
 ChartJS.register(
@@ -77,8 +78,30 @@ const Dashboard = () => {
             {/* Quick Launch Card */}
             <div className="col-span-1 bg-white rounded-lg shadow-md p-4">
                 <h2 className="text-lg font-semibold mb-4">Quick Launch</h2>
-                <div className="text-center">
-                    <p className="text-gray-500">Not Available</p>
+                <div className="grid grid-cols-2 gap-4 text-center">
+                    {/* Punch-In */}
+                    <div className="flex flex-col items-center justify-center p-4 bg-gray-100 rounded-full hover:bg-orange-400 cursor-pointer group">
+                        <FaSignInAlt className="text-4xl text-gray-700 group-hover:text-white" />
+                        <p className="mt-2 text-gray-700 group-hover:text-white">Punch In</p>
+                    </div>
+
+                    {/* Punch-Out */}
+                    <div className="flex flex-col items-center justify-center p-4 bg-gray-100 rounded-full hover:bg-orange-400 cursor-pointer group">
+                        <FaSignOutAlt className="text-4xl text-gray-700 group-hover:text-white" />
+                        <p className="mt-2 text-gray-700 group-hover:text-white">Punch Out</p>
+                    </div>
+
+                    {/* Request Leave */}
+                    <div className="flex flex-col items-center justify-center p-4 bg-gray-100 rounded-full hover:bg-orange-400 cursor-pointer group">
+                        <FaCalendarPlus className="text-4xl text-gray-700 group-hover:text-white" />
+                        <p className="mt-2 text-gray-700 group-hover:text-white">Request Leave</p>
+                    </div>
+
+                    {/* My Leaves */}
+                    <div className="flex flex-col items-center justify-center p-4 bg-gray-100 rounded-full hover:bg-orange-400 cursor-pointer group">
+                        <FaClipboardList className="text-4xl text-gray-700 group-hover:text-white" />
+                        <p className="mt-2 text-gray-700 group-hover:text-white">My Leaves</p>
+                    </div>
                 </div>
             </div>
 

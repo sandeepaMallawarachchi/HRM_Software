@@ -8,6 +8,7 @@ import Profile from './components/Profile';
 import Payroll from './pages/Payroll';
 import EmployeeRegistration from './pages/profileComponents/EmployeeRegistration';
 import LeaveAndAttendance from './pages/LeaveAndAttendance';
+import AttendanceAndTime from './pages/AttendanceAndTime';
 
 //auth routes
 import ProtectedRoute from './pages/auth/ProtectedRoute';
@@ -33,6 +34,7 @@ const App = () => {
             <Route path="/payroll" element={<ProtectedRoute element={<Payroll />} />} />
             <Route path="/registration" element={<ProtectedRoute element={<EmployeeRegistration />} />} />
             <Route path="/leave" element={<ProtectedRoute element={<LeaveAndAttendance />} />} />
+            <Route path="/attendance" element={<ProtectedRoute element={<AttendanceAndTime />} />} />
           </Routes>
         </div>
       </div>
