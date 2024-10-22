@@ -671,4 +671,143 @@ router.get('/leaveAnalysis/:empId', async (req, res) => {
     }
 });
 
+//attendance
+router.post('/attendance/:empId', async (req, res) => {
+    const empId = req.params.empId;
+    const { punch_in_time, punch_out_time, note } = req.body;
+    const createdAt = new Date();
+    const currentDate = createdAt.toISOString().split('T')[0];
+
+    try {
+        const [existingRecord] = await pool.query(
+            'SELECT * FROM attendance WHERE empId = ? AND punch_in_date = ?',
+            [empId, currentDate]
+        );
+
+        if (existingRecord.length > 0) {
+            const updatedRecord = await pool.query(
+                'UPDATE attendance SET punch_out_time = ?, note = ? WHERE empId = ? AND punch_in_date = ?',
+                [punch_out_time, note, empId, currentDate]
+            );
+
+            return res.status(200).json({ message: 'Employee attendance updated successfully', attendanceId: existingRecord[0].attendanceId });
+        } else {
+            const newAttendance = { empId, punch_in_date: currentDate, punch_out_date: currentDate, punch_in_time, punch_out_time, note, createdAt };
+            const [results] = await pool.query(
+                'INSERT INTO attendance (empId, punch_in_date, punch_out_date, punch_in_time, punch_out_time, note, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                [newAttendance.empId, newAttendance.punch_in_date, newAttendance.punch_out_date, newAttendance.punch_in_time, newAttendance.punch_out_time, newAttendance.note, newAttendance.createdAt]
+            );
+
+            return res.status(201).json({ message: 'Employee attendance created successfully', attendanceId: results.insertId });
+        }
+    } catch (error) {
+        console.error('Error saving employee attendance:', error);
+        res.status(500).json({ error: 'Error saving employee attendance' });
+    }
+});
+
+// Get attendance records by empId
+const moment = require('moment');
+
+router.get('/getAttendance/:empId', async (req, res) => {
+    const empId = req.params.empId;
+
+    try {
+        // Get all attendance records for the employee
+        const [records] = await pool.query(
+            'SELECT punch_in_date, punch_in_time, punch_out_time FROM attendance WHERE empId = ?',
+            [empId]
+        );
+
+        // Calculate worked hours for each record
+        const attendanceWithWorkedHours = records.map(record => {
+            if (record.punch_in_time && record.punch_out_time) {
+                // Use moment.js to calculate the difference between punch in and punch out times
+                const punchIn = moment(record.punch_in_time, 'HH:mm:ss');
+                const punchOut = moment(record.punch_out_time, 'HH:mm:ss');
+
+                // Calculate worked hours as the duration between punch in and punch out times
+                const workedHours = moment.duration(punchOut.diff(punchIn)).asHours();
+
+                return {
+                    ...record,
+                    worked_hours: workedHours.toFixed(2)
+                };
+            } else {
+                return {
+                    ...record,
+                    worked_hours: 'N/A'
+                };
+            }
+        });
+
+        res.status(200).json(attendanceWithWorkedHours);
+    } catch (error) {
+        console.error('Error fetching employee attendance:', error);
+        res.status(500).json({ error: 'Error fetching employee attendance' });
+    }
+});
+
+//get attendance analysis by empId
+router.get('/attendanceAnalysis/:empId', async (req, res) => {
+    const empId = req.params.empId;
+
+    try {
+        // Query to get worked hours for the week (grouped by day of the week)
+        const weekQuery = `
+            SELECT 
+                DAYNAME(punch_in_date) AS dayOfWeek, 
+                ROUND(SUM(TIMESTAMPDIFF(MINUTE, punch_in_time, punch_out_time)) / 60, 2) AS workedHours
+            FROM attendance
+            WHERE empId = ? 
+            AND WEEK(punch_in_date) = WEEK(CURDATE())
+            GROUP BY dayOfWeek;
+        `;
+        const [weekData] = await pool.query(weekQuery, [empId]);
+
+        // Query to get total hours worked per month
+        const monthQuery = `
+            SELECT 
+                MONTHNAME(punch_in_date) AS month, 
+                ROUND(SUM(TIMESTAMPDIFF(MINUTE, punch_in_time, punch_out_time)) / 60, 2) AS workedHours
+            FROM attendance
+            WHERE empId = ? 
+            GROUP BY month
+            ORDER BY MONTH(punch_in_date);
+        `;
+        const [monthData] = await pool.query(monthQuery, [empId]);
+
+        // Sending the response with both week and month data
+        return res.status(200).json({
+            weekData, 
+            monthData 
+        });
+    } catch (error) {
+        console.error('Error fetching attendance analysis:', error);
+        return res.status(500).json({ error: 'Error fetching attendance analysis' });
+    }
+});
+
+//get attendance of current date
+router.get('/getCurrentDateAttendance/:empId', async (req, res) => {
+    const empId = req.params.empId;
+
+    try {
+        const [records] = await pool.query(
+            'SELECT punch_in_time, punch_out_time FROM attendance WHERE empId = ? AND punch_in_date = CURDATE()',
+            [empId]
+        );
+
+        if (records.length > 0) {
+            res.status(200).json(records[0]); 
+        } else {
+            res.status(200).json({ punch_in_time: null, punch_out_time: null });
+        }
+    } catch (error) {
+        console.error('Error fetching today\'s attendance:', error);
+        res.status(500).json({ error: 'Error fetching today\'s attendance' });
+    }
+});
+
+
 module.exports = router;

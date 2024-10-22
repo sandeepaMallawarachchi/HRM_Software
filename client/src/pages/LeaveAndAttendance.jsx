@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import LeaveRequest from './subPages/LeaveRequest'
-import Attendance from './subPages/Attendance'
+import LeaveAnalysis from './subPages/LeaveAnalysis'
 import MyLeaves from './subPages/MyLeaves'
 
 const LeaveAndAttendance = () => {
@@ -30,13 +30,13 @@ const LeaveAndAttendance = () => {
                     onClick={() => handleSectionToggle('attendance')}
                     className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'attendance' ? 'bg-orange-500 text-white' : ''}`}
                 >
-                    Attendance
+                    Leave Analysis
                 </button>
             </div>
 
             {visibleSection === 'leave' && <LeaveRequest />}
             {visibleSection === 'myleaves' && <MyLeaves />}
-            {visibleSection === 'attendance' && <Attendance />}
+            {visibleSection === 'attendance' && <LeaveAnalysis />}
         </div>
     )
 }
