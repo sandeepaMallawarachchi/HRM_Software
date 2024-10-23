@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { FaBell, FaEnvelope, FaAngleDown } from 'react-icons/fa';
-import defaultAvatar from '../images/avatar.png';
-import { Link, useLocation } from 'react-router-dom';
-import Support from '../pages/profileComponents/Support';
-import axios from 'axios';
-import ProfilePicture from './subComponents/ProfilePicture';
+import React, { useEffect, useState } from "react";
+import { FaBell, FaEnvelope, FaAngleDown } from "react-icons/fa";
+import defaultAvatar from "../images/avatar.png";
+import { Link, useLocation } from "react-router-dom";
+import Support from "../pages/profileComponents/Support";
+import axios from "axios";
+import ProfilePicture from "./subComponents/ProfilePicture";
 
 const Header = () => {
   const location = useLocation();
@@ -54,6 +54,8 @@ const Header = () => {
         return "Attendance & Time";
       case "/learn":
         return "Learning & Development";
+      case "/offers":
+        return "Offers";
       default:
         return "Dashboard";
     }
@@ -86,14 +88,16 @@ const Header = () => {
         />
       </div>
 
-      <div className="relative flex items-center border border-white rounded-full p-2 px-3 space-x-3 backdrop-blur-lg group">
-        <div className='w-10 justify-center'>
-          <ProfilePicture />
-        </div>
-        <span className="text-white cursor-pointer">
-          {empName.name}
-        </span>
-        <FaAngleDown className="text-white cursor-pointer hover:text-orange-300" size={20} />
+            <div className="relative flex items-center border border-white rounded-full p-2 px-3 space-x-3 backdrop-blur-lg group">
+                <img
+                    src={avatar}
+                    alt="avatar"
+                    className="w-10 h-10 rounded-full border border-gray-300"
+                />
+                <span className="text-white cursor-pointer">
+                    {empName.name}
+                </span>
+                <FaAngleDown className="text-white cursor-pointer hover:text-orange-300" size={20} />
 
         <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-md">
           <ul className="py-2">
