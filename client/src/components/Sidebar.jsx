@@ -4,17 +4,20 @@ import {
   FaWallet,
   FaCalendarCheck,
   FaListAlt,
-  FaBars,
+  FaAngleLeft,
   FaBook,
   FaBookReader,
   FaCheckDouble,
   FaGripfire,
+  FaAngleRight,
 } from "react-icons/fa";
-import { HiOutlineX } from "react-icons/hi";
+
 import { Link, NavLink } from "react-router-dom";
 import logo from "../images/hrm withoutbackground.png";
+import TeamLeaderSidebar from "../components/SidebarComponents/TeamLdrSidebar"; // Import the TeamLeaderSidebar component
 
-const Sidebar = () => {
+const Sidebar = ({ userRole }) => {
+  // Accept userRole as a prop
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isRecruitmentOpen, setIsRecruitmentOpen] = useState(false); // For toggling Recruitment submenu
 
@@ -33,12 +36,12 @@ const Sidebar = () => {
         onClick={handleToggle}
         className="absolute top-20 right-[-16px] bg-gradient-to-r from-orange-400 to-orange-500 text-white p-2 rounded-full shadow-md hover:bg-orange-400"
       >
-        {isCollapsed ? <HiOutlineX size={20} /> : <FaBars size={20} />}
+        {isCollapsed ? <FaAngleRight size={20} /> : <FaAngleLeft size={20} />}
       </button>
 
       {/* Logo and HRM Section */}
       <div className="flex flex-col items-center mt-5 w-full">
-        <Link to="/dashboard">
+        <Link to="/dashboard" className="flex flex-col items-center">
           <img
             src={logo}
             alt="Logo"
@@ -46,9 +49,11 @@ const Sidebar = () => {
               isCollapsed ? "w-8 h-8" : "w-16 h-16"
             }`}
           />
-          <span className="mt-4 text-lg transition-all duration-300 font-serif">
-            {!isCollapsed && "GLOBAL HRM"}
-          </span>
+          {!isCollapsed && (
+            <span className="mt-2 text-lg transition-all duration-300 font-serif text-center">
+              GLOBAL HRM
+            </span>
+          )}
         </Link>
       </div>
 
@@ -176,6 +181,10 @@ const Sidebar = () => {
               <span>Onboarding</span>
             </NavLink>
           </div>
+        )}
+
+        {userRole === "teamLeader" && (
+          <TeamLeaderSidebar isCollapsed={isCollapsed} />
         )}
       </div>
     </div>

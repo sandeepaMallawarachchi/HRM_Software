@@ -216,7 +216,7 @@ const LearningDevelopment = () => {
         </div>
 
         {/* Performance Metrics */}
-        <div className="card bg-gradient-to-r from-purple-500 to-purple-300 text-white rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
+        <div className="card bg-gradient-to-r from-purple-500 to-purple-300 text-black rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
           <h2 className="text-lg font-semibold mb-2">Performance Metrics</h2>
           <ul className="list-disc list-inside ml-5">
             <li className="text-sm">
