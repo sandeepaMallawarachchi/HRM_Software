@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { FaBell, FaEnvelope, FaAngleDown } from 'react-icons/fa';
-import defaultAvatar from '../images/avatar.png';
-import { Link, useLocation } from 'react-router-dom';
-import Support from '../pages/profileComponents/Support';
-import axios from 'axios';
-import ProfilePicture from './subComponents/ProfilePicture';
+import React, { useEffect, useState } from "react";
+import { FaBell, FaEnvelope, FaAngleDown } from "react-icons/fa";
+import defaultAvatar from "../images/avatar.png";
+import { Link, useLocation } from "react-router-dom";
+import Support from "../pages/profileComponents/Support";
+import axios from "axios";
+import ProfilePicture from "./subComponents/ProfilePicture";
 
 const Header = () => {
   const location = useLocation();
@@ -54,6 +54,8 @@ const Header = () => {
         return "Attendance & Time";
       case "/learn":
         return "Learning & Development";
+      case "/offers":
+        return "Offers";
       default:
         return "Dashboard";
     }
@@ -67,7 +69,7 @@ const Header = () => {
       localStorage.removeItem("authToken");
       localStorage.removeItem("empId");
 
-      window.location.href = '/';
+      window.location.href = "/";
     }
   };
 

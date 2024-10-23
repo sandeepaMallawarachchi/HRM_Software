@@ -8,17 +8,19 @@ import {
 import "./index.css";
 import Header from "./components/Header";
 import Dashboard from "./pages/Dashboard";
-import Sidebar from "./components/Sidebar";
+import Sidebar from "./components/Sidebar.jsx";
 import Profile from "./components/Profile";
 import Payroll from "./pages/Payroll";
 import EmployeeRegistration from "./pages/profileComponents/EmployeeRegistration";
 import LeaveAndAttendance from "./pages/LeaveAndAttendance";
 import LearningDevelopment from "./pages/LearningDevelopment";
-import AttendanceAndTime from './pages/AttendanceAndTime';
+import AttendanceAndTime from "./pages/AttendanceAndTime";
 
 //auth routes
 import ProtectedRoute from "./pages/auth/ProtectedRoute";
 import Login from "./pages/auth/Login";
+import Offers from "./pages/subPages/Offers";
+import Onboarding from "./pages/subPages/Onboarding";
 
 const App = () => {
   const location = useLocation();
@@ -37,13 +39,42 @@ const App = () => {
             <Route path="/" element={<Login />} />
 
             {/* Protected Routes */}
-            <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
-            <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
-            <Route path="/payroll" element={<ProtectedRoute element={<Payroll />} />} />
-            <Route path="/registration" element={<ProtectedRoute element={<EmployeeRegistration />} />} />
-            <Route path="/leave" element={<ProtectedRoute element={<LeaveAndAttendance />} />} />
-            <Route path="/attendance" element={<ProtectedRoute element={<AttendanceAndTime />} />} />
-            <Route path="/learn" element={<ProtectedRoute element={<LearningDevelopment />} />} />
+            <Route
+              path="/dashboard"
+              element={<ProtectedRoute element={<Dashboard />} />}
+            />
+            <Route
+              path="/profile"
+              element={<ProtectedRoute element={<Profile />} />}
+            />
+            <Route
+              path="/payroll"
+              element={<ProtectedRoute element={<Payroll />} />}
+            />
+            <Route
+              path="/registration"
+              element={<ProtectedRoute element={<EmployeeRegistration />} />}
+            />
+            <Route
+              path="/leave"
+              element={<ProtectedRoute element={<LeaveAndAttendance />} />}
+            />
+            <Route
+              path="/attendance"
+              element={<ProtectedRoute element={<AttendanceAndTime />} />}
+            />
+            <Route
+              path="/learn"
+              element={<ProtectedRoute element={<LearningDevelopment />} />}
+            />
+            <Route
+              path="/offers"
+              element={<ProtectedRoute element={<Offers />} />}
+            />
+            <Route
+              path="/onboarding"
+              element={<ProtectedRoute element={<Onboarding />} />}
+            />
           </Routes>
         </div>
       </div>
