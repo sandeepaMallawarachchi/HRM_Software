@@ -87,7 +87,7 @@ const Header = () => {
       </div>
 
       <div className="relative flex items-center border border-white rounded-full p-2 px-3 space-x-3 backdrop-blur-lg group">
-        <div className='w-10 justify-center'>
+        <div className='w-10 justify-center rounded-full'>
           <ProfilePicture />
         </div>
         <span className="text-white cursor-pointer">

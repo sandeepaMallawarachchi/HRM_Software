@@ -27,7 +27,7 @@ const ProfilePicture = () => {
             <img
                 src={avatar}
                 alt="avatar"
-                className="rounded-full border border-gray-300"
+                className="rounded-full border border-gray-300 w-full h-full"
             />
         </div>
     );
