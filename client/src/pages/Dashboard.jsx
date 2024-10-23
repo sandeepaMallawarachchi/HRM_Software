@@ -97,7 +97,7 @@ const Dashboard = () => {
         </div>
       </Link>
 
-      <div className="col-span-1 bg-white rounded-lg shadow-md p-4">
+      <div className="cards col-span-1 bg-white rounded-lg  p-4">
         <h2 className="text-lg font-semibold mb-4">My Actions</h2>
         <div className="text-center">
           <Actions />

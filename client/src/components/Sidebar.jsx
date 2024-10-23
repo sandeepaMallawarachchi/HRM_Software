@@ -6,6 +6,9 @@ import {
   FaListAlt,
   FaBars,
   FaBook,
+  FaBookReader,
+  FaCheckDouble,
+  FaGripfire,
 } from "react-icons/fa";
 import { HiOutlineX } from "react-icons/hi";
 import { Link, NavLink } from "react-router-dom";
@@ -13,6 +16,7 @@ import logo from "../images/hrm withoutbackground.png";
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isRecruitmentOpen, setIsRecruitmentOpen] = useState(false); // For toggling Recruitment submenu
 
   const handleToggle = () => {
     setIsCollapsed(!isCollapsed);
@@ -50,6 +54,7 @@ const Sidebar = () => {
 
       {/* Navigation Links */}
       <div className="flex flex-col items-center justify-end mt-4 mb-8 w-full gap-5">
+        {/* Dashboard Link */}
         <NavLink
           to="/dashboard"
           className={({ isActive }) =>
@@ -66,6 +71,8 @@ const Sidebar = () => {
           />
           {!isCollapsed && <span>Dashboard</span>}
         </NavLink>
+
+        {/* Payroll Link */}
         <NavLink
           to="/payroll"
           className={({ isActive }) =>
@@ -82,6 +89,8 @@ const Sidebar = () => {
           />
           {!isCollapsed && <span>Payroll</span>}
         </NavLink>
+
+        {/* Attendance & Time Link */}
         <NavLink
           to="/attendance"
           className={({ isActive }) =>
@@ -98,6 +107,8 @@ const Sidebar = () => {
           />
           {!isCollapsed && <span>Attendance & Time</span>}
         </NavLink>
+
+        {/* Leave & Attendance Link */}
         <NavLink
           to="/leave"
           className={({ isActive }) =>
@@ -114,6 +125,8 @@ const Sidebar = () => {
           />
           {!isCollapsed && <span>Leave & Attendance</span>}
         </NavLink>
+
+        {/* Learning & Development Link */}
         <NavLink
           to="/learn"
           className={({ isActive }) =>
@@ -124,12 +137,46 @@ const Sidebar = () => {
             }`
           }
         >
-          <FaBook
+          <FaBookReader
             size={20}
             className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
           />
           {!isCollapsed && <span>Learning & Development</span>}
         </NavLink>
+
+        {/* Recruitment Link */}
+        <NavLink
+          to="#"
+          onClick={() => setIsRecruitmentOpen(!isRecruitmentOpen)}
+          className="flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors"
+        >
+          <FaCheckDouble
+            size={20}
+            className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+          />
+          {!isCollapsed && <span>Recruitment</span>}
+        </NavLink>
+
+        {/* Offers and Onboarding Submenu */}
+        {isRecruitmentOpen && !isCollapsed && (
+          <div className="ml-8">
+            <NavLink
+              to="/offers"
+              className="flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors"
+            >
+              <FaGripfire size={20} className="mr-2" />
+              <span>Offers</span>
+            </NavLink>
+
+            <NavLink
+              to="/onboarding"
+              className="flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors"
+            >
+              <FaBook size={20} className="mr-2" />
+              <span>Onboarding</span>
+            </NavLink>
+          </div>
+        )}
       </div>
     </div>
   );
