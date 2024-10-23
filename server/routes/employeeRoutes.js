@@ -2,13 +2,15 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
-const multer = require("multer");
 const path = require("path");
-const fs = require("fs");
 const pool = require("../database");
 const nodemailer = require("nodemailer");
 const { validationResult } = require("express-validator");
 const crypto = require("crypto");
+const { initializeApp } = require("firebase/app");
+const { getStorage, ref, getDownloadURL, uploadBytesResumable } = require("firebase/storage");
+const multer = require("multer");
+const config = require("../config/firebase.config");
 
 //send emails
 const transporter = nodemailer.createTransport({
@@ -239,41 +241,48 @@ router.get('/getPersonalDetails/:empId', async (req, res) => {
     }
 });
 
-// Upload profile picture
-const uploadDir = path.join(__dirname, "..", "uploads");
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+//upload profile image
+initializeApp(config.firebaseConfig);
+const storage = getStorage();
+const upload = multer({ storage: multer.memoryStorage() });
+
+function giveCurrentDateTime() {
+    return new Date().toISOString().replace(/:/g, '-');
 }
 
-// Configure multer storage
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    },
+router.post("/uploadProfileImage/:empId", upload.single("profilePic"), async (req, res) => {
+    const empId = req.params.empId;
+
+    try {
+        if (!req.file) {
+            return res.status(400).send("No file uploaded.");
+        }
+
+        const dateTime = giveCurrentDateTime();
+        const storageRef = ref(storage, `profilepic/${req.file.originalname} ${dateTime}`);
+        const metadata = {
+            contentType: req.file.mimetype,
+        };
+
+        const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+
+        // Update profile picture URL in the database
+        const updateQuery = 'UPDATE personaldetails SET profilepic = ? WHERE empId = ?';
+        await pool.query(updateQuery, [downloadURL, empId]);
+
+        return res.send({
+            message: 'File uploaded to Firebase Storage and profile picture updated successfully',
+            name: req.file.originalname,
+            type: req.file.mimetype,
+            downloadURL: downloadURL,
+        });
+    } catch (error) {
+        console.error('Error uploading file or updating profile picture:', error);
+        return res.status(500).send(error.message);
+    }
 });
 
-const upload = multer({ storage });
-
-// Endpoint to upload profile picture
-router.post("/uploadProfileImage/:empId", upload.single("profileImage"), (req, res) => {
-    const empId = req.params.empId;
-    const imagePath = `/uploads/${req.file.filename}`;
-
-    const sql = "UPDATE personaldetails SET profilepic = ? WHERE empId = ?";
-    pool.query(sql, [imagePath, empId], (err, result) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send("Error updating profile image.");
-        }
-        res.status(200).json({ imageUrl: imagePath });
-    });
-}
-);
-
-// Get profile picture by id
 router.get("/getProfileImage/:empId", async (req, res) => {
     const empId = req.params.empId;
 
@@ -284,7 +293,7 @@ router.get("/getProfileImage/:empId", async (req, res) => {
         );
 
         if (rows.length > 0) {
-            res.status(200).json({ imageUrl: rows[0].profilepic });
+            res.status(200).json({ imageUrl: `${rows[0].profilepic}` });
         } else {
             res.status(404).json({ message: "Employee not found" });
         }
@@ -779,8 +788,8 @@ router.get('/attendanceAnalysis/:empId', async (req, res) => {
 
         // Sending the response with both week and month data
         return res.status(200).json({
-            weekData, 
-            monthData 
+            weekData,
+            monthData
         });
     } catch (error) {
         console.error('Error fetching attendance analysis:', error);
@@ -799,7 +808,7 @@ router.get('/getCurrentDateAttendance/:empId', async (req, res) => {
         );
 
         if (records.length > 0) {
-            res.status(200).json(records[0]); 
+            res.status(200).json(records[0]);
         } else {
             res.status(200).json({ punch_in_time: null, punch_out_time: null });
         }
