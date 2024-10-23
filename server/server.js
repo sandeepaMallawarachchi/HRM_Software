@@ -17,9 +17,6 @@ app.use("/employees", employeeRoutes);
 // Use the admin routes
 app.use("/admin", adminRoutes);
 
-// Serve static files from the uploads directory
-app.use("/uploads", express.static("uploads"));
-
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
