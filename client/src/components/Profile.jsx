@@ -42,27 +42,23 @@ const Profile = () => {
         const file = e.target.files[0];
         if (file) {
             const formData = new FormData();
-            formData.append('profileImage', file);
+            formData.append('profilePic', file);
+    
             try {
                 const response = await axios.post(`http://localhost:4000/employees/uploadProfileImage/${empId}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-
-                // Check if the response has the image URL
-                if (response.data.imageUrl) {
-                    // Update avatar state with the new image URL
-                    setAvatar(`http://localhost:4000${response.data.imageUrl}`);
-                } else {
-                    console.log('Image URL not found in response');
-                }
+    
+                setAvatar(response.data.downloadURL);
+    
             } catch (err) {
                 console.log('Error uploading profile image:', err);
             }
         }
     };
-
+    
     const handleSectionToggle = (section) => {
         setVisibleSection(visibleSection === section ? null : section);
     };

@@ -8,21 +8,19 @@ const ProfilePicture = () => {
 
     useEffect(() => {
         const fetchProfilePic = async () => {
-
             try {
-                const response = await axios.get(`http://localhost:4000/employees/getPersonalDetails/${empId}`);
-
-                if (response.data.profilepic) {
-                    setAvatar(`http://localhost:4000${response.data.profilepic}`);
+                const response = await axios.get(`http://localhost:4000/employees/getProfileImage/${empId}`);
+                if (response.data.imageUrl) {
+                    setAvatar(response.data.imageUrl);
+                    console.log(response.data.imageUrl)
                 }
-
             } catch (err) {
                 console.log("Error fetching employee profile pic:", err);
             }
         };
 
         fetchProfilePic();
-    }, []);
+    }, [empId]);
 
     return (
         <div>
@@ -32,7 +30,7 @@ const ProfilePicture = () => {
                 className="w-10 h-10 rounded-full border border-gray-300"
             />
         </div>
-    )
+    );
 }
 
-export default ProfilePicture
+export default ProfilePicture;

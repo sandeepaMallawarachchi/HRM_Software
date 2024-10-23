@@ -61,15 +61,15 @@ const Header = () => {
 
   const closeModal = () => setShowSupportModal(false);
 
-    const handleLogout = () => {
-        const confirm = window.confirm("Are you sure you want to log out?");
-        if (confirm) {
-            localStorage.removeItem("authToken");
-            localStorage.removeItem("empId");
-    
-            window.location.href = '/';
-        }
-    };
+  const handleLogout = () => {
+    const confirm = window.confirm("Are you sure you want to log out?");
+    if (confirm) {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("empId");
+
+      window.location.href = '/';
+    }
+  };
 
   return (
     <div className="z-0 header w-full h-auto px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 flex items-center justify-between">
@@ -86,16 +86,12 @@ const Header = () => {
         />
       </div>
 
-            <div className="relative flex items-center border border-white rounded-full p-2 px-3 space-x-3 backdrop-blur-lg group">
-                <img
-                    src={avatar}
-                    alt="avatar"
-                    className="w-10 h-10 rounded-full border border-gray-300"
-                />
-                <span className="text-white cursor-pointer">
-                    {empName.name}
-                </span>
-                <FaAngleDown className="text-white cursor-pointer hover:text-orange-300" size={20} />
+      <div className="relative flex items-center border border-white rounded-full p-2 px-3 space-x-3 backdrop-blur-lg group">
+        <ProfilePicture />
+        <span className="text-white cursor-pointer">
+          {empName.name}
+        </span>
+        <FaAngleDown className="text-white cursor-pointer hover:text-orange-300" size={20} />
 
         <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-md">
           <ul className="py-2">
