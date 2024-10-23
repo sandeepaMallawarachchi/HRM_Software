@@ -8,7 +8,7 @@ const LearningDevelopment = () => {
 
   return (
     <div className="p-5">
-      <div className="cards-container flex flex-wrap gap-5 justify-around">
+      <div className="grid grid-cols-3 gap-6 p-6">
         {/* Training and Courses Overview */}
         <div className="card bg-gray-100 border border-gray-300 rounded-lg p-5 ">
           <h2 className="text-lg font-semibold">
@@ -45,7 +45,7 @@ const LearningDevelopment = () => {
           <p>Overall Progress: 70%</p>
           <div>
             <p>Full-Stack Development: 60%</p>
-            <progress value="60" max="100" className="w-full" />
+            <progress value="60" max="100" className="w-full bg-white" />
           </div>
           <div>
             <p>Intro to JavaScript: 100%</p>

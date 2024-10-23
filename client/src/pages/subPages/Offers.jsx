@@ -1,4 +1,5 @@
 import React from "react";
+import { FaTrash, FaEye,FaCheckCircle } from 'react-icons/fa';
 
 const OffersEmployee = () => {
   const offers = [
@@ -26,62 +27,55 @@ const OffersEmployee = () => {
   ];
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-center">Your Job Offers</h1>
-
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white shadow-md rounded-lg">
-          <thead>
-            <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-              <th className="py-3 px-6 text-left">Position</th>
-              <th className="py-3 px-6 text-left">Salary</th>
-              <th className="py-3 px-6 text-left">Benefits</th>
-              <th className="py-3 px-6 text-left">Status</th>
-              <th className="py-3 px-6 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="text-gray-600 text-sm font-light">
-            {offers.map((offer) => (
-              <tr
-                key={offer.id}
-                className="border-b border-gray-200 hover:bg-gray-100"
-              >
-                <td className="py-3 px-6 text-left">{offer.position}</td>
-                <td className="py-3 px-6 text-left">{offer.salary}</td>
-                <td className="py-3 px-6 text-left">{offer.benefits}</td>
-                <td
-                  className={`py-3 px-6 text-left ${
-                    offer.status === "Accepted"
-                      ? "text-green-500"
-                      : offer.status === "Declined"
-                      ? "text-red-500"
-                      : "text-yellow-500"
+    <div className="m-10 p-6 px-20 bg-[#eaeaea] rounded-lg shadow-md">
+      <h3 className="text-lg mb-4">Your job offers</h3>
+      <table className="min-w-full bg-white border text-gray-600 rounded-lg">
+        <thead>
+          <tr>
+            <th className="py-2 px-4 border-b">Position</th>
+            <th className="py-2 px-4 border-b">Salary</th>
+            <th className="py-2 px-4 border-b">Benefits</th>
+            <th className="py-2 px-4 border-b">Status</th>
+            <th className="py-2 px-4 border-b">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="text-center">
+          {offers.map((offer) => (
+            <tr key={offer.id}>
+              <td className="py-2 px-4 border-b">{offer.position}</td>
+              <td className="py-2 px-4 border-b">{offer.salary}</td>
+              <td className="py-2 px-4 border-b">{offer.benefits}</td>
+              <td
+                className={`py-2 px-4 border-b ${offer.status === "Accepted"
+                  ? "text-green-500"
+                  : offer.status === "Declined"
+                    ? "text-red-500"
+                    : "text-yellow-500"
                   }`}
-                >
-                  {offer.status}
-                </td>
-                <td className="py-3 px-6 text-center">
-                  {offer.status === "Pending" && (
-                    <div className="flex justify-center">
-                      <button className="bg-green-500 text-white px-4 py-2 rounded-full text-sm mr-2 hover:bg-green-600 transition-all">
-                        Accept
-                      </button>
-                      <button className="bg-red-500 text-white px-4 py-2 rounded-full text-sm hover:bg-red-600 transition-all">
-                        Decline
-                      </button>
-                    </div>
-                  )}
-                  {offer.status !== "Pending" && (
-                    <button className="bg-blue-500 text-white px-4 py-2 rounded-full text-sm hover:bg-blue-600 transition-all">
-                      View Offer
+              >
+                {offer.status}
+              </td>
+              <td className="py-2 px-4 border-b">
+                {offer.status === "Pending" && (
+                  <div className="flex justify-center gap-4">
+                    <button className='text-orange-500'>
+                      <FaCheckCircle size={24}/>
                     </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                    <button className='text-orange-500'>
+                      <FaTrash size={24}/>
+                    </button>
+                  </div>
+                )}
+                {offer.status !== "Pending" && (
+                  <button className='text-orange-500'>
+                    <FaEye size={24}/>
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
