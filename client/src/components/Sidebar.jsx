@@ -140,7 +140,7 @@ const Sidebar = ({ userRole }) => {
 
         {/* Offers and Onboarding Submenu */}
         {isRecruitmentOpen && !isCollapsed && (
-          <div className="w-full pl-10 space-y-5">
+          <div className="w-full pl-10 space-y-4">
             <NavLink
               to="/offers"
               className={({ isActive }) =>
