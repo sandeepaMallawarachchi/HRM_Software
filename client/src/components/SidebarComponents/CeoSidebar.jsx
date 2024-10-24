@@ -6,29 +6,12 @@ import {
   FaUserTie,
   FaUsersCog,
   FaChartPie,
+  FaCalendarAlt, // Added icon for meetings
 } from "react-icons/fa";
 
 const CeoSidebar = ({ isCollapsed }) => {
   return (
-    <div className="flex flex-col items-center justify-end  mb-8 w-full gap-4">
-      {/* Executive Dashboard */}
-      <NavLink
-        to="/executive-dashboard"
-        className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
-            isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
-          }`
-        }
-      >
-        <FaTachometerAlt
-          size={20}
-          className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-        />
-        {!isCollapsed && <span>Executive Dashboard</span>}
-      </NavLink>
-
+    <div className="flex flex-col items-center justify-end mb-8 w-full gap-4">
       {/* Strategic Insights */}
       <NavLink
         to="/strategic-insights"
@@ -99,6 +82,24 @@ const CeoSidebar = ({ isCollapsed }) => {
           className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
         />
         {!isCollapsed && <span>Decision Support</span>}
+      </NavLink>
+
+      {/* Meetings */}
+      <NavLink
+        to="/meetings"
+        className={({ isActive }) =>
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+            isActive
+              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+              : ""
+          }`
+        }
+      >
+        <FaCalendarAlt
+          size={20}
+          className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+        />
+        {!isCollapsed && <span>Meetings</span>}
       </NavLink>
     </div>
   );
