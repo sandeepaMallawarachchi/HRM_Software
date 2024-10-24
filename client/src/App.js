@@ -11,7 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Sidebar from "./components/Sidebar.jsx";
 import Profile from "./components/Profile";
 import Payroll from "./pages/Payroll";
-import EmployeeRegistration from "./pages/profileComponents/EmployeeRegistration";
+import EmployeeRegistration from "./pages/auth/EmployeeRegistration";
 import LeaveAndAttendance from "./pages/LeaveAndAttendance";
 import LearningDevelopment from "./pages/LearningDevelopment";
 import AttendanceAndTime from "./pages/AttendanceAndTime";

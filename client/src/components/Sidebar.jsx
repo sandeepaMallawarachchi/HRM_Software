@@ -14,17 +14,19 @@ import {
 
 import { Link, NavLink } from "react-router-dom";
 import logo from "../images/hrm withoutbackground.png";
-import TeamLeaderSidebar from "../components/SidebarComponents/TeamLdrSidebar"; // Import the TeamLeaderSidebar component
-
-const Sidebar = ({ userRole }) => {
-  // Accept userRole as a prop
+import TeamLeaderSidebar from "../components/SidebarComponents/TeamLdrSidebar";
+import MidLvlManagersidebar from "../components/SidebarComponents/MidLvlManagersidebar";
+import TopLvlManagersidebar from "../components/SidebarComponents/TopLvlManagersidebar";
+import CeoSidebar from "../components/SidebarComponents/CeoSidebar";
+const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isRecruitmentOpen, setIsRecruitmentOpen] = useState(false); // For toggling Recruitment submenu
 
   const handleToggle = () => {
     setIsCollapsed(!isCollapsed);
   };
-
+  const role = localStorage.getItem("role");
+  console.log(role);
   return (
     <div
       className={`z-50 flex flex-col ${
@@ -58,7 +60,9 @@ const Sidebar = ({ userRole }) => {
       </div>
 
       {/* Navigation Links */}
-      <div className="flex flex-col items-center justify-end mt-4 mb-8 w-full gap-5">
+      <div className="flex flex-col items-center justify-end mt-4 mb-8 w-full gap-2">
+        {" "}
+        {/* Reduced gap from gap-5 to gap-2 */}
         {/* Dashboard Link */}
         <NavLink
           to="/dashboard"
@@ -76,7 +80,6 @@ const Sidebar = ({ userRole }) => {
           />
           {!isCollapsed && <span>Dashboard</span>}
         </NavLink>
-
         {/* Payroll Link */}
         <NavLink
           to="/payroll"
@@ -94,7 +97,6 @@ const Sidebar = ({ userRole }) => {
           />
           {!isCollapsed && <span>Payroll</span>}
         </NavLink>
-
         {/* Attendance & Time Link */}
         <NavLink
           to="/attendance"
@@ -112,7 +114,6 @@ const Sidebar = ({ userRole }) => {
           />
           {!isCollapsed && <span>Attendance & Time</span>}
         </NavLink>
-
         {/* Leave & Attendance Link */}
         <NavLink
           to="/leave"
@@ -130,7 +131,6 @@ const Sidebar = ({ userRole }) => {
           />
           {!isCollapsed && <span>Leave & Attendance</span>}
         </NavLink>
-
         {/* Learning & Development Link */}
         <NavLink
           to="/learn"
@@ -148,7 +148,6 @@ const Sidebar = ({ userRole }) => {
           />
           {!isCollapsed && <span>Learning & Development</span>}
         </NavLink>
-
         {/* Recruitment Link */}
         <NavLink
           to="#"
@@ -161,7 +160,6 @@ const Sidebar = ({ userRole }) => {
           />
           {!isCollapsed && <span>Recruitment</span>}
         </NavLink>
-
         {/* Offers and Onboarding Submenu */}
         {isRecruitmentOpen && !isCollapsed && (
           <div className="ml-8">
@@ -182,10 +180,17 @@ const Sidebar = ({ userRole }) => {
             </NavLink>
           </div>
         )}
-
-        {userRole === "teamLeader" && (
+        {/* Render TeamLeaderSidebar based on the role */}
+        {role === "Team Leader" && (
           <TeamLeaderSidebar isCollapsed={isCollapsed} />
         )}
+        {role === "Mid Lvl Manager" && (
+          <MidLvlManagersidebar isCollapsed={isCollapsed} />
+        )}
+        {role === "Top Lvl Manager" && (
+          <TopLvlManagersidebar isCollapsed={isCollapsed} />
+        )}
+        {role === "Ceo" && <CeoSidebar isCollapsed={isCollapsed} />}{" "}
       </div>
     </div>
   );

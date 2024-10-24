@@ -10,7 +10,9 @@ import {
 
 const TeamLeaderSidebar = ({ isCollapsed }) => {
   return (
-    <div className="flex flex-col items-center justify-end mt-4 mb-8 w-full gap-5">
+    <div className="flex flex-col items-center justify-end  mb-8 w-full gap-2">
+      {" "}
+      {/* Reduced gap from gap-5 to gap-2 */}
       {/* Team Management Tools Link */}
       <NavLink
         to="/team-management"
@@ -25,7 +27,6 @@ const TeamLeaderSidebar = ({ isCollapsed }) => {
         <FaUsers size={20} className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`} />
         {!isCollapsed && <span>Team Management</span>}
       </NavLink>
-
       {/* Reporting Link */}
       <NavLink
         to="/reporting"
@@ -43,43 +44,6 @@ const TeamLeaderSidebar = ({ isCollapsed }) => {
         />
         {!isCollapsed && <span>Reporting</span>}
       </NavLink>
-
-      {/* Feedback System Link */}
-      <NavLink
-        to="/feedback"
-        className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
-            isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
-          }`
-        }
-      >
-        <FaComments
-          size={20}
-          className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-        />
-        {!isCollapsed && <span>Feedback System</span>}
-      </NavLink>
-
-      {/* Leave Approval Link */}
-      <NavLink
-        to="/leave-approval"
-        className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
-            isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
-          }`
-        }
-      >
-        <FaClipboardCheck
-          size={20}
-          className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-        />
-        {!isCollapsed && <span>Leave Approval</span>}
-      </NavLink>
-
       {/* Communication Tools Link */}
       <NavLink
         to="/communication"

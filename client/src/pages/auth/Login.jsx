@@ -23,10 +23,11 @@ const Login = () => {
         password,
       });
 
-      const { token, employeeId, email: userEmail } = res.data;
+      const { token, employeeId, email: userEmail, role } = res.data;
       localStorage.setItem("authToken", token);
       localStorage.setItem("empId", employeeId);
-      localStorage.setItem("email", userEmail); // Store the email in localStorage
+      localStorage.setItem("email", userEmail);
+      localStorage.setItem("role", role);
 
       window.location.href = "/dashboard";
     } catch (err) {
