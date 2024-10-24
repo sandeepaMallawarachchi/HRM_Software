@@ -8,7 +8,6 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 const LeaveAnalysis = () => {
   const empId = localStorage.getItem('empId');
   const [leaveAnalysis, setLeaveAnalysis] = useState([]);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchLeaveAnalysis = async () => {
@@ -16,7 +15,7 @@ const LeaveAnalysis = () => {
         const response = await axios.get(`http://localhost:4000/employees/leaveAnalysis/${empId}`);
         setLeaveAnalysis(response.data);
       } catch (error) {
-        setError('Error fetching leave analysis');
+        console.log('Error fetching leave analysis');
       }
     };
 
@@ -63,7 +62,6 @@ const LeaveAnalysis = () => {
   return (
     <div className="p-6 px-20 bg-[#eaeaea] rounded-lg shadow-md mt-10">
       <h2 className="text-xl mb-6">Leave Analysis</h2>
-      {error && <p className="text-red-500">{error}</p>}
 
       {leaveAnalysis.length > 0 ? (
         <>

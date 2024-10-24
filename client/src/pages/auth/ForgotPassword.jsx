@@ -24,7 +24,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
 
         if (step === 1) {
             try {
-                const res = await axios.post("http://localhost:4000/employees/requestPasswordReset", { email });
+                const res = await axios.post("http://localhost:4000/auth/requestPasswordReset", { email });
 
                 if (res.status === 200) {
                     setStep(2); // Proceed to the next step
@@ -57,7 +57,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
         }
 
         try {
-            const res = await axios.post("http://localhost:4000/employees/resetPassword", {
+            const res = await axios.post("http://localhost:4000/auth/resetPassword", {
                 resetCode,
                 newPassword,
             });
