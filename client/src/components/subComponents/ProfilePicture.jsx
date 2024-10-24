@@ -12,7 +12,6 @@ const ProfilePicture = () => {
                 const response = await axios.get(`http://localhost:4000/employees/getProfileImage/${empId}`);
                 if (response.data.imageUrl) {
                     setAvatar(response.data.imageUrl);
-                    console.log(response.data.imageUrl)
                 }
             } catch (err) {
                 console.log("Error fetching employee profile pic:", err);

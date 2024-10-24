@@ -47,7 +47,7 @@ const AttandanceAnalysisComponent = () => {
             {attendanceAnalysis.weekData.length > 0 ? (
                 <Bar data={barData} options={{ responsive: true, plugins: { legend: { display: false } } }} />
             ) : (
-                <p>No attendance data found.</p>
+                <p className='text-gray-500 text-center'>No attendance data found.</p>
             )}
         </div>
     )

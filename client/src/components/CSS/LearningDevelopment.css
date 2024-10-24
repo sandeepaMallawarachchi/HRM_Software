@@ -1,16 +1,5 @@
-.cards-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: space-around;
-}
 
 .card {
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  width: 300px;
   box-shadow: 0 4px 8px rgb(56, 221, 227); /* Orange shadow */
   transition: box-shadow 0.3s ease; /* Smooth transition for hover effect */
 }
@@ -36,12 +25,14 @@ progress {
 
 /* Chrome, Safari, Opera */
 progress::-webkit-progress-value {
-  background-color: orange; /* Progress bar color */
+  background-color: #ff5a1f; /* Progress bar color */
+  border-radius: 10px;
 }
 
 /* Firefox */
 progress::-moz-progress-bar {
-  background-color: orange; /* Progress bar color */
+  background-color: #ff5a1f; /* Progress bar color */
+  border-radius: 10px;
 }
 
 /* For IE10+ */

@@ -59,7 +59,7 @@ const EmployeeRegistration = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:4000/employees/loginCredentials', {
+            const response = await fetch('http://localhost:4000/auth/loginCredentials', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
