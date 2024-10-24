@@ -11,10 +11,35 @@ import Dashboard from "./pages/Dashboard";
 import Sidebar from "./components/Sidebar.jsx";
 import Profile from "./components/Profile";
 import Payroll from "./pages/Payroll";
-import EmployeeRegistration from "./pages/profileComponents/EmployeeRegistration.jsx";
+import EmployeeRegistration from "./pages/auth/EmployeeRegistration";
 import LeaveAndAttendance from "./pages/LeaveAndAttendance";
 import LearningDevelopment from "./pages/LearningDevelopment";
 import AttendanceAndTime from "./pages/AttendanceAndTime";
+
+//team leader routes
+import TeamManage from "./pages/TeamLeaderPages/TeamManage";
+import Reporting from "./pages/TeamLeaderPages/Reporting";
+import Communication from "./pages/TeamLeaderPages/Communication";
+
+//Mid Lvl Managers routes
+import PerformanceManage from "./pages/MidLvlMangersPages/PerformanceManage";
+import ResourceAllocation from "./pages/MidLvlMangersPages/ResourceAllocation";
+import ReportsandAnalytics from "./pages/MidLvlMangersPages/ReportsandAnalytics";
+import ConflictResolutions from "./pages/MidLvlMangersPages/ConflictResolutions";
+import TrainingOversite from "./pages/MidLvlMangersPages/TrainingOversite";
+
+//Top Levl Managers routes
+import StrategicPlaning from "./pages/TopLvlManagerPages/StrategicPlaning";
+import PerformanceDashboard from "./pages/TopLvlManagerPages/PerformanceDashboard";
+import SuccessPlaning from "./pages/TopLvlManagerPages/SuccessPlaning";
+import Budgeting from "./pages/TopLvlManagerPages/Budgeting";
+import CompilenceTrack from "./pages/TopLvlManagerPages/CompilenceTrack";
+
+//Ceo routes
+import StrategicInsights from "./pages/CEOpages/StrategicInsights";
+import TalentManagement from "./pages/CEOpages/TalentManagement";
+import CultureandEngagement from "./pages/CEOpages/CultureandEngagement";
+import DecitionSupport from "./pages/CEOpages/DecitionSupport";
 
 //auth routes
 import ProtectedRoute from "./pages/auth/ProtectedRoute";
@@ -74,6 +99,78 @@ const App = () => {
             <Route
               path="/onboarding"
               element={<ProtectedRoute element={<Onboarding />} />}
+            />
+            <Route
+              path="/team-management"
+              element={<ProtectedRoute element={<TeamManage />} />}
+            />
+            <Route
+              path="/reporting"
+              element={<ProtectedRoute element={<Reporting />} />}
+            />
+            <Route
+              path="/communication"
+              element={<ProtectedRoute element={<Communication />} />}
+            />
+            <Route
+              path="performance-management"
+              element={<ProtectedRoute element={<PerformanceManage />} />}
+            />
+            <Route
+              path="/resource-allocation"
+              element={<ProtectedRoute element={<ResourceAllocation />} />}
+            />
+            <Route
+              path="/reporting-analytics"
+              element={<ProtectedRoute element={<ReportsandAnalytics />} />}
+            />
+            <Route
+              path="/conflict-resolution"
+              element={<ProtectedRoute element={<ConflictResolutions />} />}
+            />
+            <Route
+              path="/training-oversight"
+              element={<ProtectedRoute element={<TrainingOversite />} />}
+            />
+            <Route
+              path="/strategic-planning"
+              element={<ProtectedRoute element={<StrategicPlaning />} />}
+            />
+            <Route
+              path="/performance-dashboards"
+              element={<ProtectedRoute element={<PerformanceDashboard />} />}
+            />
+            <Route
+              path="/succession-planning"
+              element={<ProtectedRoute element={<SuccessPlaning />} />}
+            />
+            <Route
+              path="/budgeting"
+              element={<ProtectedRoute element={<Budgeting />} />}
+            />
+            <Route
+              path="/compliance-tracking"
+              element={<ProtectedRoute element={<CompilenceTrack />} />}
+            />
+            <Route
+              path="/strategic-insights"
+              element={<ProtectedRoute element={<StrategicInsights />} />}
+            />
+            <Route
+              path="/talent-management"
+              element={<ProtectedRoute element={<TalentManagement />} />}
+            />
+            <Route
+              path="/culture-engagement"
+              element={<ProtectedRoute element={<CultureandEngagement />} />}
+            />
+            <Route
+              path="/decision-support"
+              element={<ProtectedRoute element={<DecitionSupport />} />}
+            />
+            <Route
+              path="/decision-support"
+              element={<ProtectedRoute element={<DecitionSupport />} />}
             />
           </Routes>
         </div>
