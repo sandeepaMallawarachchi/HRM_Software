@@ -1,0 +1,166 @@
+import React, { useState, useEffect } from "react";
+
+// Mock data for decisions made by top-level managers
+const mockDecisions = [
+  {
+    id: 1,
+    department: "Sales",
+    decision: "Increase sales target by 20%",
+    status: "Pending",
+    reason: "",
+    date: "2023-10-15",
+  },
+  {
+    id: 2,
+    department: "Marketing",
+    decision: "Launch new social media campaign",
+    status: "Accepted",
+    reason: "Aligns with quarterly goals",
+    date: "2023-09-10",
+  },
+  {
+    id: 3,
+    department: "HR",
+    decision: "Implement a new performance review system",
+    status: "Rejected",
+    reason: "Need more data on effectiveness",
+    date: "2023-08-20",
+  },
+  {
+    id: 4,
+    department: "IT",
+    decision: "Upgrade network infrastructure",
+    status: "Pending",
+    reason: "",
+    date: "2023-11-01",
+  },
+  // More mock decisions can be added here
+];
+
+const DecisionSupport = () => {
+  const [decisions, setDecisions] = useState([]);
+  const [selectedDecision, setSelectedDecision] = useState(null);
+  const [responseReason, setResponseReason] = useState("");
+
+  useEffect(() => {
+    // Fetch decisions from an API or use mock data
+    setDecisions(mockDecisions);
+  }, []);
+
+  const handleDecisionSelect = (decision) => {
+    setSelectedDecision(decision);
+    setResponseReason(decision.reason); // Pre-fill the reason for editing
+  };
+
+  const handleAcceptDecision = () => {
+    if (selectedDecision) {
+      const updatedDecision = {
+        ...selectedDecision,
+        status: "Accepted",
+        reason: responseReason,
+      };
+      setDecisions((prevDecisions) =>
+        prevDecisions.map((dec) =>
+          dec.id === updatedDecision.id ? updatedDecision : dec
+        )
+      );
+      alert(`Decision accepted: ${updatedDecision.decision}`);
+      setSelectedDecision(null);
+      setResponseReason("");
+    }
+  };
+
+  const handleRejectDecision = () => {
+    if (selectedDecision) {
+      const updatedDecision = {
+        ...selectedDecision,
+        status: "Rejected",
+        reason: responseReason,
+      };
+      setDecisions((prevDecisions) =>
+        prevDecisions.map((dec) =>
+          dec.id === updatedDecision.id ? updatedDecision : dec
+        )
+      );
+      alert(`Decision rejected: ${updatedDecision.decision}`);
+      setSelectedDecision(null);
+      setResponseReason("");
+    }
+  };
+
+  return (
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
+        Decision Support Dashboard
+      </h1>
+
+      {/* Decision List */}
+      <div className="mb-6">
+        <h2 className="text-xl mb-4">Decisions Made by Top-Level Managers:</h2>
+        <ul className="space-y-2">
+          {decisions.map((decision) => (
+            <li
+              key={decision.id}
+              className={`cursor-pointer hover:bg-gray-200 p-2 rounded ${
+                decision.status === "Accepted"
+                  ? "bg-green-100"
+                  : decision.status === "Rejected"
+                  ? "bg-red-100"
+                  : ""
+              }`}
+              onClick={() => handleDecisionSelect(decision)}
+            >
+              <strong>{decision.department}</strong>: {decision.decision}{" "}
+              (Status: {decision.status})
+              <br />
+              <span className="text-sm text-gray-600">
+                Date: {decision.date}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Selected Decision Details */}
+      {selectedDecision && (
+        <div className="mt-4 bg-white shadow-lg rounded-lg p-4">
+          <h3 className="text-lg font-semibold">Selected Decision:</h3>
+          <p>
+            <strong>Department:</strong> {selectedDecision.department}
+          </p>
+          <p>
+            <strong>Decision:</strong> {selectedDecision.decision}
+          </p>
+          <p>
+            <strong>Status:</strong> {selectedDecision.status}
+          </p>
+
+          <textarea
+            className="mt-4 w-full p-2 border rounded"
+            rows="4"
+            value={responseReason}
+            onChange={(e) => setResponseReason(e.target.value)}
+            placeholder="Provide reason for your response..."
+          ></textarea>
+
+          <div className="mt-4">
+            <button
+              className="bg-blue-500 text-white px-4 py-2 mr-2 rounded hover:bg-blue-600 transition duration-200"
+              onClick={handleAcceptDecision}
+            >
+              Accept Decision
+            </button>
+            <button
+              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-200"
+              onClick={handleRejectDecision}
+            >
+              Reject Decision
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default DecisionSupport;
