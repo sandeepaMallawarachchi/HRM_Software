@@ -201,7 +201,6 @@ const Sidebar = () => {
           </div>
         )}
 
-
         {role === "Team Leader" && (
           <TeamLeaderSidebar isCollapsed={isCollapsed} />
         )}
