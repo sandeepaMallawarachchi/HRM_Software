@@ -81,7 +81,7 @@ const Dashboard = () => {
   return (
     <div className="grid grid-cols-3 gap-6 p-6">
       <Link to="/attendance">
-        <div className="cards col-span-1 bg-white rounded-lg  p-4">
+        <div className="cards col-span-1 bg-white rounded-lg  p-4 h-full">
           <h2 className="text-lg font-semibold mb-4">Time at Work</h2>
           <div className="flex items-center space-x-3 mb-5">
             <div className="bg-gray-300 rounded-full w-12">

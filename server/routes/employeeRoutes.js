@@ -1,12 +1,8 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
 const router = express.Router();
-const jwt = require("jsonwebtoken");
-const path = require("path");
 const pool = require("../database");
 const nodemailer = require("nodemailer");
 const { validationResult } = require("express-validator");
-const crypto = require("crypto");
 const { initializeApp } = require("firebase/app");
 const {
   getStorage,
@@ -138,36 +134,36 @@ router.get("/getEmployee/:empId", async (req, res) => {
 
 // Create work details
 router.post("/workDetails", async (req, res) => {
-  const {
-    workEmail,
-    workPhone,
-    department,
-    location,
-    designation,
-    supervisor,
-  } = req.body;
+    const {
+        workEmail,
+        workPhone,
+        department,
+        location,
+        designation,
+        supervisor,
+    } = req.body;
 
-  try {
-    const newWorkDetails = {
-      workEmail,
-      workPhone,
-      department,
-      location,
-      designation,
-      supervisor,
-    };
+    try {
+        const newWorkDetails = {
+            workEmail,
+            workPhone,
+            department,
+            location,
+            designation,
+            supervisor,
+        };
 
-    const [results] = await pool.query(
-      "INSERT INTO workdetails (workEmail, workPhone, department, location, designation, supervisor) VALUES (?, ?, ?, ?, ?, ?)",
-      [
-        newWorkDetails.workEmail,
-        newWorkDetails.workPhone,
-        newWorkDetails.department,
-        newWorkDetails.location,
-        newWorkDetails.designation,
-        newWorkDetails.supervisor,
-      ]
-    );
+        const [results] = await pool.query(
+            "INSERT INTO workdetails (workEmail, workPhone, department, location, designation, supervisor) VALUES (?, ?, ?, ?, ?, ?)",
+            [
+                newWorkDetails.workEmail,
+                newWorkDetails.workPhone,
+                newWorkDetails.department,
+                newWorkDetails.location,
+                newWorkDetails.designation,
+                newWorkDetails.supervisor,
+            ]
+        );
 
     res.status(201).json({
       message: "Employee Work Details Created successfully",
@@ -622,101 +618,97 @@ router.post("/support/:empId", async (req, res) => {
   }
 });
 
-router.post("/requestPasswordReset", async (req, res) => {
-  try {
-    const { empId, email } = req.body;
+router.post('/requestPasswordReset', async (req, res) => {
+    try {
+        const { empId, email } = req.body;
 
-    if (!empId && !email) {
-      return res
-        .status(400)
-        .json({ message: "Please provide either employee ID or email." });
+        if (!empId && !email) {
+            return res.status(400).json({ message: "Please provide either employee ID or email." });
+        }
+
+        // Query the database using either empId or email
+        let query = '';
+        let queryParam = '';
+
+        if (empId) {
+            query = 'SELECT * FROM logindetails WHERE empId = ?';
+            queryParam = empId;
+        } else if (email) {
+            query = 'SELECT * FROM logindetails WHERE email = ?';
+            queryParam = email;
+        }
+
+        const [rows] = await pool.query(query, [queryParam]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Employee not found" });
+        }
+
+        const employee = rows[0];
+
+        // Generate a random 6-digit code
+        const resetCode = crypto.randomInt(100000, 999999);
+
+        // Save the reset code and its expiration time (you'll need to adjust this part for your DB model)
+        const resetCodeExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+        await pool.query(
+            'UPDATE logindetails SET resetcode = ?, resetcodeexpires = ? WHERE empId = ?',
+            [resetCode, resetCodeExpires, employee.empId]
+        );
+
+        // Send the reset code via email
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: employee.email,
+            subject: "Password Reset Request",
+            text: `Your password reset code is ${resetCode}. It will expire in 15 minutes.`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.status(200).json({ message: "Reset code sent to email" });
+    } catch (error) {
+        console.error("Error requesting password reset:", error.message);
+        res.status(500).json({ message: "Internal server error" });
     }
-
-    // Query the database using either empId or email
-    let query = "";
-    let queryParam = "";
-
-    if (empId) {
-      query = "SELECT * FROM logindetails WHERE empId = ?";
-      queryParam = empId;
-    } else if (email) {
-      query = "SELECT * FROM logindetails WHERE email = ?";
-      queryParam = email;
-    }
-
-    const [rows] = await pool.query(query, [queryParam]);
-
-    if (rows.length === 0) {
-      return res.status(404).json({ message: "Employee not found" });
-    }
-
-    const employee = rows[0];
-
-    // Generate a random 6-digit code
-    const resetCode = crypto.randomInt(100000, 999999);
-
-    // Save the reset code and its expiration time (you'll need to adjust this part for your DB model)
-    const resetCodeExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
-
-    await pool.query(
-      "UPDATE logindetails SET resetcode = ?, resetcodeexpires = ? WHERE empId = ?",
-      [resetCode, resetCodeExpires, employee.empId]
-    );
-
-    // Send the reset code via email
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: employee.email,
-      subject: "Password Reset Request",
-      text: `Your password reset code is ${resetCode}. It will expire in 15 minutes.`,
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    res.status(200).json({ message: "Reset code sent to email" });
-  } catch (error) {
-    console.error("Error requesting password reset:", error.message);
-    res.status(500).json({ message: "Internal server error" });
-  }
 });
 
 //reset password
-router.post("/resetPassword", async (req, res) => {
-  try {
-    const { resetCode, newPassword } = req.body;
+router.post('/resetPassword', async (req, res) => {
+    try {
+        const { resetCode, newPassword } = req.body;
 
-    // Fetch the user with the given reset code
-    const [rows] = await pool.query(
-      "SELECT * FROM logindetails WHERE resetcode = ?",
-      [resetCode]
-    );
+        // Fetch the user with the given reset code
+        const [rows] = await pool.query('SELECT * FROM logindetails WHERE resetcode = ?', [resetCode]);
 
-    // If no user is found with the reset code
-    if (rows.length === 0) {
-      return res.status(404).json({ message: "Reset code not found" });
+        // If no user is found with the reset code
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Reset code not found' });
+        }
+
+        const user = rows[0];
+
+        // Check if the reset code is expired
+        if (new Date(user.resetCodeExpires) < Date.now()) {
+            return res.status(400).json({ message: 'Reset code has expired' });
+        }
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update the user's password and clear the reset code fields
+        await pool.query(
+            'UPDATE logindetails SET password = ?, resetcode = NULL, resetcodeexpires = NULL WHERE empId = ?',
+            [hashedPassword, user.empId]
+        );
+
+        res.status(200).json({ message: 'Password updated successfully' });
+
+    } catch (error) {
+        console.error("Error resetting password:", error.message);
+        res.status(500).json({ message: 'Internal server error' });
     }
-
-    const user = rows[0];
-
-    // Check if the reset code is expired
-    if (new Date(user.resetCodeExpires) < Date.now()) {
-      return res.status(400).json({ message: "Reset code has expired" });
-    }
-
-    // Hash the new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    // Update the user's password and clear the reset code fields
-    await pool.query(
-      "UPDATE logindetails SET password = ?, resetcode = NULL, resetcodeexpires = NULL WHERE empId = ?",
-      [hashedPassword, user.empId]
-    );
-
-    res.status(200).json({ message: "Password updated successfully" });
-  } catch (error) {
-    console.error("Error resetting password:", error.message);
-    res.status(500).json({ message: "Internal server error" });
-  }
 });
 
 //request leave
