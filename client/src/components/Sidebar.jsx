@@ -8,7 +8,7 @@ import {
   FaBook,
   FaBookReader,
   FaCheckDouble,
-  FaGripfire,
+  FaFire,
   FaAngleRight,
   FaTachometerAlt, // For Executive Dashboard Icon
 } from "react-icons/fa";
