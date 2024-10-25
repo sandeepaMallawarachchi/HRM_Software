@@ -41,6 +41,13 @@ import TalentManagement from "./pages/CEOpages/TalentManagement";
 import CultureandEngagement from "./pages/CEOpages/CultureandEngagement";
 import DecitionSupport from "./pages/CEOpages/DecitionSupport";
 
+//HR routes
+import EmployeeRelationships from "./pages/HRpages/EmployeeRelationships";
+import RecruitmentManagement from "./pages/HRpages/RecruitmentManagement";
+import OnboardingProcess from "./pages/HRpages/OnboardingProcess";
+import PayrollManagement from "./pages/HRpages/PayrollManagement";
+import PolicyManagement from "./pages/HRpages/PolicyManagement";
+
 //auth routes
 import ProtectedRoute from "./pages/auth/ProtectedRoute";
 import Login from "./pages/auth/Login";
@@ -171,6 +178,26 @@ const App = () => {
             <Route
               path="/decision-support"
               element={<ProtectedRoute element={<DecitionSupport />} />}
+            />
+            <Route
+              path="employee-relations"
+              element={<ProtectedRoute element={<EmployeeRelationships />} />}
+            />
+            <Route
+              path="/recruitment-management"
+              element={<ProtectedRoute element={<RecruitmentManagement />} />}
+            />
+            <Route
+              path="/onboarding-process"
+              element={<ProtectedRoute element={<OnboardingProcess />} />}
+            />
+            <Route
+              path="/payroll-management"
+              element={<ProtectedRoute element={<PayrollManagement />} />}
+            />
+            <Route
+              path="/policy-management"
+              element={<ProtectedRoute element={<PolicyManagement />} />}
             />
           </Routes>
         </div>
