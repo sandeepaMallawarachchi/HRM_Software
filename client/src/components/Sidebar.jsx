@@ -8,18 +8,17 @@ import {
   FaBook,
   FaBookReader,
   FaCheckDouble,
-  FaFire,
+  FaGripfire,
   FaAngleRight,
-  FaTachometerAlt, // For Executive Dashboard Icon
+  FaFire,
 } from "react-icons/fa";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import logo from "../images/hrm withoutbackground.png";
-import TeamLeaderSidebar from "../components/SidebarComponents/TeamLdrSidebar"; // Import the TeamLeaderSidebar component
+import TeamLeaderSidebar from "../components/SidebarComponents/TeamLdrSidebar";
 
 const Sidebar = ({ userRole }) => {
-  // Accept userRole as a prop
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isRecruitmentOpen, setIsRecruitmentOpen] = useState(false); // For toggling Recruitment submenu
+  const [isRecruitmentOpen, setIsRecruitmentOpen] = useState(false);
 
   const handleToggle = () => {
     setIsCollapsed(!isCollapsed);
@@ -60,23 +59,17 @@ const Sidebar = ({ userRole }) => {
         </Link>
       </div>
 
-      {/* Navigation Links */}
       <div className="flex flex-col items-center justify-end mt-4 mb-8 w-full gap-5">
-        {/* Dashboard Link */}
         <NavLink
           to="/dashboard"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
-              isActive
-                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-                : ""
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
+              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+              : ""
             }`
           }
         >
-          <FaHome
-            size={20}
-            className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-          />
+          <FaHome size={20} className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`} />
           {!isCollapsed && <span>Dashboard</span>}
         </NavLink>
 
@@ -119,21 +112,16 @@ const Sidebar = ({ userRole }) => {
           {!isCollapsed && <span>Leave & Attendance</span>}
         </NavLink>
 
-        {/* Learning & Development Link */}
         <NavLink
           to="/learn"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
-              isActive
-                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-                : ""
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
+              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+              : ""
             }`
           }
         >
-          <FaBookReader
-            size={20}
-            className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-          />
+          <FaBookReader size={20} className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`} />
           {!isCollapsed && <span>Learning & Development</span>}
         </NavLink>
 
@@ -141,18 +129,18 @@ const Sidebar = ({ userRole }) => {
         <NavLink
           to="#"
           onClick={() => setIsRecruitmentOpen(!isRecruitmentOpen)}
-          className="flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors"
+          className={`flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isRecruitmentActive
+            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+            : ""
+            }`}
         >
-          <FaCheckDouble
-            size={20}
-            className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-          />
+          <FaCheckDouble size={20} className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`} />
           {!isCollapsed && <span>Recruitment</span>}
         </NavLink>
 
         {/* Offers and Onboarding Submenu */}
         {isRecruitmentOpen && !isCollapsed && (
-          <div className="ml-8">
+          <div className="w-full pl-10 space-y-5">
             <NavLink
               to="/offers"
               className={({ isActive }) =>
@@ -181,9 +169,7 @@ const Sidebar = ({ userRole }) => {
           </div>
         )}
 
-        {userRole === "teamLeader" && (
-          <TeamLeaderSidebar isCollapsed={isCollapsed} />
-        )}
+        {userRole === "teamLeader" && <TeamLeaderSidebar isCollapsed={isCollapsed} />}
       </div>
     </div>
   );
