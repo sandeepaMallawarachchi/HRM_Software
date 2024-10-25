@@ -19,6 +19,7 @@ import TeamLeaderSidebar from "../components/SidebarComponents/TeamLdrSidebar";
 import MidLvlManagersidebar from "../components/SidebarComponents/MidLvlManagersidebar";
 import TopLvlManagersidebar from "../components/SidebarComponents/TopLvlManagersidebar";
 import CeoSidebar from "../components/SidebarComponents/CeoSidebar";
+import HRsidebar from "./SidebarComponents/HRsidebar";
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -155,60 +156,61 @@ const Sidebar = () => {
           {!isCollapsed && <span>Leave & Attendance</span>}
         </NavLink>
 
-        {/* Learning & Development Link (hide for CEO) */}
-        {role !== "Ceo" && (
-          <NavLink
-            to="/learn"
-            className={({ isActive }) =>
-              `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
-                isActive
-                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-                  : ""
-              }`
-            }
-          >
-            <FaBookReader
-              size={20}
-              className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-            />
-            {!isCollapsed && <span>Learning & Development</span>}
-          </NavLink>
-        )}
-
-        {/* Recruitment Link (hide for CEO) */}
-        {role !== "Ceo" && (
-          <NavLink
-            to="#"
-            onClick={() => setIsRecruitmentOpen(!isRecruitmentOpen)}
-            className="flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors"
-          >
-            <FaCheckDouble
-              size={20}
-              className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-            />
-            {!isCollapsed && <span>Recruitment</span>}
-          </NavLink>
-        )}
-
-        {/* Offers and Onboarding Submenu */}
-        {isRecruitmentOpen && !isCollapsed && role !== "Ceo" && (
-          <div className="ml-8">
+        {/* HR Role-Specific Links */}
+        {role === "HR" && (
+          <>
+            {/* Learning & Development */}
             <NavLink
-              to="/offers"
-              className="flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors"
+              to="/learn"
+              className={({ isActive }) =>
+                `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+                  isActive
+                    ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                    : ""
+                }`
+              }
             >
-              <FaGripfire size={20} className="mr-2" />
-              <span>Offers</span>
+              <FaBookReader
+                size={20}
+                className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+              />
+              {!isCollapsed && <span>Learning & Development</span>}
             </NavLink>
 
+            {/* Recruitment */}
             <NavLink
-              to="/onboarding"
+              to="#"
+              onClick={() => setIsRecruitmentOpen(!isRecruitmentOpen)}
               className="flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors"
             >
-              <FaBook size={20} className="mr-2" />
-              <span>Onboarding</span>
+              <FaCheckDouble
+                size={20}
+                className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+              />
+              {!isCollapsed && <span>Recruitment</span>}
             </NavLink>
-          </div>
+
+            {/* Offers and Onboarding Submenu */}
+            {isRecruitmentOpen && !isCollapsed && (
+              <div className="ml-8">
+                <NavLink
+                  to="/offers"
+                  className="flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors"
+                >
+                  <FaGripfire size={20} className="mr-2" />
+                  <span>Offers</span>
+                </NavLink>
+
+                <NavLink
+                  to="/onboarding"
+                  className="flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors"
+                >
+                  <FaBook size={20} className="mr-2" />
+                  <span>Onboarding</span>
+                </NavLink>
+              </div>
+            )}
+          </>
         )}
 
         {/* Render Sidebars based on the role */}
@@ -222,6 +224,7 @@ const Sidebar = () => {
           <TopLvlManagersidebar isCollapsed={isCollapsed} />
         )}
         {role === "Ceo" && <CeoSidebar isCollapsed={isCollapsed} />}
+        {role === "HR" && <HRsidebar isCollapsed={isCollapsed} />}
       </div>
     </div>
   );
