@@ -30,12 +30,14 @@ const Sidebar = ({ userRole }) => {
 
   // Check if either "offers" or "onboarding" is the current active route
   const isRecruitmentActive =
-    location.pathname.includes("/offers") || location.pathname.includes("/onboarding");
+    location.pathname.includes("/offers") ||
+    location.pathname.includes("/onboarding");
 
   return (
     <div
-      className={`z-50 flex flex-col ${isCollapsed ? "w-16" : "w-64"
-        } pr-3 h-screen bg-white text-black shadow-xl transition-all duration-300 rounded-r-[40px] border-r relative`}
+      className={`z-50 flex flex-col ${
+        isCollapsed ? "w-16" : "w-64"
+      } pr-3 h-screen bg-white text-black shadow-xl transition-all duration-300 rounded-r-[40px] border-r relative`}
     >
       <button
         onClick={handleToggle}
@@ -49,8 +51,9 @@ const Sidebar = ({ userRole }) => {
           <img
             src={logo}
             alt="Logo"
-            className={`transition-all duration-300 ${isCollapsed ? "w-8 h-8" : "w-16 h-16"
-              }`}
+            className={`transition-all duration-300 ${
+              isCollapsed ? "w-8 h-8" : "w-16 h-16"
+            }`}
           />
           {!isCollapsed && (
             <span className="mt-2 text-lg transition-all duration-300 font-serif text-center">
@@ -83,45 +86,22 @@ const Sidebar = ({ userRole }) => {
         <NavLink
           to="/payroll"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+              isActive
+                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                : ""
             }`
           }
         >
-          <FaWallet size={20} className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`} />
+          <FaWallet
+            size={20}
+            className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+          />
           {!isCollapsed && <span>Payroll</span>}
         </NavLink>
 
         <NavLink
           to="/attendance"
-          className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
-            }`
-          }
-        >
-          <FaCalendarCheck size={20} className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`} />
-          {!isCollapsed && <span>Attendance & Time</span>}
-        </NavLink>
-
-        <NavLink
-          to="/leave"
-          className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
-            }`
-          }
-        >
-          <FaListAlt size={20} className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`} />
-          {!isCollapsed && <span>Leave & Attendance</span>}
-        </NavLink>
-
-        {/* Learning & Development Link */}
-        <NavLink
-          to="/learn"
           className={({ isActive }) =>
             `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
               isActive
@@ -130,53 +110,82 @@ const Sidebar = ({ userRole }) => {
             }`
           }
         >
-          <FaBookReader
+          <FaCalendarCheck
             size={20}
             className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
           />
-          {!isCollapsed && <span>Learning & Development</span>}
+          {!isCollapsed && <span>Attendance & Time</span>}
         </NavLink>
 
-        {/* Recruitment Link */}
         <NavLink
-          to="#"
-          onClick={() => setIsRecruitmentOpen(!isRecruitmentOpen)}
-          className="flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors"
+          to="/leave"
+          className={({ isActive }) =>
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+              isActive
+                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                : ""
+            }`
+          }
         >
-          <FaCheckDouble
+          <FaListAlt
             size={20}
             className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
           />
-          {!isCollapsed && <span>Recruitment</span>}
+          {!isCollapsed && <span>Leave & Attendance</span>}
         </NavLink>
+
+        {/* Learning & Development Link (hide for CEO) */}
+        {role !== "Ceo" && (
+          <NavLink
+            to="/learn"
+            className={({ isActive }) =>
+              `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+                isActive
+                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                  : ""
+              }`
+            }
+          >
+            <FaBookReader
+              size={20}
+              className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+            />
+            {!isCollapsed && <span>Learning & Development</span>}
+          </NavLink>
+        )}
+
+        {/* Recruitment Link (hide for CEO) */}
+        {role !== "Ceo" && (
+          <NavLink
+            to="#"
+            onClick={() => setIsRecruitmentOpen(!isRecruitmentOpen)}
+            className="flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors"
+          >
+            <FaCheckDouble
+              size={20}
+              className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+            />
+            {!isCollapsed && <span>Recruitment</span>}
+          </NavLink>
+        )}
 
         {/* Offers and Onboarding Submenu */}
-        {isRecruitmentOpen && !isCollapsed && (
+        {isRecruitmentOpen && !isCollapsed && role !== "Ceo" && (
           <div className="ml-8">
             <NavLink
               to="/offers"
-              className={({ isActive }) =>
-                `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-                  : ""
-                }`
-              }
+              className="flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors"
             >
-              <FaFire size={20} className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`} />
-              {!isCollapsed && <span>Offers</span>}
+              <FaGripfire size={20} className="mr-2" />
+              <span>Offers</span>
             </NavLink>
 
             <NavLink
               to="/onboarding"
-              className={({ isActive }) =>
-                `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-                  : ""
-                }`
-              }
+              className="flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors"
             >
-              <FaBook size={20} className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`} />
-              {!isCollapsed && <span>Onboarding</span>}
+              <FaBook size={20} className="mr-2" />
+              <span>Onboarding</span>
             </NavLink>
           </div>
         )}
@@ -184,6 +193,13 @@ const Sidebar = ({ userRole }) => {
         {userRole === "teamLeader" && (
           <TeamLeaderSidebar isCollapsed={isCollapsed} />
         )}
+        {role === "Mid Lvl Manager" && (
+          <MidLvlManagersidebar isCollapsed={isCollapsed} />
+        )}
+        {role === "Top Lvl Manager" && (
+          <TopLvlManagersidebar isCollapsed={isCollapsed} />
+        )}
+        {role === "Ceo" && <CeoSidebar isCollapsed={isCollapsed} />}
       </div>
     </div>
   );
