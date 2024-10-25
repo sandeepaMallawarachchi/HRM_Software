@@ -155,7 +155,36 @@ const Sidebar = () => {
           />
           {!isCollapsed && <span>Leave & Attendance</span>}
         </NavLink>
+        
+        <NavLink
+          to="/learn"
+          className={({ isActive }) =>
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
+              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+              : ""
+            }`
+          }
+        >
+          <FaBookReader size={20} className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`} />
+          {!isCollapsed && <span>Learning & Development</span>}
+        </NavLink>
 
+        {/* Recruitment Link */}
+        <NavLink
+          to="#"
+          onClick={() => setIsRecruitmentOpen(!isRecruitmentOpen)}
+          className={`flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isRecruitmentActive
+            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+            : ""
+            }`}
+        >
+          <FaCheckDouble size={20} className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`} />
+          {!isCollapsed && <span>Recruitment</span>}
+        </NavLink>
+
+        {/* Offers and Onboarding Submenu */}
+        {isRecruitmentOpen && !isCollapsed && (
+          <div className="w-full pl-10 space-y-5">
         {/* HR Role-Specific Links */}
         {role === "HR" && (
           <>

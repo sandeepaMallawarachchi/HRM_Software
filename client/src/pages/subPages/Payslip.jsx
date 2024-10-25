@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import jsPDF from 'jspdf';
+import PayslipComponent from '../../components/subComponents/PayslipComponent';
 
 const Payslip = () => {
     const empId = localStorage.getItem('empId');
@@ -8,6 +8,7 @@ const Payslip = () => {
     const [loading, setLoading] = useState(true);
     const [yearFilter, setYearFilter] = useState('');
     const [monthFilter, setMonthFilter] = useState('');
+    const [triggerDownload, setTriggerDownload] = useState(false);
 
     useEffect(() => {
         const fetchPayslip = async () => {
@@ -46,27 +47,9 @@ const Payslip = () => {
     };
 
     const handleDownload = () => {
-        const doc = new jsPDF();
-        doc.text('Payslip', 10, 10);
-        doc.text(`Date: ${formatDate(date)}`, 10, 20);
-        doc.text(`Total Days Worked: ${total_days_worked}`, 10, 30);
-        doc.text(`Total Hours Worked: ${total_hours_worked}`, 10, 40);
-
-        doc.text('Earnings:', 10, 50);
-        Object.keys(earnings).forEach((key, index) => {
-            doc.text(`${key}: ${parseFloat(earnings[key]).toFixed(2)}`, 20, 60 + index * 10);
-        });
-
-        doc.text('Deductions:', 10, 100);
-        Object.keys(deductions).forEach((key, index) => {
-            doc.text(`${key}: ${parseFloat(deductions[key]).toFixed(2)}`, 20, 110 + index * 10);
-        });
-
-        doc.text(`Total Earnings: ${total_earnings}`, 10, 150);
-        doc.text(`Total Deductions: ${total_deductions}`, 10, 160);
-        doc.text(`Net Pay: ${net_pay}`, 10, 170);
-
-        doc.save(`Payslip_${formatDate(date)}.pdf`);
+        if (isMatchingFilter()) {
+            setTriggerDownload(true);
+        }
     };
 
     return (
@@ -136,22 +119,28 @@ const Payslip = () => {
                             ))}
                             <tr>
                                 <td className="py-2 px-12 border-b font-bold border-r text-left" colSpan="2">Total Earnings</td>
-                                <td className="py-2 px-12 border-b border-r">{total_earnings}</td>
+                                <td className="py-2 px-12 border-b border-r text-right">{total_earnings}</td>
                                 <td className="py-2 px-12 border-b"></td>
                             </tr>
                             <tr>
                                 <td className="py-2 px-12 border-b font-bold border-r text-left" colSpan="2">Total Deductions</td>
                                 <td className="py-2 px-12 border-b border-r"></td>
-                                <td className="py-2 px-12 border-b">{total_deductions}</td>
+                                <td className="py-2 px-12 border-b text-right">{total_deductions}</td>
                             </tr>
                             <tr>
                                 <td className="py-2 px-12 border-b font-bold border-r text-left" colSpan="2">Net Pay</td>
-                                <td className="py-2 px-12 border-b" colSpan="2">{net_pay}</td>
+                                <td className="py-2 px-12 border-b text-center" colSpan="2">{net_pay}</td>
                             </tr>
                         </tbody>
                     </table>
                 )}
             </div>
+            {triggerDownload && (
+                <PayslipComponent
+                    payslip={payslip}
+                    onDownloadComplete={() => setTriggerDownload(false)}
+                />
+            )}
         </div>
     );
 };
