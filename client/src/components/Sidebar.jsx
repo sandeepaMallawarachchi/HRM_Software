@@ -12,7 +12,8 @@ import {
   FaAngleRight,
   FaTachometerAlt, // For Executive Dashboard Icon
 } from "react-icons/fa";
-import { Link, NavLink, useLocation } from "react-router-dom";
+
+import { Link, NavLink } from "react-router-dom";
 import logo from "../images/hrm withoutbackground.png";
 import TeamLeaderSidebar from "../components/SidebarComponents/TeamLdrSidebar";
 import MidLvlManagersidebar from "../components/SidebarComponents/MidLvlManagersidebar";
@@ -20,22 +21,14 @@ import TopLvlManagersidebar from "../components/SidebarComponents/TopLvlManagers
 import CeoSidebar from "../components/SidebarComponents/CeoSidebar";
 import HRsidebar from "./SidebarComponents/HRsidebar";
 
-const Sidebar = ({ role }) => {
-  // Accept userRole as a prop
+const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isRecruitmentOpen, setIsRecruitmentOpen] = useState(false); // For toggling Recruitment submenu
+  const role = localStorage.getItem("role");
 
   const handleToggle = () => {
     setIsCollapsed(!isCollapsed);
   };
-
-  // Use useLocation hook to get the current route path
-  const location = useLocation();
-
-  // Check if either "offers" or "onboarding" is the current active route
-  const isRecruitmentActive =
-    location.pathname.includes("/offers") ||
-    location.pathname.includes("/onboarding");
 
   return (
     <div
@@ -43,6 +36,7 @@ const Sidebar = ({ role }) => {
         isCollapsed ? "w-16" : "w-64"
       } pr-3 h-screen bg-white text-black shadow-xl transition-all duration-300 rounded-r-[40px] border-r relative`}
     >
+      {/* Toggle Button */}
       <button
         onClick={handleToggle}
         className="absolute top-20 right-[-16px] bg-gradient-to-r from-orange-400 to-orange-500 text-white p-2 rounded-full shadow-md hover:bg-orange-400"
@@ -50,6 +44,7 @@ const Sidebar = ({ role }) => {
         {isCollapsed ? <FaAngleRight size={20} /> : <FaAngleLeft size={20} />}
       </button>
 
+      {/* Logo and HRM Section */}
       <div className="flex flex-col items-center mt-5 w-full">
         <Link to="/dashboard" className="flex flex-col items-center">
           <img
@@ -68,25 +63,46 @@ const Sidebar = ({ role }) => {
       </div>
 
       {/* Navigation Links */}
-      <div className="flex flex-col items-center justify-end mt-4 mb-8 w-full gap-5">
-        {/* Dashboard Link */}
-        <NavLink
-          to="/dashboard"
-          className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
-              isActive
-                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-                : ""
-            }`
-          }
-        >
-          <FaHome
-            size={20}
-            className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-          />
-          {!isCollapsed && <span>Dashboard</span>}
-        </NavLink>
+      <div className="flex flex-col items-center justify-end mt-4 mb-8 w-full gap-2">
+        {/* Executive Dashboard (only for CEO) */}
+        {role === "Ceo" ? (
+          <NavLink
+            to="/executive-dashboard"
+            className={({ isActive }) =>
+              `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+                isActive
+                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                  : ""
+              }`
+            }
+          >
+            <FaTachometerAlt
+              size={20}
+              className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+            />
+            {!isCollapsed && <span>Executive Dashboard</span>}
+          </NavLink>
+        ) : (
+          /* Dashboard Link (hide for CEO) */
+          <NavLink
+            to="/dashboard"
+            className={({ isActive }) =>
+              `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+                isActive
+                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                  : ""
+              }`
+            }
+          >
+            <FaHome
+              size={20}
+              className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+            />
+            {!isCollapsed && <span>Dashboard</span>}
+          </NavLink>
+        )}
 
+        {/* Payroll Link */}
         <NavLink
           to="/payroll"
           className={({ isActive }) =>
@@ -104,6 +120,7 @@ const Sidebar = ({ role }) => {
           {!isCollapsed && <span>Payroll</span>}
         </NavLink>
 
+        {/* Attendance & Time Link */}
         <NavLink
           to="/attendance"
           className={({ isActive }) =>
@@ -121,6 +138,7 @@ const Sidebar = ({ role }) => {
           {!isCollapsed && <span>Attendance & Time</span>}
         </NavLink>
 
+        {/* Leave & Attendance Link */}
         <NavLink
           to="/leave"
           className={({ isActive }) =>
@@ -136,24 +154,6 @@ const Sidebar = ({ role }) => {
             className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
           />
           {!isCollapsed && <span>Leave & Attendance</span>}
-        </NavLink>
-
-        {/* Learning & Development Link */}
-        <NavLink
-          to="/learn"
-          className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
-              isActive
-                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-                : ""
-            }`
-          }
-        >
-          <FaBookReader
-            size={20}
-            className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-          />
-          {!isCollapsed && <span>Learning & Development</span>}
         </NavLink>
 
         {/* HR Role-Specific Links */}
@@ -213,7 +213,8 @@ const Sidebar = ({ role }) => {
           </>
         )}
 
-        {role === "teamLeader" && (
+        {/* Render Sidebars based on the role */}
+        {role === "Team Leader" && (
           <TeamLeaderSidebar isCollapsed={isCollapsed} />
         )}
         {role === "Mid Lvl Manager" && (
