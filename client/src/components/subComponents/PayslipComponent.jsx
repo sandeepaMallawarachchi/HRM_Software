@@ -1,44 +1,56 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import logo from '../../images/hrm withoutbackground.png';
+import axios from 'axios';
 
 const PayslipComponent = ({ payslip, onDownloadComplete }) => {
     const payslipRef = useRef(null);
+    const empId = localStorage.getItem('empId');
+    const [department, setDepartment] = useState('');
+    const [designation, setDesignation] = useState('');
+
+
+    useEffect(() => {
+        const fetchEmpDetails = async () => {
+            try {
+                const response = await axios.get(`http://localhost:4000/employees/getWorkDetails/${empId}`);
+                setDepartment(response.data.department);
+                setDesignation(response.data.designation);
+
+            } catch (err) {
+                console.error('Error fetching employee:', err);
+            }
+        };
+        fetchEmpDetails();
+    }, [empId]);
 
     useEffect(() => {
         const handleDownload = () => {
             const doc = new jsPDF('p', 'pt', 'a4');
-
-            // Add company logo
-            const imgUrl = logo;
-            doc.addImage(imgUrl, 'PNG', 40, 40, 50, 50);
-
+            doc.addImage(logo, 'PNG', 40, 40, 50, 50);
             doc.setFontSize(14);
-            doc.text('Company Name', 100, 60);
-            const issueDate = new Date().toLocaleDateString('en-CA');
-            doc.text(`Issue Date: ${issueDate}`, 400, 60);
+            doc.text('GLOBAL HRM', 100, 60);
+            doc.text(`Issue Date: ${new Date().toLocaleDateString('en-CA')}`, 400, 60);
 
-            // Add employee details
             if (payslip) {
                 const { date, total_days_worked, total_hours_worked } = payslip;
                 doc.setFontSize(12);
                 doc.text(`Payslip for: ${formatDate(date)}`, 40, 120);
-                doc.text(`Total Days Worked: ${total_days_worked}`, 40, 140);
-                doc.text(`Total Hours Worked: ${total_hours_worked}`, 40, 160);
+                doc.text(`Employee ID: ${empId}`, 40, 140);
+                doc.text(`Department: ${department}`, 40, 160);
+                doc.text(`Designation: ${designation}`, 40, 180);
+                doc.text(`Total Days Worked: ${total_days_worked}`, 40, 200);
+                doc.text(`Total Hours Worked: ${total_hours_worked}`, 40, 220);
             }
 
-            // Ensure the table element exists
             const payslipTable = payslipRef.current;
             if (payslipTable) {
                 html2canvas(payslipTable).then((canvas) => {
                     const imgData = canvas.toDataURL('image/png');
-                    doc.addImage(imgData, 'PNG', 40, 200, 500, 400);
-                    doc.save(`payslip_${payslip?.empId}.pdf`);
-
-                    if (onDownloadComplete) {
-                        onDownloadComplete();
-                    }
+                    doc.addImage(imgData, 'PNG', 40, 250, 500, 400);
+                    doc.save(`payslip_${empId}.pdf`);
+                    onDownloadComplete && onDownloadComplete();
                 });
             } else {
                 console.error('Payslip table not found!');
@@ -66,7 +78,7 @@ const PayslipComponent = ({ payslip, onDownloadComplete }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {payslip && payslip.earnings && Object.keys(payslip.earnings).map((key, index) => (
+                    {payslip?.earnings && Object.keys(payslip.earnings).map((key, index) => (
                         <tr key={`earning-${index}`} className="text-right">
                             <td className="py-2 px-12 border-black border-b border-r text-left" colSpan="2">
                                 {key.charAt(0).toUpperCase() + key.slice(1)}
@@ -75,7 +87,7 @@ const PayslipComponent = ({ payslip, onDownloadComplete }) => {
                             <td className="py-2 px-12 border-black border-b"></td>
                         </tr>
                     ))}
-                    {payslip && payslip.deductions && Object.keys(payslip.deductions).map((key, index) => (
+                    {payslip?.deductions && Object.keys(payslip.deductions).map((key, index) => (
                         <tr key={`deduction-${index}`} className="text-right">
                             <td className="py-2 px-12 border-black border-b border-r text-left" colSpan="2">
                                 {key.charAt(0).toUpperCase() + key.slice(1)}
@@ -94,7 +106,7 @@ const PayslipComponent = ({ payslip, onDownloadComplete }) => {
                         <td className="py-2 px-12 border-black border-b border-r"></td>
                         <td className="py-2 px-12 border-black border-b text-right">{payslip?.total_deductions}</td>
                     </tr>
-                    <tr className='bg-orange-100'>
+                    <tr className="bg-orange-100">
                         <td className="py-2 px-12 border-black border-b font-bold border-r text-left" colSpan="2">Net Pay</td>
                         <td className="py-2 px-12 border-black border-b text-center" colSpan="2">{payslip?.net_pay}</td>
                     </tr>

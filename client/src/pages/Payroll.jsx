@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Payslip from './subPages/Payslip'
+import PayRollAssitance from './subPages/PayRollAssitance';
 
 const Payroll = () => {
 
@@ -18,13 +19,13 @@ const Payroll = () => {
         >
           Payslip
         </button>
-        {/* <button
-          onClick={() => handleSectionToggle('myleaves')}
-          className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'myleaves' ? 'bg-orange-500 text-white' : ''}`}
-        >
-          My Leaves
-        </button>
         <button
+          onClick={() => handleSectionToggle('payrollAssitance')}
+          className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'payrollAssitance' ? 'bg-orange-500 text-white' : ''}`}
+        >
+          Payroll Assitance
+        </button>
+        {/* <button
           onClick={() => handleSectionToggle('attendance')}
           className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'attendance' ? 'bg-orange-500 text-white' : ''}`}
         >
@@ -33,8 +34,8 @@ const Payroll = () => {
       </div>
 
       {visibleSection === 'payslip' && <Payslip />}
-      {/* {visibleSection === 'myleaves' && <MyLeaves />}
-      {visibleSection === 'attendance' && <LeaveAnalysis />} */}
+      {visibleSection === 'payrollAssitance' && <PayRollAssitance />}
+      {/* {visibleSection === 'attendance' && <LeaveAnalysis />} */}
     </div>
   )
 }
