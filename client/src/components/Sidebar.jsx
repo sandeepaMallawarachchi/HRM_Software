@@ -172,7 +172,7 @@ const Sidebar = () => {
 
         {/* Offers and Onboarding Submenu */}
         {isRecruitmentOpen && !isCollapsed && (
-          <div className="w-full pl-10 space-y-5">
+          <div className="w-full pl-10 space-y-2">
             <NavLink
               to="/offers"
               className={({ isActive }) =>
