@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import Payslip from './subPages/Payslip'
 import PayRollAssitance from './subPages/PayRollAssitance';
+import SalaryAdvanceLoanRequest from './subPages/SalaryAdvanceLoanRequest';
 
 const Payroll = () => {
 
@@ -25,17 +26,17 @@ const Payroll = () => {
         >
           Payroll Assitance
         </button>
-        {/* <button
-          onClick={() => handleSectionToggle('attendance')}
-          className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'attendance' ? 'bg-orange-500 text-white' : ''}`}
+        <button
+          onClick={() => handleSectionToggle('salaryandloan')}
+          className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'salaryandloan' ? 'bg-orange-500 text-white' : ''}`}
         >
-          Leave Analysis
-        </button> */}
+          Request Salary Advance / Loan
+        </button>
       </div>
 
       {visibleSection === 'payslip' && <Payslip />}
       {visibleSection === 'payrollAssitance' && <PayRollAssitance />}
-      {/* {visibleSection === 'attendance' && <LeaveAnalysis />} */}
+      {visibleSection === 'salaryandloan' && <SalaryAdvanceLoanRequest />}
     </div>
   )
 }

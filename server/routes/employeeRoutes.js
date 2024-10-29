@@ -1036,4 +1036,45 @@ router.post("/payrollAssistance/:empId", async (req, res) => {
   }
 });
 
+//financial request
+router.post('/financialRequest/:empId', async (req, res) => {
+  const empId = req.params.empId;
+  const { request_type, date_of_request, amount, reason, repayment_terms } = req.body;
+
+  try {
+      const query = `INSERT INTO financial_requests (empId, request_type, date_of_request, amount, reason, repayment_terms) VALUES (?, ?, ?, ?, ?, ?)`;
+      await pool.query(query, [empId, request_type, date_of_request, amount, reason, repayment_terms || null]);
+
+      res.status(201).json({ message: `${request_type === 'loan' ? 'Loan' : 'Salary advance'} request submitted successfully.` });
+  } catch (error) {
+      console.error('Error submitting financial request:', error);
+      res.status(500).json({ error: 'Failed to submit financial request.' });
+  }
+});
+
+// get financial requests by empId
+router.get('/getFinancialRequests/:empId', async (req, res) => {
+  const empId = req.params.empId;
+  const { request_type } = req.query;
+
+  try {
+      let query = `SELECT * FROM financial_requests WHERE empId = ?`;
+      const queryParams = [empId];
+
+      // Optionally filter by request type
+      if (request_type) {
+          query += ` AND request_type = ?`;
+          queryParams.push(request_type);
+      }
+
+      query += ` ORDER BY created_at DESC`;
+      const [results] = await pool.query(query, queryParams);
+
+      res.status(200).json(results);
+  } catch (error) {
+      console.error('Error fetching financial requests:', error);
+      res.status(500).json({ error: 'Failed to fetch financial requests.' });
+  }
+});
+
 module.exports = router;
