@@ -122,10 +122,13 @@ router.get('/getPayslip/:empId', async (req, res) => {
         // Calculate net pay (total earnings - total deductions)
         const net_pay = (total_earnings - total_deductions).toFixed(2);
 
+        const formattedDate = new Date(salary.date).toISOString().split('T')[0];
+
+
         // Send the response with all details
         res.status(200).json({
             empId: salary.empId,
-            date: salary.date,
+            date: formattedDate,
             total_days_worked: salary.total_days_worked,
             total_hours_worked: salary.total_hours_worked,
             earnings: earnings,

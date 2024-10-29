@@ -30,7 +30,8 @@ const PayRollAssitance = () => {
 
         try {
             const response = await axios.get(`http://localhost:4000/admin/getPayslip/${empId}`, { params: { date: selectedDate } });
-            if (response.data.available) {
+
+            if (response.data.date === selectedDate) {
                 setDate(selectedDate);
             } else {
                 setDateError('No payslip found for the selected date.');
@@ -58,6 +59,9 @@ const PayRollAssitance = () => {
             });
 
             alert(response.data.message);
+            setDate('');
+            setSubject('');
+            setDescription('');
         } catch (error) {
             alert('Failed to submit payroll assistance request.');
         }
