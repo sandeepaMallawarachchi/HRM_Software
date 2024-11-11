@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Payslip from './subPages/Payslip'
 import PayRollAssitance from './subPages/PayRollAssitance';
 import SalaryAdvanceLoanRequest from './subPages/SalaryAdvanceLoanRequest';
+import MyFinancialRequests from './subPages/MyFinancialRequests';
 
 const Payroll = () => {
 
@@ -32,11 +33,18 @@ const Payroll = () => {
         >
           Request Salary Advance / Loan
         </button>
+        <button
+          onClick={() => handleSectionToggle('finacialrequest')}
+          className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'finacialrequest' ? 'bg-orange-500 text-white' : ''}`}
+        >
+          My Financial Requests
+        </button>
       </div>
 
       {visibleSection === 'payslip' && <Payslip />}
       {visibleSection === 'payrollAssitance' && <PayRollAssitance />}
       {visibleSection === 'salaryandloan' && <SalaryAdvanceLoanRequest />}
+      {visibleSection === 'finacialrequest' && <MyFinancialRequests />}
     </div>
   )
 }

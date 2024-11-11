@@ -74,12 +74,12 @@ const SalaryAdvanceLoanRequest = () => {
                 const currentDate = new Date();
                 const currentMonth = currentDate.getMonth();
                 const currentYear = currentDate.getFullYear();
-    
+
                 const currentPayslip = payslips.find(payslip => {
                     const payslipDate = new Date(payslip.date);
                     return payslipDate.getMonth() === currentMonth && payslipDate.getFullYear() === currentYear;
                 });
-    
+
                 if (currentPayslip) {
                     setNetPay(currentPayslip.net_pay);
                 } else {
@@ -90,13 +90,13 @@ const SalaryAdvanceLoanRequest = () => {
                 console.error('Error fetching payslip:', err);
             }
         };
-    
+
         fetchNetPay();
-    }, [empId]);    
+    }, [empId]);
 
     const handleDateChange = (e) => {
         const selectedDate = e.target.value;
-        const today = new Date().toISOString().split('T')[0]; 
+        const today = new Date().toISOString().split('T')[0];
         if (selectedDate > today) {
             alert('Future dates are not allowed.');
             setDate(today);
@@ -107,6 +107,7 @@ const SalaryAdvanceLoanRequest = () => {
 
     return (
         <div className="p-6 px-20 bg-[#eaeaea] rounded-lg shadow-md">
+            {/* request form */}
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -208,7 +209,7 @@ const SalaryAdvanceLoanRequest = () => {
                     Submit
                 </button>
             </form>
-        </div>
+        </div >
     );
 };
 
