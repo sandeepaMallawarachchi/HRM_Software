@@ -72,40 +72,15 @@ router.get('/getPayslip/:empId', async (req, res) => {
     const empId = req.params.empId;
 
     try {
-        // Query the database to get the employee's salary record by empId
-        const [salaryRecord] = await pool.query(
-            'SELECT * FROM salary WHERE empId = ? ORDER BY date DESC LIMIT 1', // Fetch the most recent salary record
+        // Query the database to get all salary records for the given empId
+        const [salaryRecords] = await pool.query(
+            'SELECT * FROM salary WHERE empId = ? ORDER BY date DESC', // Fetch all salary records for empId, ordered by date
             [empId]
         );
 
-        // Check if salary record exists
-        if (salaryRecord.length === 0) {
-            return res.status(404).json({ message: 'No salary record found for this employee' });
-        }
-
-        // Extract the salary record
-        const salary = salaryRecord[0];
-
-        // Validate and parse earnings
-        let earnings;
-        if (typeof salary.earnings === 'string') {
-            earnings = JSON.parse(salary.earnings);
-        } else if (typeof salary.earnings === 'object') {
-            earnings = salary.earnings; // already an object
-        } else {
-            console.error('Earnings field is not valid:', salary.earnings);
-            return res.status(500).json({ error: 'Invalid earnings data format' });
-        }
-
-        // Validate and parse deductions
-        let deductions;
-        if (typeof salary.deductions === 'string') {
-            deductions = JSON.parse(salary.deductions);
-        } else if (typeof salary.deductions === 'object') {
-            deductions = salary.deductions; // already an object
-        } else {
-            console.error('Deductions field is not valid:', salary.deductions);
-            return res.status(500).json({ error: 'Invalid deductions data format' });
+        // Check if any salary records exist
+        if (salaryRecords.length === 0) {
+            return res.status(404).json({ message: 'No salary records found for this employee' });
         }
 
         // Function to calculate total from dynamic fields
@@ -113,35 +88,59 @@ router.get('/getPayslip/:empId', async (req, res) => {
             return Object.values(items).reduce((acc, value) => acc + parseFloat(value || 0), 0);
         };
 
-        // Calculate total earnings dynamically
-        const total_earnings = calculateTotal(earnings).toFixed(2);
+        // Map over all salary records and format the response
+        const payslips = salaryRecords.map((salary) => {
+            let earnings, deductions;
 
-        // Calculate total deductions dynamically
-        const total_deductions = calculateTotal(deductions).toFixed(2);
+            // Validate and parse earnings
+            if (typeof salary.earnings === 'string') {
+                earnings = JSON.parse(salary.earnings);
+            } else if (typeof salary.earnings === 'object') {
+                earnings = salary.earnings;
+            } else {
+                console.error('Earnings field is not valid:', salary.earnings);
+                earnings = {};
+            }
 
-        // Calculate net pay (total earnings - total deductions)
-        const net_pay = (total_earnings - total_deductions).toFixed(2);
+            // Validate and parse deductions
+            if (typeof salary.deductions === 'string') {
+                deductions = JSON.parse(salary.deductions);
+            } else if (typeof salary.deductions === 'object') {
+                deductions = salary.deductions;
+            } else {
+                console.error('Deductions field is not valid:', salary.deductions);
+                deductions = {};
+            }
 
-        const formattedDate = new Date(salary.date).toISOString().split('T')[0];
+            // Calculate total earnings and deductions
+            const total_earnings = calculateTotal(earnings).toFixed(2);
+            const total_deductions = calculateTotal(deductions).toFixed(2);
 
+            // Calculate net pay (total earnings - total deductions)
+            const net_pay = (total_earnings - total_deductions).toFixed(2);
 
-        // Send the response with all details
-        res.status(200).json({
-            empId: salary.empId,
-            date: formattedDate,
-            total_days_worked: salary.total_days_worked,
-            total_hours_worked: salary.total_hours_worked,
-            earnings: earnings,
-            total_earnings: total_earnings,
-            deductions: deductions,
-            total_deductions: total_deductions,
-            net_pay: net_pay,
-            createdAt: salary.createdAt
+            const formattedDate = new Date(salary.date).toISOString().split('T')[0];
+
+            return {
+                empId: salary.empId,
+                date: formattedDate,
+                total_days_worked: salary.total_days_worked,
+                total_hours_worked: salary.total_hours_worked,
+                earnings: earnings,
+                total_earnings: total_earnings,
+                deductions: deductions,
+                total_deductions: total_deductions,
+                net_pay: net_pay,
+                createdAt: salary.createdAt
+            };
         });
 
+        // Send the response with all payslips
+        res.status(200).json(payslips);
+
     } catch (error) {
-        console.error('Error retrieving payslip:', error);
-        res.status(500).json({ error: 'Error retrieving payslip' });
+        console.error('Error retrieving payslips:', error);
+        res.status(500).json({ error: 'Error retrieving payslips' });
     }
 });
 

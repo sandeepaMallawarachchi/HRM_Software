@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const SalaryAdvanceLoanRequest = () => {
@@ -10,6 +10,8 @@ const SalaryAdvanceLoanRequest = () => {
     const [customRepayment, setCustomRepayment] = useState(false);
     const [attachment, setAttachment] = useState(null);
     const [termsAccepted, setTermsAccepted] = useState(false);
+    const [netPay, setNetPay] = useState('');
+    const [error, setError] = useState('');
     const empId = localStorage.getItem('empId');
 
     const handleRepaymentChange = (e) => {
@@ -22,6 +24,11 @@ const SalaryAdvanceLoanRequest = () => {
         e.preventDefault();
         if (!termsAccepted) {
             alert("Please accept the terms and conditions.");
+            return;
+        }
+
+        if (parseFloat(amount) > parseFloat(netPay)) {
+            setError('Requested amount cannot be greater than your net pay for the current month.');
             return;
         }
 
@@ -59,6 +66,45 @@ const SalaryAdvanceLoanRequest = () => {
         if (file) setAttachment(file);
     };
 
+    useEffect(() => {
+        const fetchNetPay = async () => {
+            try {
+                const response = await axios.get(`http://localhost:4000/admin/getPayslip/${empId}`);
+                const payslips = response.data;
+                const currentDate = new Date();
+                const currentMonth = currentDate.getMonth();
+                const currentYear = currentDate.getFullYear();
+    
+                const currentPayslip = payslips.find(payslip => {
+                    const payslipDate = new Date(payslip.date);
+                    return payslipDate.getMonth() === currentMonth && payslipDate.getFullYear() === currentYear;
+                });
+    
+                if (currentPayslip) {
+                    setNetPay(currentPayslip.net_pay);
+                } else {
+                    console.error('Payslip for current month not found.');
+                    setNetPay(0);
+                }
+            } catch (err) {
+                console.error('Error fetching payslip:', err);
+            }
+        };
+    
+        fetchNetPay();
+    }, [empId]);    
+
+    const handleDateChange = (e) => {
+        const selectedDate = e.target.value;
+        const today = new Date().toISOString().split('T')[0]; 
+        if (selectedDate > today) {
+            alert('Future dates are not allowed.');
+            setDate(today);
+        } else {
+            setDate(selectedDate);
+        }
+    };
+
     return (
         <div className="p-6 px-20 bg-[#eaeaea] rounded-lg shadow-md">
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -68,9 +114,10 @@ const SalaryAdvanceLoanRequest = () => {
                         <input
                             type="date"
                             value={date_of_request}
-                            onChange={(e) => setDate(e.target.value)}
+                            onChange={handleDateChange}
                             required
                             className="border-none rounded-md p-2 w-full"
+                            max={new Date().toISOString().split('T')[0]}
                         />
                     </div>
                     <div>
@@ -97,6 +144,7 @@ const SalaryAdvanceLoanRequest = () => {
                             className="border-none rounded-md p-2 w-full"
                             placeholder="Enter amount"
                         />
+                        {error && <p className="text-red-500 text-sm">{error}</p>}
                     </div>
                     <div>
                         <label className="block mb-1 text-gray-500">Repayment Terms</label>
