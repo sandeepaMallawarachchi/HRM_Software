@@ -20,6 +20,7 @@ const validRoles = [
   "Top Lvl Manager",
   "Ceo",
 ];
+
 //send emails
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -134,36 +135,36 @@ router.get("/getEmployee/:empId", async (req, res) => {
 
 // Create work details
 router.post("/workDetails", async (req, res) => {
-    const {
-        workEmail,
-        workPhone,
-        department,
-        location,
-        designation,
-        supervisor,
-    } = req.body;
+  const {
+    workEmail,
+    workPhone,
+    department,
+    location,
+    designation,
+    supervisor,
+  } = req.body;
 
-    try {
-        const newWorkDetails = {
-            workEmail,
-            workPhone,
-            department,
-            location,
-            designation,
-            supervisor,
-        };
+  try {
+    const newWorkDetails = {
+      workEmail,
+      workPhone,
+      department,
+      location,
+      designation,
+      supervisor,
+    };
 
-        const [results] = await pool.query(
-            "INSERT INTO workdetails (workEmail, workPhone, department, location, designation, supervisor) VALUES (?, ?, ?, ?, ?, ?)",
-            [
-                newWorkDetails.workEmail,
-                newWorkDetails.workPhone,
-                newWorkDetails.department,
-                newWorkDetails.location,
-                newWorkDetails.designation,
-                newWorkDetails.supervisor,
-            ]
-        );
+    const [results] = await pool.query(
+      "INSERT INTO workdetails (workEmail, workPhone, department, location, designation, supervisor) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        newWorkDetails.workEmail,
+        newWorkDetails.workPhone,
+        newWorkDetails.department,
+        newWorkDetails.location,
+        newWorkDetails.designation,
+        newWorkDetails.supervisor,
+      ]
+    );
 
     res.status(201).json({
       message: "Employee Work Details Created successfully",
@@ -316,52 +317,51 @@ function giveCurrentDateTime() {
   return new Date().toISOString().replace(/:/g, "-");
 }
 
-router.post(
-  "/uploadProfileImage/:empId",
-  upload.single("profilePic"),
-  async (req, res) => {
-    const empId = req.params.empId;
+//save profile pic
+router.post("/uploadProfileImage/:empId", upload.single("profilePic"), async (req, res) => {
+  const empId = req.params.empId;
 
-    try {
-      if (!req.file) {
-        return res.status(400).send("No file uploaded.");
-      }
-
-      const dateTime = giveCurrentDateTime();
-      const storageRef = ref(
-        storage,
-        `profilepic/${req.file.originalname} ${dateTime}`
-      );
-      const metadata = {
-        contentType: req.file.mimetype,
-      };
-
-      const snapshot = await uploadBytesResumable(
-        storageRef,
-        req.file.buffer,
-        metadata
-      );
-      const downloadURL = await getDownloadURL(snapshot.ref);
-
-      // Update profile picture URL in the database
-      const updateQuery =
-        "UPDATE personaldetails SET profilepic = ? WHERE empId = ?";
-      await pool.query(updateQuery, [downloadURL, empId]);
-
-      return res.send({
-        message:
-          "File uploaded to Firebase Storage and profile picture updated successfully",
-        name: req.file.originalname,
-        type: req.file.mimetype,
-        downloadURL: downloadURL,
-      });
-    } catch (error) {
-      console.error("Error uploading file or updating profile picture:", error);
-      return res.status(500).send(error.message);
+  try {
+    if (!req.file) {
+      return res.status(400).send("No file uploaded.");
     }
+
+    const dateTime = giveCurrentDateTime();
+    const storageRef = ref(
+      storage,
+      `profilepic/${req.file.originalname} ${dateTime}`
+    );
+    const metadata = {
+      contentType: req.file.mimetype,
+    };
+
+    const snapshot = await uploadBytesResumable(
+      storageRef,
+      req.file.buffer,
+      metadata
+    );
+    const downloadURL = await getDownloadURL(snapshot.ref);
+
+    // Update profile picture URL in the database
+    const updateQuery =
+      "UPDATE personaldetails SET profilepic = ? WHERE empId = ?";
+    await pool.query(updateQuery, [downloadURL, empId]);
+
+    return res.send({
+      message:
+        "File uploaded to Firebase Storage and profile picture updated successfully",
+      name: req.file.originalname,
+      type: req.file.mimetype,
+      downloadURL: downloadURL,
+    });
+  } catch (error) {
+    console.error("Error uploading file or updating profile picture:", error);
+    return res.status(500).send(error.message);
   }
+}
 );
 
+//get profile pic
 router.get("/getProfileImage/:empId", async (req, res) => {
   const empId = req.params.empId;
 
@@ -619,96 +619,96 @@ router.post("/support/:empId", async (req, res) => {
 });
 
 router.post('/requestPasswordReset', async (req, res) => {
-    try {
-        const { empId, email } = req.body;
+  try {
+    const { empId, email } = req.body;
 
-        if (!empId && !email) {
-            return res.status(400).json({ message: "Please provide either employee ID or email." });
-        }
-
-        // Query the database using either empId or email
-        let query = '';
-        let queryParam = '';
-
-        if (empId) {
-            query = 'SELECT * FROM logindetails WHERE empId = ?';
-            queryParam = empId;
-        } else if (email) {
-            query = 'SELECT * FROM logindetails WHERE email = ?';
-            queryParam = email;
-        }
-
-        const [rows] = await pool.query(query, [queryParam]);
-
-        if (rows.length === 0) {
-            return res.status(404).json({ message: "Employee not found" });
-        }
-
-        const employee = rows[0];
-
-        // Generate a random 6-digit code
-        const resetCode = crypto.randomInt(100000, 999999);
-
-        // Save the reset code and its expiration time (you'll need to adjust this part for your DB model)
-        const resetCodeExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
-
-        await pool.query(
-            'UPDATE logindetails SET resetcode = ?, resetcodeexpires = ? WHERE empId = ?',
-            [resetCode, resetCodeExpires, employee.empId]
-        );
-
-        // Send the reset code via email
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: employee.email,
-            subject: "Password Reset Request",
-            text: `Your password reset code is ${resetCode}. It will expire in 15 minutes.`,
-        };
-
-        await transporter.sendMail(mailOptions);
-
-        res.status(200).json({ message: "Reset code sent to email" });
-    } catch (error) {
-        console.error("Error requesting password reset:", error.message);
-        res.status(500).json({ message: "Internal server error" });
+    if (!empId && !email) {
+      return res.status(400).json({ message: "Please provide either employee ID or email." });
     }
+
+    // Query the database using either empId or email
+    let query = '';
+    let queryParam = '';
+
+    if (empId) {
+      query = 'SELECT * FROM logindetails WHERE empId = ?';
+      queryParam = empId;
+    } else if (email) {
+      query = 'SELECT * FROM logindetails WHERE email = ?';
+      queryParam = email;
+    }
+
+    const [rows] = await pool.query(query, [queryParam]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    const employee = rows[0];
+
+    // Generate a random 6-digit code
+    const resetCode = crypto.randomInt(100000, 999999);
+
+    // Save the reset code and its expiration time (you'll need to adjust this part for your DB model)
+    const resetCodeExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+    await pool.query(
+      'UPDATE logindetails SET resetcode = ?, resetcodeexpires = ? WHERE empId = ?',
+      [resetCode, resetCodeExpires, employee.empId]
+    );
+
+    // Send the reset code via email
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: employee.email,
+      subject: "Password Reset Request",
+      text: `Your password reset code is ${resetCode}. It will expire in 15 minutes.`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: "Reset code sent to email" });
+  } catch (error) {
+    console.error("Error requesting password reset:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 //reset password
 router.post('/resetPassword', async (req, res) => {
-    try {
-        const { resetCode, newPassword } = req.body;
+  try {
+    const { resetCode, newPassword } = req.body;
 
-        // Fetch the user with the given reset code
-        const [rows] = await pool.query('SELECT * FROM logindetails WHERE resetcode = ?', [resetCode]);
+    // Fetch the user with the given reset code
+    const [rows] = await pool.query('SELECT * FROM logindetails WHERE resetcode = ?', [resetCode]);
 
-        // If no user is found with the reset code
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'Reset code not found' });
-        }
-
-        const user = rows[0];
-
-        // Check if the reset code is expired
-        if (new Date(user.resetCodeExpires) < Date.now()) {
-            return res.status(400).json({ message: 'Reset code has expired' });
-        }
-
-        // Hash the new password
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-        // Update the user's password and clear the reset code fields
-        await pool.query(
-            'UPDATE logindetails SET password = ?, resetcode = NULL, resetcodeexpires = NULL WHERE empId = ?',
-            [hashedPassword, user.empId]
-        );
-
-        res.status(200).json({ message: 'Password updated successfully' });
-
-    } catch (error) {
-        console.error("Error resetting password:", error.message);
-        res.status(500).json({ message: 'Internal server error' });
+    // If no user is found with the reset code
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Reset code not found' });
     }
+
+    const user = rows[0];
+
+    // Check if the reset code is expired
+    if (new Date(user.resetCodeExpires) < Date.now()) {
+      return res.status(400).json({ message: 'Reset code has expired' });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password and clear the reset code fields
+    await pool.query(
+      'UPDATE logindetails SET password = ?, resetcode = NULL, resetcodeexpires = NULL WHERE empId = ?',
+      [hashedPassword, user.empId]
+    );
+
+    res.status(200).json({ message: 'Password updated successfully' });
+
+  } catch (error) {
+    console.error("Error resetting password:", error.message);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 //request leave
@@ -998,5 +998,145 @@ router.get("/getCurrentDateAttendance/:empId", async (req, res) => {
     res.status(500).json({ error: "Error fetching today's attendance" });
   }
 });
+
+//pay roll assistance
+router.post("/payrollAssistance/:empId", async (req, res) => {
+  const empId = req.params.empId;
+  const {
+    date,
+    subject,
+    description
+  } = req.body;
+
+  try {
+    const newAssistance = {
+      empId,
+      date,
+      subject,
+      description,
+    };
+
+    const [results] = await pool.query(
+      "INSERT INTO payroll_assistance (empId, date, subject, description) VALUES (?, ?, ?, ?)",
+      [
+        newAssistance.empId,
+        newAssistance.date,
+        newAssistance.subject,
+        newAssistance.description,
+      ]
+    );
+
+    res.status(201).json({
+      message: "Employee payroll assistance created successfully",
+      assistanceId: results.insertId,
+    });
+  } catch (error) {
+    console.error("Error saving employee payroll assistance:", error);
+    res.status(500).json({ error: "Error saving employee payroll assistance" });
+  }
+});
+
+//financial request
+router.post('/financialRequest/:empId', upload.single("financialAttachment"), async (req, res) => {
+  const empId = req.params.empId;
+  const { request_type, date_of_request, amount, reason, repayment_terms } = req.body;
+  let downloadURL = null;
+
+  try {
+    // Check if there's an attachment to upload
+    if (req.file) {
+      const dateTime = giveCurrentDateTime();
+      const storageRef = ref(storage, `attachment/${req.file.originalname} ${dateTime}`);
+      const metadata = { contentType: req.file.mimetype };
+
+      const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
+      downloadURL = await getDownloadURL(snapshot.ref);
+    }
+
+    // Insert financial request into the database
+    const query = `
+      INSERT INTO financial_requests (empId, request_type, date_of_request, amount, reason, repayment_terms, attachment) 
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    await pool.query(query, [empId, request_type, date_of_request, amount, reason, repayment_terms || null, downloadURL]);
+
+    res.status(201).json({
+      message: `${request_type === 'loan' ? 'Loan' : 'Salary advance'} request submitted successfully.`,
+      attachmentURL: downloadURL
+    });
+  } catch (error) {
+    console.error('Error submitting financial request or uploading attachment:', error);
+    res.status(500).json({ error: 'Failed to submit financial request.' });
+  }
+});
+
+// get financial requests by empId
+router.get('/getFinancialRequests/:empId', async (req, res) => {
+  const empId = req.params.empId;
+  const { request_type } = req.query;
+
+  try {
+    let query = `SELECT * FROM financial_requests WHERE empId = ?`;
+    const queryParams = [empId];
+
+    // Optionally filter by request type
+    if (request_type) {
+      query += ` AND request_type = ?`;
+      queryParams.push(request_type);
+    }
+
+    query += ` ORDER BY created_at DESC`;
+    const [results] = await pool.query(query, queryParams);
+
+    res.status(200).json(results);
+  } catch (error) {
+    console.error('Error fetching financial requests:', error);
+    res.status(500).json({ error: 'Failed to fetch financial requests.' });
+  }
+});
+
+// //save attachment
+// router.post("/uploadAttachment/:empId", upload.single("financialAttachment"), async (req, res) => {
+//   const empId = req.params.empId;
+
+//   try {
+//     if (!req.file) {
+//       return res.status(400).send("No file uploaded.");
+//     }
+
+//     const dateTime = giveCurrentDateTime();
+//     const storageRef = ref(
+//       storage,
+//       `attachment/${req.file.originalname} ${dateTime}`
+//     );
+//     const metadata = {
+//       contentType: req.file.mimetype,
+//     };
+
+//     const snapshot = await uploadBytesResumable(
+//       storageRef,
+//       req.file.buffer,
+//       metadata
+//     );
+//     const downloadURL = await getDownloadURL(snapshot.ref);
+
+//     // Update profile picture URL in the database
+//     const updateQuery =
+//       "UPDATE financial_requests SET attachment = ? WHERE empId = ?";
+//     await pool.query(updateQuery, [downloadURL, empId]);
+
+//     return res.send({
+//       message:
+//         "File uploaded to Firebase Storage and attachment updated successfully",
+//       name: req.file.originalname,
+//       type: req.file.mimetype,
+//       downloadURL: downloadURL,
+//     });
+//   } catch (error) {
+//     console.error("Error uploading file or updating attachment:", error);
+//     return res.status(500).send(error.message);
+//   }
+// }
+// );
 
 module.exports = router;
