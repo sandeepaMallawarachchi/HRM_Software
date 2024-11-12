@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
-import "../components/CSS/LearningDevelopment.css"; // for additional styling
+import "../components/CSS/LearningDevelopment.css";
+import CertificationsAchievements from "../components/leaningComponents/CertificationsAchievements";
+import LearningCalander from "../components/leaningComponents/LearningCalander";
 
 const LearningDevelopment = () => {
-  const [date, setDate] = useState(new Date());
 
   return (
     <div className="p-5">
@@ -69,42 +68,7 @@ const LearningDevelopment = () => {
         </div>
 
         {/* Certifications and Achievements */}
-        <div className="card bg-gradient-to-r from-orange-400 to-orange-300 text-white rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
-          <h2 className="text-lg font-semibold mb-2">
-            Certifications and Achievements
-          </h2>
-          <ul className="list-disc list-inside ml-5 mb-4">
-            <li className="text-sm">
-              JavaScript Basics - Certification (Completed)
-            </li>
-            <li className="text-sm">Full-Stack Bootcamp - In Progress</li>
-          </ul>
-
-          {/* Add Certification Section */}
-          <div className="mt-4">
-            <h3 className="text-md font-semibold mb-2">
-              Add New Certification
-            </h3>
-            <form className="flex flex-col">
-              <input
-                type="text"
-                placeholder="Certification Name"
-                className="p-2 mb-2 rounded bg-white text-gray-800"
-              />
-              <select className="p-2 mb-2 rounded bg-white text-gray-800">
-                <option value="">Select Status</option>
-                <option value="completed">Completed</option>
-                <option value="in-progress">In Progress</option>
-              </select>
-              <button
-                type="submit"
-                className="bg-white text-blue-500 rounded py-2 hover:bg-gray-200 transition duration-300"
-              >
-                Add Certification
-              </button>
-            </form>
-          </div>
-        </div>
+        <CertificationsAchievements />
 
         {/* Skills and Competencies */}
         <div className="card bg-gradient-to-r from-indigo-500 to-indigo-300 text-white rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
@@ -140,16 +104,7 @@ const LearningDevelopment = () => {
         </div>
 
         {/* Learning Calendar */}
-        <div className="card bg-gray-100 border border-gray-300 rounded-lg p-5 ">
-          <h2 className="text-lg font-semibold">Learning Calendar</h2>
-          <Calendar onChange={setDate} value={date} />
-          <p className="mt-2">Selected Date: {date.toDateString()}</p>
-          <p>Upcoming: Advanced React.js Workshop on November 5, 2024</p>
-          <p>
-            Next Deadline: Full-Stack Development Module 3 due on October 30,
-            2024
-          </p>
-        </div>
+        <LearningCalander />
 
         {/* Career Development Plan */}
         <div className="card bg-gradient-to-r from-blue-500 to-blue-300 text-black rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
