@@ -2,25 +2,31 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
-import { FaCalendar } from 'react-icons/fa'
+import { FaCalendar, FaWallet } from 'react-icons/fa';
 
 const Actions = () => {
     const empId = localStorage.getItem('empId');
     const [leaveRequestList, setLeaveRequestList] = useState([]);
+    const [financialRequestList, setFinancialRequestList] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const requestResponse = await axios.get(`http://localhost:4000/employees/getLeaveRequest/${empId}`);
+                const requestLeave = await axios.get(`http://localhost:4000/employees/getLeaveRequest/${empId}`);
+                const requestFinancial = await axios.get(`http://localhost:4000/employees/getFinancialRequests/${empId}`);
 
                 const currentDate = moment().startOf('day');
 
-                const todayRequests = requestResponse.data.filter(request => {
-                    const requestCreationDate = moment(request.createdAt).startOf('day');
-                    return requestCreationDate.isSame(currentDate);
+                const todayLeaves = requestLeave.data.filter(request => {
+                    return moment(request.createdAt).isSame(currentDate, 'day');
                 });
 
-                setLeaveRequestList(todayRequests);
+                const todayFinancials = requestFinancial.data.filter(request => {
+                    return moment(request.created_at).isSame(currentDate, 'day');
+                });
+
+                setLeaveRequestList(todayLeaves);
+                setFinancialRequestList(todayFinancials);
             } catch (err) {
                 console.log("Error fetching data:", err);
             }
@@ -30,9 +36,9 @@ const Actions = () => {
 
     return (
         <div>
-            <Link to='/leave'>
-                <div className="text-left bg-gray-100 rounded-xl p-4">
-                    {leaveRequestList.length > 0 ? (
+            {leaveRequestList.length > 0 && (
+                <Link to='/leave'>
+                    <div className="text-left bg-gray-100 rounded-xl p-4">
                         <ul>
                             {leaveRequestList.map((leave) => (
                                 <li key={leave.id} className='flex gap-4'>
@@ -41,11 +47,24 @@ const Actions = () => {
                                 </li>
                             ))}
                         </ul>
-                    ) : (
-                        <p>No leave requests created today.</p>
-                    )}
-                </div>
-            </Link>
+                    </div>
+                </Link>
+            )}
+            
+            {financialRequestList.length > 0 && (
+                <Link to='/payroll'>
+                    <div className="text-left bg-gray-100 rounded-xl p-4 mt-5">
+                        <ul>
+                            {financialRequestList.map((financial) => (
+                                <li key={financial.id} className='flex gap-4'>
+                                    <FaWallet size={20} color='red'/>
+                                    Financial Request - {financial.request_type}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </Link>
+            )}
         </div>
     );
 };
