@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FaTrash, FaFile } from 'react-icons/fa';
+import { FaFile } from 'react-icons/fa';
 
 const MyFinancialRequests = () => {
     const empId = localStorage.getItem('empId');
@@ -29,16 +29,16 @@ const MyFinancialRequests = () => {
 
     const handleFilterChange = () => {
         const filteredList = financialRequestList.filter((financial) => {
-            const leaveDate = new Date(financial.date_from);
-            const leaveYear = leaveDate.getFullYear();
-            const leaveMonth = leaveDate.getMonth() + 1;
+            const requestDate = new Date(financial.date_of_request);
+            const requestYear = requestDate.getFullYear();
+            const requestMonth = requestDate.getMonth() + 1;
 
-            const matchesYear = yearFilter ? leaveYear === parseInt(yearFilter) : true;
-            const matchesMonth = monthFilter ? leaveMonth === parseInt(monthFilter) : true;
+            const matchesYear = yearFilter ? requestYear === parseInt(yearFilter) : true;
+            const matchesMonth = monthFilter ? requestMonth === parseInt(monthFilter) : true;
 
             return matchesYear && matchesMonth;
         });
-        setFinancialRequestList(filteredList);
+        setFilteredFinancialRequestList(filteredList);
     };
 
     useEffect(() => {
@@ -57,7 +57,7 @@ const MyFinancialRequests = () => {
                         className="border-none rounded-md p-2 w-full"
                     >
                         <option value="">All Years</option>
-                        {[...new Set(financialRequestList.map(financial => new Date(financial.date_from).getFullYear()))]
+                        {[...new Set(financialRequestList.map(financial => new Date(financial.date_of_request).getFullYear()))]
                             .sort((a, b) => b - a)
                             .map(year => (
                                 <option key={year} value={year}>{year}</option>
@@ -107,15 +107,15 @@ const MyFinancialRequests = () => {
                                     <td className="py-2 px-4 border-b">{financial.amount}</td>
                                     <td className="py-2 px-4 border-b">{financial.repayment_terms}</td>
                                     <td className="py-2 px-4 border-b">{financial.reason}</td>
-                                    <td className="py-2 px-4 border-b">
+                                    <td className="py-2 px-4 border-b text-center">
                                         {financial.attachment ? (
                                             <a
                                                 href={financial.attachment}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="text-orange-500 hover:text-orange-700 text-center"
+                                                className="flex justify-center items-center text-orange-500 hover:text-orange-700"
                                             >
-                                                <FaFile size={20}/>
+                                                <FaFile size={24} />
                                             </a>
                                         ) : (
                                             "-"
@@ -126,7 +126,7 @@ const MyFinancialRequests = () => {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="8" className="text-center py-4">No financial requests found</td>
+                                <td colSpan="7" className="text-center py-4">No financial requests found</td>
                             </tr>
                         )}
                     </tbody>

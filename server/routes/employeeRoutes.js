@@ -1095,48 +1095,92 @@ router.get('/getFinancialRequests/:empId', async (req, res) => {
   }
 });
 
-// //save attachment
-// router.post("/uploadAttachment/:empId", upload.single("financialAttachment"), async (req, res) => {
-//   const empId = req.params.empId;
+//add certifications and achievements
+router.post("/addCertificate/:empId", async (req, res) => {
+  const empId = req.params.empId;
+  const {
+    certificate_name,
+    link,
+    status,
+  } = req.body;
 
-//   try {
-//     if (!req.file) {
-//       return res.status(400).send("No file uploaded.");
-//     }
+  try {
+    const newCertificate = {
+      empId,
+      certificate_name,
+      link,
+      status,
+    };
 
-//     const dateTime = giveCurrentDateTime();
-//     const storageRef = ref(
-//       storage,
-//       `attachment/${req.file.originalname} ${dateTime}`
-//     );
-//     const metadata = {
-//       contentType: req.file.mimetype,
-//     };
+    const [results] = await pool.query(
+      "INSERT INTO certificates_achievements (empId, certificate_name, link, status) VALUES (?, ?, ?, ?)",
+      [
+        newCertificate.empId,
+        newCertificate.certificate_name,
+        newCertificate.link,
+        newCertificate.status,
+      ]
+    );
 
-//     const snapshot = await uploadBytesResumable(
-//       storageRef,
-//       req.file.buffer,
-//       metadata
-//     );
-//     const downloadURL = await getDownloadURL(snapshot.ref);
+    res.status(201).json({
+      message: "Employee certificate created successfully",
+      assistanceId: results.insertId,
+    });
+  } catch (error) {
+    console.error("Error saving employee certificate:", error);
+    res.status(500).json({ error: "Error saving employee certificate" });
+  }
+});
 
-//     // Update profile picture URL in the database
-//     const updateQuery =
-//       "UPDATE financial_requests SET attachment = ? WHERE empId = ?";
-//     await pool.query(updateQuery, [downloadURL, empId]);
+//get cerficates by empId
+router.get("/getCertificates/:empId", async (req, res) => {
+  const empId = req.params.empId;
 
-//     return res.send({
-//       message:
-//         "File uploaded to Firebase Storage and attachment updated successfully",
-//       name: req.file.originalname,
-//       type: req.file.mimetype,
-//       downloadURL: downloadURL,
-//     });
-//   } catch (error) {
-//     console.error("Error uploading file or updating attachment:", error);
-//     return res.status(500).send(error.message);
-//   }
-// }
-// );
+  try {
+    const [records] = await pool.query(
+      "SELECT * FROM certificates_achievements WHERE empId = ?", [empId]
+    );
+
+    if (records.length > 0) {
+      res.status(200).json(records); 
+    } else {
+      res.status(404).json('No certificates found');
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching certificates" });
+  }
+});
+
+//add reminders by empId
+router.post("/addReminders/:empId", async (req, res) => {
+  const empId = req.params.empId;
+  const { date, reminder } = req.body;
+
+  try {
+    await pool.query(
+      "INSERT INTO learning_reminders (empId, date, reminder) VALUES (?, ?, ?)",
+      [empId, date, reminder]
+    );
+    res.status(201).json({ message: "Reminder added successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Error adding reminder" });
+  }
+});
+
+//get reminders by empId
+router.get("/getReminders/:empId", async (req, res) => {
+  const empId = req.params.empId;
+  const { date } = req.query;
+
+  try {
+    const [results] = await pool.query(
+      "SELECT * FROM learning_reminders WHERE empId = ? AND date = ?",
+      [empId, date]
+    );
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({ error: "Error retrieving reminders" });
+  }
+});
 
 module.exports = router;
