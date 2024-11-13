@@ -15,6 +15,7 @@ import EmployeeRegistration from "./pages/auth/EmployeeRegistration";
 import LeaveAndAttendance from "./pages/LeaveAndAttendance";
 import LearningDevelopment from "./pages/LearningDevelopment";
 import AttendanceAndTime from "./pages/AttendanceAndTime";
+import ReminderPage from './pages/subPages/ReminderPage.jsx'
 
 //team leader routes
 import TeamManage from "./pages/TeamLeaderPages/TeamManage";
@@ -171,6 +172,10 @@ const App = () => {
             <Route
               path="/decision-support"
               element={<ProtectedRoute element={<DecitionSupport />} />}
+            />
+            <Route
+              path="/reminders"
+              element={<ProtectedRoute element={<ReminderPage />} />}
             />
           </Routes>
         </div>

@@ -1142,7 +1142,7 @@ router.get("/getCertificates/:empId", async (req, res) => {
     );
 
     if (records.length > 0) {
-      res.status(200).json(records); 
+      res.status(200).json(records);
     } else {
       res.status(404).json('No certificates found');
     }
@@ -1154,12 +1154,12 @@ router.get("/getCertificates/:empId", async (req, res) => {
 //add reminders by empId
 router.post("/addReminders/:empId", async (req, res) => {
   const empId = req.params.empId;
-  const { date, reminder } = req.body;
+  const { date, reminder, subject } = req.body;
 
   try {
     await pool.query(
-      "INSERT INTO learning_reminders (empId, date, reminder) VALUES (?, ?, ?)",
-      [empId, date, reminder]
+      "INSERT INTO reminders (empId, date, reminder, subject) VALUES (?, ?, ?, ?)",
+      [empId, date, reminder, subject]
     );
     res.status(201).json({ message: "Reminder added successfully" });
   } catch (error) {
@@ -1167,14 +1167,30 @@ router.post("/addReminders/:empId", async (req, res) => {
   }
 });
 
-//get reminders by empId
+//get reminders by empId and current date
 router.get("/getReminders/:empId", async (req, res) => {
+  const empId = req.params.empId;
+  const { date, subject } = req.query;
+
+  try {
+    const [results] = await pool.query(
+      "SELECT * FROM reminders WHERE empId = ? AND date = ? AND subject = ?",
+      [empId, date, subject]
+    );
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({ error: "Error retrieving reminders" });
+  }
+});
+
+//get all reminders by empId
+router.get("/getAllReminders/:empId", async (req, res) => {
   const empId = req.params.empId;
   const { date } = req.query;
 
   try {
     const [results] = await pool.query(
-      "SELECT * FROM learning_reminders WHERE empId = ? AND date = ?",
+      "SELECT * FROM reminders WHERE empId = ? AND date = ?",
       [empId, date]
     );
     res.status(200).json(results);

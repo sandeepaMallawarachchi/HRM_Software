@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { FaFileUpload } from "react-icons/fa";
 
 const SalaryAdvanceLoanRequest = () => {
     const [date_of_request, setDate] = useState('');
@@ -185,12 +186,19 @@ const SalaryAdvanceLoanRequest = () => {
                     ></textarea>
                 </div>
                 <div>
-                    <label className="block mb-1 text-gray-500">Attachment (Optional)</label>
                     <input
                         type="file"
+                        id="file"
                         onChange={handleFileChange}
-                        className="border-none rounded-md p-2 w-full"
+                        className="hidden"
                     />
+                    <label
+                        htmlFor="file"
+                        className="w-36 bg-gray-300 p-2 rounded-lg cursor-pointer flex items-center gap-2 hover:bg-gray-400"
+                    >
+                        <FaFileUpload />
+                        <span>Upload File</span>
+                    </label>
                 </div>
                 <div className="flex items-center">
                     <input

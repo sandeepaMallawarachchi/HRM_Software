@@ -34,7 +34,7 @@ const Communication = () => {
   };
 
   return (
-    <div className="p-6 bg-white shadow-lg rounded-xl h-full flex flex-col justify-between">
+    <div className="m-5 p-6 px-20 bg-white shadow-lg rounded-lg h-full flex flex-col justify-between">
       <h1 className="text-2xl font-semibold mb-4">Team Group Chat</h1>
 
       {/* Message Display Section */}
@@ -90,7 +90,7 @@ const Communication = () => {
         <input
           type="text"
           placeholder="Type your message..."
-          className="flex-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500"
+          className="flex-1 border rounded-lg px-4 py-2 "
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />

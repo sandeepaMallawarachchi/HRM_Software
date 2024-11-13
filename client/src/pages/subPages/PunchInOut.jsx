@@ -51,7 +51,7 @@ const PunchInOut = () => {
                 setPunchInTime(time);
                 setIsPunchedIn(true);
                 setTime('');
-                localStorage.setItem('punchInTime', time); // Save punch-in time to localStorage
+                localStorage.setItem('punchInTime', time); 
                 alert('Punched in successfully');
             }
         } catch (error) {
@@ -71,7 +71,7 @@ const PunchInOut = () => {
                 setIsPunchedIn(false);
                 setPunchInTime('');
                 setTime('');
-                localStorage.removeItem('punchInTime'); // Remove punch-in time from localStorage
+                localStorage.removeItem('punchInTime'); 
                 alert('Punched out successfully');
             }
         } catch (error) {
