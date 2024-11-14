@@ -1,19 +1,20 @@
 import React, { useState } from "react";
 import { FaPaperPlane, FaFileUpload, FaUserCircle } from "react-icons/fa";
+import ProfilePicture from "../../components/subComponents/ProfilePicture";
 
 // Sample data for users
 const teamMembers = [
   { id: 1, name: "John Doe", role: "Team Leader" },
   { id: 2, name: "Jane Smith", role: "Member" },
   { id: 3, name: "Alice Johnson", role: "Member" },
-  // Add more members if necessary
+
 ];
 
 const Communication = () => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [file, setFile] = useState(null);
-  const [selectedUser, setSelectedUser] = useState(teamMembers[0].name); // Default selected user
+  const [selectedUser, setSelectedUser] = useState(teamMembers[0].name);
 
   const handleSendMessage = () => {
     if (message.trim() || file) {
@@ -43,12 +44,13 @@ const Communication = () => {
           {messages.map((msg, index) => (
             <div
               key={index}
-              className={`flex flex-col ${
-                msg.sender === selectedUser ? "items-end" : "items-start"
-              }`}
+              className={`flex flex-col ${msg.sender === selectedUser ? "items-end" : "items-start"
+                }`}
             >
               <div className="flex items-center space-x-2">
-                <FaUserCircle className="text-gray-400" size={20} />
+                <div className="bg-gray-300 rounded-full w-12">
+                  <ProfilePicture />
+                </div>
                 <span className="font-bold">{msg.sender}</span>
                 <span className="text-xs text-gray-500">
                   {msg.timestamp.toLocaleTimeString()}
