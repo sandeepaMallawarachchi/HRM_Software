@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaPaperPlane, FaFileUpload } from "react-icons/fa";
+import { FaPaperPlane, FaFileUpload, FaFileAlt, FaUserCircle } from "react-icons/fa";
 import ProfilePicture from "../../components/subComponents/ProfilePicture";
 import { db } from "../../firebase";
 import { ref, set, push, onValue } from "firebase/database";
@@ -9,7 +9,7 @@ const Communication = () => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [file, setFile] = useState(null);
-  const [fileURL, setFileURL] = useState(null);
+  const [fileName, setFileName] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
   const [role, setRole] = useState("");
 
@@ -46,10 +46,12 @@ const Communication = () => {
       }
       const storage = getStorage();
       let uploadedFileURL = null;
+      let uploadedFileName = null;
       if (file) {
         const fileRef = storageRef(storage, `uploads/${file.name}`);
         const uploadResult = await uploadBytes(fileRef, file);
         uploadedFileURL = await getDownloadURL(uploadResult.ref);
+        uploadedFileName = file.name;
       }
 
       const newMessage = {
@@ -57,6 +59,7 @@ const Communication = () => {
         role,
         content: message,
         fileURL: uploadedFileURL,
+        fileName: uploadedFileName,
         timestamp: Date.now(),
       };
 
@@ -64,9 +67,10 @@ const Communication = () => {
         const messagesRef = ref(db, "messages/");
         const newMessageRef = push(messagesRef);
         await set(newMessageRef, newMessage);
-        setMessages([...messages, newMessage]);
+        setMessages([...messages, { ...newMessage, messageId: newMessageRef.key }]);
         setMessage("");
         setFile(null);
+        setFileName("");
       } catch (e) {
         console.error("Error sending message:", e);
       }
@@ -76,7 +80,11 @@ const Communication = () => {
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setFileName(selectedFile.name);
+    }
   };
 
   return (
@@ -90,25 +98,30 @@ const Communication = () => {
               key={index}
               className={`flex flex-col ${msg.sender === selectedUser ? "items-end" : "items-start"}`}
             >
-              <div className="flex items-center space-x-2">
-                <div className="bg-gray-300 rounded-full w-12">
-                  <ProfilePicture />
+              <div className="flex items-center space-x-2 mx-2">
+                <div className="bg-gray-300 rounded-full w-10">
+                  {msg.sender === selectedUser ? (
+                    <ProfilePicture /> 
+                  ) : (
+                    <FaUserCircle className="text-gray-500 w-full h-full" />
+                  )}
                 </div>
-                <span className="font-bold">{msg.sender}</span>
+                <span className="font-bold">{msg.role}</span>
                 <span className="text-xs text-gray-500">
                   {new Date(msg.timestamp).toLocaleTimeString()}
                 </span>
               </div>
-              <div className="bg-gray-100 p-3 rounded-lg shadow-sm">
+              <div className="bg-gray-100 p-3 rounded-lg shadow-sm my-3 mx-2">
                 <p>{msg.content}</p>
                 {msg.fileURL && (
                   <a
                     href={msg.fileURL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-500 underline"
+                    className="text-blue-500 flex items-center gap-2"
                   >
-                    {msg.fileURL.split("/").pop()}
+                    <FaFileAlt />
+                    <span>{msg.fileName}</span>
                   </a>
                 )}
               </div>
@@ -129,7 +142,7 @@ const Communication = () => {
           className="bg-gray-200 p-2 rounded-lg cursor-pointer flex items-center gap-2 hover:bg-gray-300"
         >
           <FaFileUpload />
-          <span>Upload File</span>
+          <span>{fileName || "Upload File"}</span>
         </label>
 
         <input
