@@ -57,6 +57,8 @@ const Header = () => {
         return "Learning & Development";
       case "/offers":
         return "Offers";
+      case "/communication":
+        return "Communication Tool";
       default:
         return "Dashboard";
     }

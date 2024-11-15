@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { FaBell, FaTimes } from 'react-icons/fa';
+import { FaBell, FaTimes, FaPlusCircle } from 'react-icons/fa';
 import Reminders from './Reminders';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const ReminderIcon = () => {
     const [showPopUp, setShowPopUp] = useState(false);
     const [reminderCount, setReminderCount] = useState(0);
+    const navigate = useNavigate('');
     const empId = localStorage.getItem('empId');
 
     const fetchReminderCount = async () => {
         const today = new Date().toISOString().slice(0, 10);
         try {
-            const response = await axios.get(`http://localhost:4000/employees/getReminders/${empId}`, {
+            const response = await axios.get(`http://localhost:4000/employees/getAllReminders/${empId}`, {
                 params: { date: today },
             });
-            setReminderCount(response.data.length); // Set the reminder count
+            setReminderCount(response.data.length);
         } catch (error) {
             console.log("Error fetching reminder count:", error);
         }
@@ -27,10 +29,14 @@ const ReminderIcon = () => {
     const closePopUp = () => {
         setShowPopUp(false);
     };
-
+    
     useEffect(() => {
         fetchReminderCount();
     }, []);
+
+    const handleAddingReminder = () => {
+        navigate('/reminders');
+    }
 
     return (
         <div className="relative">
@@ -46,12 +52,20 @@ const ReminderIcon = () => {
             )}
             {showPopUp && (
                 <div className="absolute right-0 mt-2 bg-white shadow-lg p-4 rounded-lg w-80">
-                    <button
-                        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-                        onClick={closePopUp}
-                    >
-                        <FaTimes />
-                    </button>
+                    <div className="flex justify-between">
+                        <button
+                            className="text-gray-500 hover:text-gray-700"
+                            onClick={handleAddingReminder}
+                        >
+                            <FaPlusCircle size={20} />
+                        </button>
+                        <button
+                            className="text-gray-500 hover:text-gray-700"
+                            onClick={closePopUp}
+                        >
+                            <FaTimes size={20} />
+                        </button>
+                    </div>
                     <Reminders />
                 </div>
             )}
