@@ -12,6 +12,9 @@ const Communication = () => {
   const [fileName, setFileName] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
   const [role, setRole] = useState("");
+  const [chats, setChats] = useState([]);
+  const [currentChatId, setCurrentChatId] = useState(null);
+  const [currentChat, setCurrentChat] = useState(null);
 
   useEffect(() => {
     const empId = localStorage.getItem("empId");
@@ -19,29 +22,54 @@ const Communication = () => {
       fetch(`http://localhost:4000/employees/getEmployee/${empId}`)
         .then((response) => response.json())
         .then((data) => {
-          setSelectedUser(data.empId);
-          setRole(data.role);
-        })
-        .catch((error) => console.error("Error fetching employee data:", error));
+          if (data.empId && data.role) {
+            setSelectedUser(data.empId);
+            setRole(data.role);
+          }
+        });
     }
   }, []);
 
   useEffect(() => {
-    const messagesRef = ref(db, "messages/");
-    const unsubscribe = onValue(messagesRef, (snapshot) => {
+    const chatsRef = ref(db, "chats/");
+    const unsubscribe = onValue(chatsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const loadedMessages = Object.values(data);
-        setMessages(loadedMessages);
+        const loadedChats = Object.entries(data).map(([key, value]) => ({
+          chatId: key,
+          ...value,
+        }));
+        setChats(loadedChats);
       }
     });
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (currentChatId) {
+      const messagesRef = ref(db, `chats/${currentChatId}/messages/`);
+      const unsubscribe = onValue(messagesRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const loadedMessages = Object.values(data);
+          setMessages(loadedMessages);
+        }
+      });
+      const chatRef = ref(db, `chats/${currentChatId}`);
+      const chatUnsubscribe = onValue(chatRef, (snapshot) => {
+        const chatData = snapshot.val();
+        setCurrentChat(chatData);
+      });
+      return () => {
+        unsubscribe();
+        chatUnsubscribe();
+      };
+    }
+  }, [currentChatId]);
+
   const handleSendMessage = async () => {
     if (message.trim() || file) {
       if (file && file.size > 5 * 1024 * 1024) {
-        console.log("File is too large. Maximum size allowed is 5MB.");
         return;
       }
       const storage = getStorage();
@@ -64,18 +92,14 @@ const Communication = () => {
       };
 
       try {
-        const messagesRef = ref(db, "messages/");
+        const messagesRef = ref(db, `chats/${currentChatId}/messages/`);
         const newMessageRef = push(messagesRef);
         await set(newMessageRef, newMessage);
         setMessages([...messages, { ...newMessage, messageId: newMessageRef.key }]);
         setMessage("");
         setFile(null);
         setFileName("");
-      } catch (e) {
-        console.error("Error sending message:", e);
-      }
-    } else {
-      console.log("Message is empty or no file attached");
+      } catch (e) { }
     }
   };
 
@@ -87,79 +111,100 @@ const Communication = () => {
     }
   };
 
-  return (
-    <div className="m-5 p-6 px-20 bg-white shadow-lg rounded-lg h-full flex flex-col justify-between">
-      <h1 className="text-2xl font-semibold mb-4">Team Group Chat</h1>
+  const handleNewChat = async () => {
+    if (!selectedUser) return;
+    const dateTime = new Date().toISOString().replace(/[:.-]/g, "_");
+    const newChatRef = push(ref(db, "chats/"));
+    const newChat = {
+      participants: [selectedUser],
+      timestamp: Date.now(),
+    };
+    await set(newChatRef, newChat);
+    setCurrentChatId(newChatRef.key);
+    setMessages([]);
+  };
 
-      <div className="flex-1 overflow-y-auto mb-4">
+  const handleSelectChat = (chatId) => {
+    setCurrentChatId(chatId);
+  };
+
+  return (
+    <div className="p-6 px-20 bg-white rounded-lg shadow-md flex m-5 mb-0 pb-8 h-full">
+      <div className="w-1/4 p-4 border-r-2">
+        <h1 className="text-2xl font-semibold mb-4">Team Group Chat</h1>
+
+        <button
+          onClick={handleNewChat}
+          disabled={!selectedUser}
+          className={`w-full ${!selectedUser ? "bg-gray-300" : "bg-orange-500 hover:bg-orange-600"} text-white p-2 rounded-lg mb-4`}
+        >
+          New Chat
+        </button>
         <div className="space-y-4">
-          {messages.map((msg, index) => (
+          {chats.map((chat) => (
             <div
-              key={index}
-              className={`flex flex-col ${msg.sender === selectedUser ? "items-end" : "items-start"}`}
+              key={chat.chatId}
+              onClick={() => handleSelectChat(chat.chatId)}
+              className={`cursor-pointer p-2 rounded-lg hover:bg-gray-300 ${currentChatId === chat.chatId ? "bg-gray-300" : "bg-gray-100"
+                }`}
             >
-              <div className="flex items-center space-x-2 mx-2">
-                <div className="bg-gray-300 rounded-full w-10">
-                  {msg.sender === selectedUser ? (
-                    <ProfilePicture /> 
-                  ) : (
-                    <FaUserCircle className="text-gray-500 w-full h-full" />
-                  )}
-                </div>
-                <span className="font-bold">{msg.role}</span>
-                <span className="text-xs text-gray-500">
-                  {new Date(msg.timestamp).toLocaleTimeString()}
-                </span>
-              </div>
-              <div className="bg-gray-100 p-3 rounded-lg shadow-sm my-3 mx-2">
-                <p>{msg.content}</p>
-                {msg.fileURL && (
-                  <a
-                    href={msg.fileURL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 flex items-center gap-2"
-                  >
-                    <FaFileAlt />
-                    <span>{msg.fileName}</span>
-                  </a>
-                )}
-              </div>
+              <span>Chat - {new Date(chat.timestamp).toLocaleDateString()}</span>
             </div>
           ))}
         </div>
       </div>
-
-      <div className="flex items-center space-x-2">
-        <input
-          type="file"
-          id="file"
-          onChange={handleFileChange}
-          className="hidden"
-        />
-        <label
-          htmlFor="file"
-          className="bg-gray-200 p-2 rounded-lg cursor-pointer flex items-center gap-2 hover:bg-gray-300"
-        >
-          <FaFileUpload />
-          <span>{fileName || "Upload File"}</span>
-        </label>
-
-        <input
-          type="text"
-          placeholder="Type your message..."
-          className="flex-1 border rounded-lg px-4 py-2 "
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        />
-
-        <button
-          onClick={handleSendMessage}
-          className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 flex items-center gap-2"
-        >
-          <FaPaperPlane />
-          <span>Send</span>
-        </button>
+      <div className="flex-1 p-6">
+        <div className="flex-1 overflow-y-auto h-full" style={{ maxHeight: "calc(100vh - 200px)" }}>
+          <div className="space-y-4">
+            {messages.map((msg, index) => (
+              <div key={index} className={`flex flex-col ${msg.sender === selectedUser ? "items-end" : "items-start"}`}>
+                <div className="flex items-center space-x-2 mx-2">
+                  <div className="bg-gray-300 rounded-full w-10">
+                    {msg.sender === selectedUser ? (
+                      <ProfilePicture />
+                    ) : (
+                      <FaUserCircle className="text-gray-400 w-full h-full" />
+                    )}
+                  </div>
+                  <span className="font-bold">{msg.role}</span>
+                  <span className="text-xs text-gray-500">
+                    {new Date(msg.timestamp).toLocaleTimeString()}
+                  </span>
+                </div>
+                <div className="bg-gray-100 p-3 rounded-lg shadow-sm my-3 mx-2">
+                  <p>{msg.content}</p>
+                  {msg.fileURL && (
+                    <a href={msg.fileURL} target="_blank" rel="noopener noreferrer" className="text-blue-500 flex items-center gap-2">
+                      <FaFileAlt />
+                      <span>{msg.fileName}</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <input type="file" id="file" onChange={handleFileChange} className="hidden" />
+          <label htmlFor="file" className="bg-gray-200 p-2 rounded-lg cursor-pointer flex items-center gap-2 hover:bg-gray-300">
+            <FaFileUpload />
+            <span>{fileName || "Upload File"}</span>
+          </label>
+          <input
+            type="text"
+            placeholder="Type your message..."
+            className="flex-1 border rounded-lg px-4 py-2"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+          <button
+            onClick={handleSendMessage}
+            className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 flex items-center gap-2"
+          >
+            <FaPaperPlane />
+            <span>Send</span>
+          </button>
+        </div>
       </div>
     </div>
   );
