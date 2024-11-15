@@ -11,11 +11,15 @@ const PunchInOut = () => {
     const [errors, setErrors] = useState({ time: '' });
 
     useEffect(() => {
-        // Retrieve punch-in status from localStorage or backend if available
         const storedPunchInTime = localStorage.getItem('punchInTime');
         if (storedPunchInTime) {
-            setIsPunchedIn(true);
-            setPunchInTime(storedPunchInTime);
+            const timeElapsed = moment().diff(moment(storedPunchInTime, 'HH:mm'), 'hours');
+            if (timeElapsed >= 12) {
+                localStorage.removeItem('punchInTime');
+            } else {
+                setIsPunchedIn(true);
+                setPunchInTime(storedPunchInTime);
+            }
         }
     }, []);
 
