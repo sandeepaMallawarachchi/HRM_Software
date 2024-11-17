@@ -1,5 +1,8 @@
 import React, { useState } from 'react'
 import Payslip from './subPages/Payslip'
+import PayRollAssitance from './subPages/PayRollAssitance';
+import SalaryAdvanceLoanRequest from './subPages/SalaryAdvanceLoanRequest';
+import MyFinancialRequests from './subPages/MyFinancialRequests';
 
 const Payroll = () => {
 
@@ -18,23 +21,30 @@ const Payroll = () => {
         >
           Payslip
         </button>
-        {/* <button
-          onClick={() => handleSectionToggle('myleaves')}
-          className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'myleaves' ? 'bg-orange-500 text-white' : ''}`}
+        <button
+          onClick={() => handleSectionToggle('payrollAssitance')}
+          className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'payrollAssitance' ? 'bg-orange-500 text-white' : ''}`}
         >
-          My Leaves
+          Payroll Assitance
         </button>
         <button
-          onClick={() => handleSectionToggle('attendance')}
-          className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'attendance' ? 'bg-orange-500 text-white' : ''}`}
+          onClick={() => handleSectionToggle('salaryandloan')}
+          className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'salaryandloan' ? 'bg-orange-500 text-white' : ''}`}
         >
-          Leave Analysis
-        </button> */}
+          Request Salary Advance / Loan
+        </button>
+        <button
+          onClick={() => handleSectionToggle('finacialrequest')}
+          className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'finacialrequest' ? 'bg-orange-500 text-white' : ''}`}
+        >
+          My Financial Requests
+        </button>
       </div>
 
       {visibleSection === 'payslip' && <Payslip />}
-      {/* {visibleSection === 'myleaves' && <MyLeaves />}
-      {visibleSection === 'attendance' && <LeaveAnalysis />} */}
+      {visibleSection === 'payrollAssitance' && <PayRollAssitance />}
+      {visibleSection === 'salaryandloan' && <SalaryAdvanceLoanRequest />}
+      {visibleSection === 'finacialrequest' && <MyFinancialRequests />}
     </div>
   )
 }

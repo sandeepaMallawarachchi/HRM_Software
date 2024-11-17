@@ -22,6 +22,7 @@ import { Link } from "react-router-dom";
 import ProfilePicture from "../components/subComponents/ProfilePicture";
 import "../components/CSS/Dasboardcss.css";
 import Actions from "../components/subComponents/Actions";
+import Reminders from "../components/subComponents/Reminders";
 
 ChartJS.register(
   CategoryScale,
@@ -138,9 +139,9 @@ const Dashboard = () => {
       </div>
 
       <div className="cards col-span-1 bg-white rounded-lg  p-4">
-        <h2 className="text-lg font-semibold mb-4">Buzz Latest Posts</h2>
+        <h2 className="text-lg font-semibold mb-4">My Reminders</h2>
         <div className="text-center">
-          <p className="text-gray-500">No posts available</p>
+          <Reminders />
         </div>
       </div>
 

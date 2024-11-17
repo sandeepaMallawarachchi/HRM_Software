@@ -28,7 +28,7 @@ const Login = () => {
       localStorage.setItem("empId", employeeId);
       localStorage.setItem("email", userEmail);
       localStorage.setItem("role", role);
-      console.log(role);
+      localStorage.setItem("loginTimestamp", Date.now());
       window.location.href = "/dashboard";
     } catch (err) {
       console.error(err);

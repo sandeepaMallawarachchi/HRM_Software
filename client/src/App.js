@@ -15,6 +15,7 @@ import EmployeeRegistration from "./pages/auth/EmployeeRegistration";
 import LeaveAndAttendance from "./pages/LeaveAndAttendance";
 import LearningDevelopment from "./pages/LearningDevelopment";
 import AttendanceAndTime from "./pages/AttendanceAndTime";
+import ReminderPage from './pages/subPages/ReminderPage.jsx'
 
 //team leader routes
 import TeamManage from "./pages/TeamLeaderPages/TeamManage";
@@ -40,13 +41,6 @@ import StrategicInsights from "./pages/CEOpages/StrategicInsights";
 import TalentManagement from "./pages/CEOpages/TalentManagement";
 import CultureandEngagement from "./pages/CEOpages/CultureandEngagement";
 import DecitionSupport from "./pages/CEOpages/DecitionSupport";
-
-//HR routes
-import EmployeeRelationships from "./pages/HRpages/EmployeeRelationships";
-import RecruitmentManagement from "./pages/HRpages/RecruitmentManagement";
-import OnboardingProcess from "./pages/HRpages/OnboardingProcess";
-import PayrollManagement from "./pages/HRpages/PayrollManagement";
-import PolicyManagement from "./pages/HRpages/PolicyManagement";
 
 //auth routes
 import ProtectedRoute from "./pages/auth/ProtectedRoute";
@@ -180,24 +174,8 @@ const App = () => {
               element={<ProtectedRoute element={<DecitionSupport />} />}
             />
             <Route
-              path="employee-relations"
-              element={<ProtectedRoute element={<EmployeeRelationships />} />}
-            />
-            <Route
-              path="/recruitment-management"
-              element={<ProtectedRoute element={<RecruitmentManagement />} />}
-            />
-            <Route
-              path="/onboarding-process"
-              element={<ProtectedRoute element={<OnboardingProcess />} />}
-            />
-            <Route
-              path="/payroll-management"
-              element={<ProtectedRoute element={<PayrollManagement />} />}
-            />
-            <Route
-              path="/policy-management"
-              element={<ProtectedRoute element={<PolicyManagement />} />}
+              path="/reminders"
+              element={<ProtectedRoute element={<ReminderPage />} />}
             />
           </Routes>
         </div>

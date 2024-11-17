@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 
@@ -9,6 +9,19 @@ const PunchInOut = () => {
     const [note, setNote] = useState('');
     const [time, setTime] = useState('');
     const [errors, setErrors] = useState({ time: '' });
+
+    useEffect(() => {
+        const storedPunchInTime = localStorage.getItem('punchInTime');
+        if (storedPunchInTime) {
+            const timeElapsed = moment().diff(moment(storedPunchInTime, 'HH:mm'), 'hours');
+            if (timeElapsed >= 12) {
+                localStorage.removeItem('punchInTime');
+            } else {
+                setIsPunchedIn(true);
+                setPunchInTime(storedPunchInTime);
+            }
+        }
+    }, []);
 
     const validatePunchInTime = (selectedTime) => {
         const currentTime = moment().format('HH:mm');
@@ -42,6 +55,7 @@ const PunchInOut = () => {
                 setPunchInTime(time);
                 setIsPunchedIn(true);
                 setTime('');
+                localStorage.setItem('punchInTime', time); 
                 alert('Punched in successfully');
             }
         } catch (error) {
@@ -61,6 +75,7 @@ const PunchInOut = () => {
                 setIsPunchedIn(false);
                 setPunchInTime('');
                 setTime('');
+                localStorage.removeItem('punchInTime'); 
                 alert('Punched out successfully');
             }
         } catch (error) {
