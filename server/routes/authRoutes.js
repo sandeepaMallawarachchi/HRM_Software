@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 
 // Create login credentials
 router.post("/loginCredentials", async (req, res) => {
-  const { empId, email, password } = req.body;
+  const { empId, email, password, role } = req.body;
 
   try {
     // Hash the password
@@ -25,14 +25,15 @@ router.post("/loginCredentials", async (req, res) => {
     // Log the hashed password for debugging
     console.log("Hashed Password:", hashedPassword);
 
-    const newEmployeeLogin = { empId, email, password: hashedPassword };
+    const newEmployeeLogin = { empId, email, password: hashedPassword, role };
 
     const [results] = await pool.query(
-      "INSERT INTO logindetails (empId, email, password) VALUES (?, ?, ?)",
+      "INSERT INTO logindetails (empId, email, password, role) VALUES (?, ?, ?, ?)",
       [
         newEmployeeLogin.empId,
         newEmployeeLogin.email,
         newEmployeeLogin.password,
+        newEmployeeLogin.role,
       ]
     );
 

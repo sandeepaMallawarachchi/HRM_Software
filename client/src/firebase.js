@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 import { getAuth, signInAnonymously } from "firebase/auth";
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyBUWjq5TEZ7lh9JpzMCfGLOPX_WbLqBLGw",
   authDomain: "hrm-system-9f4a3.firebaseapp.com",
   databaseURL: "https://hrm-system-9f4a3-default-rtdb.firebaseio.com",
