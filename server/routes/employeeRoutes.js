@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require("../database");
 const nodemailer = require("nodemailer");
 const { validationResult } = require("express-validator");
+const bcrypt = require("bcrypt");
 const { initializeApp } = require("firebase/app");
 const {
   getStorage,
@@ -134,7 +135,8 @@ router.get("/getEmployee/:empId", async (req, res) => {
 });
 
 // Create work details
-router.post("/workDetails", async (req, res) => {
+router.post("/workDetails/:empId", async (req, res) => {
+  const empId = req.params.empId;
   const {
     workEmail,
     workPhone,
@@ -146,6 +148,7 @@ router.post("/workDetails", async (req, res) => {
 
   try {
     const newWorkDetails = {
+      empId,
       workEmail,
       workPhone,
       department,
@@ -155,8 +158,9 @@ router.post("/workDetails", async (req, res) => {
     };
 
     const [results] = await pool.query(
-      "INSERT INTO workdetails (workEmail, workPhone, department, location, designation, supervisor) VALUES (?, ?, ?, ?, ?, ?)",
+      "INSERT INTO workdetails (empId, workEmail, workPhone, department, location, designation, supervisor) VALUES (?, ?, ?, ?, ?, ?, ?)",
       [
+        newWorkDetails.empId,
         newWorkDetails.workEmail,
         newWorkDetails.workPhone,
         newWorkDetails.department,

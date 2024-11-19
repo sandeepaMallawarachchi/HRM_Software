@@ -4,6 +4,7 @@ import ProfilePicture from "../../components/subComponents/ProfilePicture";
 import { db } from "../../firebase";
 import { ref, set, push, onValue } from "firebase/database";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import ChatMembersModel from "../subPages/ChatMembersModel";
 
 const Communication = () => {
   const [messages, setMessages] = useState([]);
@@ -15,6 +16,7 @@ const Communication = () => {
   const [chats, setChats] = useState([]);
   const [currentChatId, setCurrentChatId] = useState(null);
   const [currentChat, setCurrentChat] = useState(null);
+  const [isChatMembersModalOpen, setIsChatMembersModalOpen] = useState(false);
 
   useEffect(() => {
     const empId = localStorage.getItem("empId");
@@ -35,15 +37,26 @@ const Communication = () => {
     const unsubscribe = onValue(chatsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const loadedChats = Object.entries(data).map(([key, value]) => ({
-          chatId: key,
-          ...value,
-        }));
+        const loadedChats = Object.entries(data)
+          .map(([key, value]) => ({
+            chatId: key,
+            timestamp: value.timestamp || Date.now(),
+            participants: value.members || [],
+          }))
+          .filter(chat => {
+            // Hide chat if the employee is a participant
+            return chat.participants.includes(selectedUser);
+          })
+          .sort((a, b) => b.timestamp - a.timestamp);
         setChats(loadedChats);
+
+        if (loadedChats.length > 0 && !currentChatId) {
+          setCurrentChatId(loadedChats[0].chatId);
+        }
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [currentChatId, selectedUser]);
 
   useEffect(() => {
     if (currentChatId) {
@@ -72,9 +85,11 @@ const Communication = () => {
       if (file && file.size > 5 * 1024 * 1024) {
         return;
       }
+
       const storage = getStorage();
       let uploadedFileURL = null;
       let uploadedFileName = null;
+
       if (file) {
         const fileRef = storageRef(storage, `uploads/${file.name}`);
         const uploadResult = await uploadBytes(fileRef, file);
@@ -99,7 +114,9 @@ const Communication = () => {
         setMessage("");
         setFile(null);
         setFileName("");
-      } catch (e) { }
+      } catch (e) {
+        console.error("Error sending message:", e);
+      }
     }
   };
 
@@ -111,32 +128,34 @@ const Communication = () => {
     }
   };
 
-  const handleNewChat = async () => {
-    if (!selectedUser) return;
-    const dateTime = new Date().toISOString().replace(/[:.-]/g, "_");
+  const handleNewChat = () => {
+    setIsChatMembersModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsChatMembersModalOpen(false);
+  };
+
+  const handleCreateChatWithMembers = async (members) => {
     const newChatRef = push(ref(db, "chats/"));
     const newChat = {
-      participants: [selectedUser],
+      participants: [selectedUser, ...members],
       timestamp: Date.now(),
     };
     await set(newChatRef, newChat);
     setCurrentChatId(newChatRef.key);
     setMessages([]);
-  };
-
-  const handleSelectChat = (chatId) => {
-    setCurrentChatId(chatId);
+    setIsChatMembersModalOpen(false);
   };
 
   return (
     <div className="p-6 px-20 bg-white rounded-lg shadow-md flex m-5 mb-0 pb-8 h-full">
       <div className="w-1/4 p-4 border-r-2">
         <h1 className="text-2xl font-semibold mb-4">Team Group Chat</h1>
-
         <button
           onClick={handleNewChat}
-          disabled={!selectedUser}
-          className={`w-full ${!selectedUser ? "bg-gray-300" : "bg-orange-500 hover:bg-orange-600"} text-white p-2 rounded-lg mb-4`}
+          disabled={role === "Employee"}
+          className={`w-full ${role === "Employee" ? "bg-orange-300 cursor-not-allowed" : "bg-orange-500 hover:bg-orange-600"} text-white p-2 rounded-lg mb-4`}
         >
           New Chat
         </button>
@@ -144,11 +163,16 @@ const Communication = () => {
           {chats.map((chat) => (
             <div
               key={chat.chatId}
-              onClick={() => handleSelectChat(chat.chatId)}
+              onClick={() => setCurrentChatId(chat.chatId)}
               className={`cursor-pointer p-2 rounded-lg hover:bg-gray-300 ${currentChatId === chat.chatId ? "bg-gray-300" : "bg-gray-100"
                 }`}
             >
-              <span>Chat - {new Date(chat.timestamp).toLocaleDateString()}</span>
+              <span>
+                Chat -{" "}
+                {chat.timestamp
+                  ? new Date(chat.timestamp).toLocaleDateString()
+                  : "No Date Available"}
+              </span>
             </div>
           ))}
         </div>
@@ -206,6 +230,12 @@ const Communication = () => {
           </button>
         </div>
       </div>
+      {isChatMembersModalOpen && (
+        <ChatMembersModel
+          onClose={handleModalClose}
+          onSave={handleCreateChatWithMembers}
+        />
+      )}
     </div>
   );
 };
