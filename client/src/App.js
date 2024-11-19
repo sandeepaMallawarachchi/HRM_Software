@@ -15,7 +15,7 @@ import EmployeeRegistration from "./pages/auth/EmployeeRegistration";
 import LeaveAndAttendance from "./pages/LeaveAndAttendance";
 import LearningDevelopment from "./pages/LearningDevelopment";
 import AttendanceAndTime from "./pages/AttendanceAndTime";
-import ReminderPage from './pages/subPages/ReminderPage.jsx'
+import ReminderPage from "./pages/subPages/ReminderPage.jsx";
 
 //team leader routes
 import TeamManage from "./pages/TeamLeaderPages/TeamManage";
@@ -37,6 +37,7 @@ import Budgeting from "./pages/TopLvlManagerPages/Budgeting";
 import CompilenceTrack from "./pages/TopLvlManagerPages/CompilenceTrack";
 
 //Ceo routes
+import ExecutiveDashboard from "./pages/CEOpages/ExecutiveDashboard";
 import StrategicInsights from "./pages/CEOpages/StrategicInsights";
 import TalentManagement from "./pages/CEOpages/TalentManagement";
 import CultureandEngagement from "./pages/CEOpages/CultureandEngagement";
@@ -152,6 +153,10 @@ const App = () => {
             <Route
               path="/compliance-tracking"
               element={<ProtectedRoute element={<CompilenceTrack />} />}
+            />
+            <Route
+              path="/executive-dashboard"
+              element={<ProtectedRoute element={<ExecutiveDashboard />} />}
             />
             <Route
               path="/strategic-insights"

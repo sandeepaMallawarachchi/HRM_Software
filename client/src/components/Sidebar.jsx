@@ -151,7 +151,7 @@ const Sidebar = () => {
           {!isCollapsed && <span>Leave & Attendance</span>}
         </NavLink>
 
-        {role !== "HR" && (
+        {role !== "HR" && role !== "Ceo" && (
           <NavLink
             to="/learn"
             className={({ isActive }) =>
