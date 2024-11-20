@@ -1238,5 +1238,82 @@ router.get("/strategic-insights", async (req, res) => {
     res.status(500).json({ error: "Error retrieving strategic insights" });
   }
 });
+// API to fetch all revenue data
+router.get("/getRevenue", async (req, res) => {
+  const { department } = req.query;
+
+  try {
+    // Fetch data based on the department
+    let query = "SELECT * FROM revenue_with_targets";
+    if (department) {
+      query += ` WHERE Department = ?`;
+    }
+
+    const [results] = await pool.query(query, [department]);
+
+    const monthlyRevenue = results.map((row) => row.Net_Revenue);
+    const revenueSources = results.reduce(
+      (acc, row) => {
+        acc.productSales += row.Product_Sales;
+        acc.serviceIncome += row.Service_Income;
+        acc.discounts += row.Discounts;
+        return acc;
+      },
+      { productSales: 0, serviceIncome: 0, discounts: 0 }
+    );
+    const totalRevenue =
+      revenueSources.productSales +
+      revenueSources.serviceIncome -
+      revenueSources.discounts;
+
+    res.json({ monthlyRevenue, revenueSources, totalRevenue });
+  } catch (err) {
+    console.error("Error fetching revenue data:", err);
+    res.status(500).send("Failed to fetch revenue data.");
+  }
+});
+
+// API to update current month's revenue
+router.put("/current", async (req, res) => {
+  const { department, productSales, serviceIncome, discounts, revenueTarget } =
+    req.body;
+
+  // Calculate Net Revenue and Variance
+  const netRevenue =
+    parseInt(productSales) + parseInt(serviceIncome) - parseInt(discounts);
+  const variance = netRevenue - parseInt(revenueTarget);
+
+  // Determine current date
+  const currentDate = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
+
+  const query = `
+    UPDATE revenue_with_targets
+    SET Product_Sales = ?, Service_Income = ?, Discounts = ?, Net_Revenue = ?, Revenue_Target = ?, Variance = ?
+    WHERE Department = ? AND Date = ?`;
+
+  try {
+    const [results] = await pool.query(query, [
+      productSales,
+      serviceIncome,
+      discounts,
+      netRevenue,
+      revenueTarget,
+      variance,
+      department,
+      currentDate,
+    ]);
+
+    if (results.affectedRows > 0) {
+      res.send("Current month's revenue updated successfully.");
+    } else {
+      res
+        .status(404)
+        .send("No record found for the given department and date.");
+    }
+  } catch (err) {
+    console.error("Error updating revenue data:", err);
+    res.status(500).send("Failed to update revenue data.");
+  }
+});
 
 module.exports = router;

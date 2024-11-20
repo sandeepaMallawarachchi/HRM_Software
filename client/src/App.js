@@ -36,6 +36,11 @@ import SuccessPlaning from "./pages/TopLvlManagerPages/SuccessPlaning";
 import Budgeting from "./pages/TopLvlManagerPages/Budgeting";
 import CompilenceTrack from "./pages/TopLvlManagerPages/CompilenceTrack";
 
+//Accountant routes
+import Expenses from "./pages/AccountantPages/Expenses";
+import Profit from "./pages/AccountantPages/Profit";
+import Revenue from "./pages/AccountantPages/Revenue";
+
 //Ceo routes
 import ExecutiveDashboard from "./pages/CEOpages/ExecutiveDashboard";
 import StrategicInsights from "./pages/CEOpages/StrategicInsights";
@@ -153,6 +158,18 @@ const App = () => {
             <Route
               path="/compliance-tracking"
               element={<ProtectedRoute element={<CompilenceTrack />} />}
+            />
+            <Route
+              path="/expences"
+              element={<ProtectedRoute element={<Expenses />} />}
+            />
+            <Route
+              path="/profits"
+              element={<ProtectedRoute element={<Profit />} />}
+            />
+            <Route
+              path="/Revenue"
+              element={<ProtectedRoute element={<Revenue />} />}
             />
             <Route
               path="/executive-dashboard"
