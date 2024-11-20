@@ -4,7 +4,7 @@ import ProfilePicture from "../../components/subComponents/ProfilePicture";
 import { db } from "../../firebase";
 import { ref, set, push, onValue } from "firebase/database";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-import ChatMembersModel from "../subPages/ChatMembersModel";
+import ChatMembersModel from "./ChatMembersModel";
 
 const Communication = () => {
   const [messages, setMessages] = useState([]);

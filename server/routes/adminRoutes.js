@@ -188,20 +188,20 @@ router.post("/addMember", async (req, res) => {
     }
 });
 
-//get members in chat 
+// Get all chat records for an employee, ordered by latest first
 router.get("/getMember/:empId", async (req, res) => {
     const employeeId = req.params.empId;
 
     try {
         const [rows] = await pool.query(
-            "SELECT * FROM chatmembers WHERE empId = ?",
+            "SELECT * FROM chatmembers WHERE empId = ? ORDER BY created_at DESC",
             [employeeId]
         );
 
         if (rows.length > 0) {
-            res.status(200).json(rows[0]);
+            res.status(200).json(rows); // Return all rows
         } else {
-            res.status(404).json({ message: "Chat member not found" });
+            res.status(404).json({ message: "No chat records found for this employee" });
         }
     } catch (error) {
         console.error("Error fetching chat member details:", error);
@@ -209,5 +209,31 @@ router.get("/getMember/:empId", async (req, res) => {
     }
 });
 
+//mark as read
+router.put("/markAsRead/:empId/:chatId", async (req, res) => {
+    const empId = req.params.empId;
+    const chatId = req.params.chatId;
+
+    try {
+        const [results] = await pool.query(
+            "UPDATE chatmembers SET `read` = 'read' WHERE empId = ? AND chatId = ?",
+            [empId, chatId]
+        );        
+
+        if (results.affectedRows > 0) {
+            res.status(200).json({
+                message: "Marked as read successfully",
+                affectedRows: results.affectedRows,
+            });
+        } else {
+            res.status(404).json({
+                message: "No messages found for the provided empId",
+            });
+        }
+    } catch (error) {
+        console.error("Error updating employee chat data:", error);
+        res.status(500).json({ error: "Error updating employee chat data" });
+    }
+});
 
 module.exports = router;

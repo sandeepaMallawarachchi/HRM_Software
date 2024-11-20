@@ -70,8 +70,17 @@ const ChatMembersModel = ({ onClose }) => {
             });
             console.log("Chat members added successfully to Firebase!");
             onClose();
+
+            //save member to db
+            const newMember = {
+                members: membersWithEmpId,
+                chatId
+            };
+
+            await axios.post(`http://localhost:4000/admin/addMember`, newMember);
+
         } catch (error) {
-            console.error("Error adding members to chat in Firebase:", error);
+            console.error("Error adding members to chat:", error);
         }
     };    
 
