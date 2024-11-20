@@ -218,7 +218,7 @@ router.put("/markAsRead/:empId/:chatId", async (req, res) => {
         const [results] = await pool.query(
             "UPDATE chatmembers SET `read` = 'read' WHERE empId = ? AND chatId = ?",
             [empId, chatId]
-        );        
+        );
 
         if (results.affectedRows > 0) {
             res.status(200).json({
@@ -236,4 +236,81 @@ router.put("/markAsRead/:empId/:chatId", async (req, res) => {
     }
 });
 
+//add members to new team
+router.post("/createTeam/:empId", async (req, res) => {
+    const creator = req.params.empId;
+    const { teamName, members } = req.body;
+
+    if (!members || members.length === 0) {
+        return res.status(400).json({ error: "No members provided" });
+    }
+
+    try {
+        await pool.query(
+            "INSERT INTO teams (empId, teamName) VALUES (?, ?)",
+            [creator, teamName]
+        );
+
+        // Insert each member into the teammembers table
+        const teamMemberValues = members.map(({ empId, role, department, name }) => [empId, name, teamName, role, department, creator]);
+
+        const [results] = await pool.query(
+            "INSERT INTO teammembers (empId, name, teamName, role, department, creator) VALUES ?",
+            [teamMemberValues]
+        );
+
+        res.status(201).json({
+            message: "Team created and members added successfully",
+            insertedRows: results.affectedRows,
+        });
+    } catch (error) {
+        console.error("Error saving employee team data:", error);
+        res.status(500).json({ error: "Error creating team" });
+    }
+});
+
+// Get team by creator's empId
+router.get("/getTeam/:empId/:filteredTeamName", async (req, res) => {
+    const employeeId = req.params.empId;
+    const teamName = req.params.filteredTeamName;
+
+    try {
+        const [rows] = await pool.query(
+            `SELECT t.teamName, tm.empId, tm.name, tm.role, tm.department
+             FROM teams t JOIN teammembers tm ON t.empId = tm.creator
+             WHERE t.empId = ? AND t.teamName = ?
+             ORDER BY t.created_at DESC`,
+            [employeeId, teamName]
+        );
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: "No team records found for this creator" });
+        }
+    } catch (error) {
+        res.status(500).json({ error: "Error fetching team details" });
+    }
+});
+
+// Get all teams
+router.get("/getAllTeams/:empId", async (req, res) => {
+    const employeeId = req.params.empId;
+
+    try {
+        const [rows] = await pool.query(
+            "SELECT * FROM teams WHERE empId = ?",
+            [employeeId]
+        );
+
+        if (rows.length > 0) {
+            res.status(200).json(rows); 
+        } else {
+            res.status(404).json({ message: "No team records found" });
+        }
+    } catch (error) {
+        console.error("Error fetching team details:", error);
+        res.status(500).json({ error: "Error fetching team details" });
+    }
+});
 module.exports = router;
