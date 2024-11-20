@@ -318,47 +318,50 @@ function giveCurrentDateTime() {
 }
 
 //save profile pic
-router.post("/uploadProfileImage/:empId", upload.single("profilePic"), async (req, res) => {
-  const empId = req.params.empId;
+router.post(
+  "/uploadProfileImage/:empId",
+  upload.single("profilePic"),
+  async (req, res) => {
+    const empId = req.params.empId;
 
-  try {
-    if (!req.file) {
-      return res.status(400).send("No file uploaded.");
+    try {
+      if (!req.file) {
+        return res.status(400).send("No file uploaded.");
+      }
+
+      const dateTime = giveCurrentDateTime();
+      const storageRef = ref(
+        storage,
+        `profilepic/${req.file.originalname} ${dateTime}`
+      );
+      const metadata = {
+        contentType: req.file.mimetype,
+      };
+
+      const snapshot = await uploadBytesResumable(
+        storageRef,
+        req.file.buffer,
+        metadata
+      );
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      // Update profile picture URL in the database
+      const updateQuery =
+        "UPDATE personaldetails SET profilepic = ? WHERE empId = ?";
+      await pool.query(updateQuery, [downloadURL, empId]);
+
+      return res.send({
+        message:
+          "File uploaded to Firebase Storage and profile picture updated successfully",
+        name: req.file.originalname,
+        type: req.file.mimetype,
+        downloadURL: downloadURL,
+      });
+    } catch (error) {
+      console.error("Error uploading file or updating profile picture:", error);
+      return res.status(500).send(error.message);
     }
-
-    const dateTime = giveCurrentDateTime();
-    const storageRef = ref(
-      storage,
-      `profilepic/${req.file.originalname} ${dateTime}`
-    );
-    const metadata = {
-      contentType: req.file.mimetype,
-    };
-
-    const snapshot = await uploadBytesResumable(
-      storageRef,
-      req.file.buffer,
-      metadata
-    );
-    const downloadURL = await getDownloadURL(snapshot.ref);
-
-    // Update profile picture URL in the database
-    const updateQuery =
-      "UPDATE personaldetails SET profilepic = ? WHERE empId = ?";
-    await pool.query(updateQuery, [downloadURL, empId]);
-
-    return res.send({
-      message:
-        "File uploaded to Firebase Storage and profile picture updated successfully",
-      name: req.file.originalname,
-      type: req.file.mimetype,
-      downloadURL: downloadURL,
-    });
-  } catch (error) {
-    console.error("Error uploading file or updating profile picture:", error);
-    return res.status(500).send(error.message);
   }
-}
 );
 
 //get profile pic
@@ -618,23 +621,25 @@ router.post("/support/:empId", async (req, res) => {
   }
 });
 
-router.post('/requestPasswordReset', async (req, res) => {
+router.post("/requestPasswordReset", async (req, res) => {
   try {
     const { empId, email } = req.body;
 
     if (!empId && !email) {
-      return res.status(400).json({ message: "Please provide either employee ID or email." });
+      return res
+        .status(400)
+        .json({ message: "Please provide either employee ID or email." });
     }
 
     // Query the database using either empId or email
-    let query = '';
-    let queryParam = '';
+    let query = "";
+    let queryParam = "";
 
     if (empId) {
-      query = 'SELECT * FROM logindetails WHERE empId = ?';
+      query = "SELECT * FROM logindetails WHERE empId = ?";
       queryParam = empId;
     } else if (email) {
-      query = 'SELECT * FROM logindetails WHERE email = ?';
+      query = "SELECT * FROM logindetails WHERE email = ?";
       queryParam = email;
     }
 
@@ -653,7 +658,7 @@ router.post('/requestPasswordReset', async (req, res) => {
     const resetCodeExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
 
     await pool.query(
-      'UPDATE logindetails SET resetcode = ?, resetcodeexpires = ? WHERE empId = ?',
+      "UPDATE logindetails SET resetcode = ?, resetcodeexpires = ? WHERE empId = ?",
       [resetCode, resetCodeExpires, employee.empId]
     );
 
@@ -675,23 +680,26 @@ router.post('/requestPasswordReset', async (req, res) => {
 });
 
 //reset password
-router.post('/resetPassword', async (req, res) => {
+router.post("/resetPassword", async (req, res) => {
   try {
     const { resetCode, newPassword } = req.body;
 
     // Fetch the user with the given reset code
-    const [rows] = await pool.query('SELECT * FROM logindetails WHERE resetcode = ?', [resetCode]);
+    const [rows] = await pool.query(
+      "SELECT * FROM logindetails WHERE resetcode = ?",
+      [resetCode]
+    );
 
     // If no user is found with the reset code
     if (rows.length === 0) {
-      return res.status(404).json({ message: 'Reset code not found' });
+      return res.status(404).json({ message: "Reset code not found" });
     }
 
     const user = rows[0];
 
     // Check if the reset code is expired
     if (new Date(user.resetCodeExpires) < Date.now()) {
-      return res.status(400).json({ message: 'Reset code has expired' });
+      return res.status(400).json({ message: "Reset code has expired" });
     }
 
     // Hash the new password
@@ -699,15 +707,14 @@ router.post('/resetPassword', async (req, res) => {
 
     // Update the user's password and clear the reset code fields
     await pool.query(
-      'UPDATE logindetails SET password = ?, resetcode = NULL, resetcodeexpires = NULL WHERE empId = ?',
+      "UPDATE logindetails SET password = ?, resetcode = NULL, resetcodeexpires = NULL WHERE empId = ?",
       [hashedPassword, user.empId]
     );
 
-    res.status(200).json({ message: 'Password updated successfully' });
-
+    res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
     console.error("Error resetting password:", error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
@@ -1002,11 +1009,7 @@ router.get("/getCurrentDateAttendance/:empId", async (req, res) => {
 //pay roll assistance
 router.post("/payrollAssistance/:empId", async (req, res) => {
   const empId = req.params.empId;
-  const {
-    date,
-    subject,
-    description
-  } = req.body;
+  const { date, subject, description } = req.body;
 
   try {
     const newAssistance = {
@@ -1037,41 +1040,66 @@ router.post("/payrollAssistance/:empId", async (req, res) => {
 });
 
 //financial request
-router.post('/financialRequest/:empId', upload.single("financialAttachment"), async (req, res) => {
-  const empId = req.params.empId;
-  const { request_type, date_of_request, amount, reason, repayment_terms } = req.body;
-  let downloadURL = null;
+router.post(
+  "/financialRequest/:empId",
+  upload.single("financialAttachment"),
+  async (req, res) => {
+    const empId = req.params.empId;
+    const { request_type, date_of_request, amount, reason, repayment_terms } =
+      req.body;
+    let downloadURL = null;
 
-  try {
-    // Check if there's an attachment to upload
-    if (req.file) {
-      const dateTime = giveCurrentDateTime();
-      const storageRef = ref(storage, `attachment/${req.file.originalname} ${dateTime}`);
-      const metadata = { contentType: req.file.mimetype };
+    try {
+      // Check if there's an attachment to upload
+      if (req.file) {
+        const dateTime = giveCurrentDateTime();
+        const storageRef = ref(
+          storage,
+          `attachment/${req.file.originalname} ${dateTime}`
+        );
+        const metadata = { contentType: req.file.mimetype };
 
-      const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
-      downloadURL = await getDownloadURL(snapshot.ref);
-    }
+        const snapshot = await uploadBytesResumable(
+          storageRef,
+          req.file.buffer,
+          metadata
+        );
+        downloadURL = await getDownloadURL(snapshot.ref);
+      }
 
-    // Insert financial request into the database
-    const query = `
+      // Insert financial request into the database
+      const query = `
       INSERT INTO financial_requests (empId, request_type, date_of_request, amount, reason, repayment_terms, attachment) 
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
-    await pool.query(query, [empId, request_type, date_of_request, amount, reason, repayment_terms || null, downloadURL]);
+      await pool.query(query, [
+        empId,
+        request_type,
+        date_of_request,
+        amount,
+        reason,
+        repayment_terms || null,
+        downloadURL,
+      ]);
 
-    res.status(201).json({
-      message: `${request_type === 'loan' ? 'Loan' : 'Salary advance'} request submitted successfully.`,
-      attachmentURL: downloadURL
-    });
-  } catch (error) {
-    console.error('Error submitting financial request or uploading attachment:', error);
-    res.status(500).json({ error: 'Failed to submit financial request.' });
+      res.status(201).json({
+        message: `${
+          request_type === "loan" ? "Loan" : "Salary advance"
+        } request submitted successfully.`,
+        attachmentURL: downloadURL,
+      });
+    } catch (error) {
+      console.error(
+        "Error submitting financial request or uploading attachment:",
+        error
+      );
+      res.status(500).json({ error: "Failed to submit financial request." });
+    }
   }
-});
+);
 
 // get financial requests by empId
-router.get('/getFinancialRequests/:empId', async (req, res) => {
+router.get("/getFinancialRequests/:empId", async (req, res) => {
   const empId = req.params.empId;
   const { request_type } = req.query;
 
@@ -1090,19 +1118,15 @@ router.get('/getFinancialRequests/:empId', async (req, res) => {
 
     res.status(200).json(results);
   } catch (error) {
-    console.error('Error fetching financial requests:', error);
-    res.status(500).json({ error: 'Failed to fetch financial requests.' });
+    console.error("Error fetching financial requests:", error);
+    res.status(500).json({ error: "Failed to fetch financial requests." });
   }
 });
 
 //add certifications and achievements
 router.post("/addCertificate/:empId", async (req, res) => {
   const empId = req.params.empId;
-  const {
-    certificate_name,
-    link,
-    status,
-  } = req.body;
+  const { certificate_name, link, status } = req.body;
 
   try {
     const newCertificate = {
@@ -1138,13 +1162,14 @@ router.get("/getCertificates/:empId", async (req, res) => {
 
   try {
     const [records] = await pool.query(
-      "SELECT * FROM certificates_achievements WHERE empId = ?", [empId]
+      "SELECT * FROM certificates_achievements WHERE empId = ?",
+      [empId]
     );
 
     if (records.length > 0) {
       res.status(200).json(records);
     } else {
-      res.status(404).json('No certificates found');
+      res.status(404).json("No certificates found");
     }
   } catch (error) {
     res.status(500).json({ error: "Error fetching certificates" });
@@ -1196,6 +1221,21 @@ router.get("/getAllReminders/:empId", async (req, res) => {
     res.status(200).json(results);
   } catch (error) {
     res.status(500).json({ error: "Error retrieving reminders" });
+  }
+});
+
+// Get all strategic insights
+router.get("/strategic-insights", async (req, res) => {
+  try {
+    // Define your query to fetch data from the `strategic_insights` table
+    const [results] = await pool.query("SELECT * FROM strategic_insights");
+
+    // Return the fetched data as JSON
+    res.status(200).json(results);
+  } catch (error) {
+    // Handle errors and respond with a status code and message
+    console.error("Error retrieving strategic insights:", error);
+    res.status(500).json({ error: "Error retrieving strategic insights" });
   }
 });
 
