@@ -1224,96 +1224,219 @@ router.get("/getAllReminders/:empId", async (req, res) => {
   }
 });
 
-// Get all strategic insights
-router.get("/strategic-insights", async (req, res) => {
+router.get("/revenue", async (req, res) => {
   try {
-    // Define your query to fetch data from the `strategic_insights` table
-    const [results] = await pool.query("SELECT * FROM strategic_insights");
+    // Query to fetch data from the `revenue` table
+    const [results] = await pool.query("SELECT * FROM revenue_with_targets");
 
     // Return the fetched data as JSON
     res.status(200).json(results);
   } catch (error) {
     // Handle errors and respond with a status code and message
-    console.error("Error retrieving strategic insights:", error);
-    res.status(500).json({ error: "Error retrieving strategic insights" });
+    console.error("Error retrieving revenue data:", error);
+    res.status(500).json({ error: "Error retrieving revenue data" });
   }
 });
-// API to fetch all revenue data
-router.get("/getRevenue", async (req, res) => {
-  const { department } = req.query;
-
+router.post("/revenue", async (req, res) => {
   try {
-    // Fetch data based on the department
-    let query = "SELECT * FROM revenue_with_targets";
-    if (department) {
-      query += ` WHERE Department = ?`;
-    }
+    // Destructure values from req.body
+    const {
+      Department,
+      Date,
+      "Product Sales": productSales,
+      "Service Income": serviceIncome,
+      Discounts,
+      "Net Revenue": netRevenue,
+      "Revenue Target": revenueTarget,
+      Variance,
+    } = req.body;
 
-    const [results] = await pool.query(query, [department]);
+    // SQL query to insert data into the revenue table
+    const query = `
+      INSERT INTO revenue_with_targets (Department, Date, \`Product Sales\`, \`Service Income\`, Discounts, \`Net Revenue\`, \`Revenue Target\`, Variance)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
 
-    const monthlyRevenue = results.map((row) => row.Net_Revenue);
-    const revenueSources = results.reduce(
-      (acc, row) => {
-        acc.productSales += row.Product_Sales;
-        acc.serviceIncome += row.Service_Income;
-        acc.discounts += row.Discounts;
-        return acc;
-      },
-      { productSales: 0, serviceIncome: 0, discounts: 0 }
-    );
-    const totalRevenue =
-      revenueSources.productSales +
-      revenueSources.serviceIncome -
-      revenueSources.discounts;
-
-    res.json({ monthlyRevenue, revenueSources, totalRevenue });
-  } catch (err) {
-    console.error("Error fetching revenue data:", err);
-    res.status(500).send("Failed to fetch revenue data.");
-  }
-});
-
-// API to update current month's revenue
-router.put("/current", async (req, res) => {
-  const { department, productSales, serviceIncome, discounts, revenueTarget } =
-    req.body;
-
-  // Calculate Net Revenue and Variance
-  const netRevenue =
-    parseInt(productSales) + parseInt(serviceIncome) - parseInt(discounts);
-  const variance = netRevenue - parseInt(revenueTarget);
-
-  // Determine current date
-  const currentDate = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
-
-  const query = `
-    UPDATE revenue_with_targets
-    SET Product_Sales = ?, Service_Income = ?, Discounts = ?, Net_Revenue = ?, Revenue_Target = ?, Variance = ?
-    WHERE Department = ? AND Date = ?`;
-
-  try {
-    const [results] = await pool.query(query, [
+    // Execute the query using pool.query and pass the correct values
+    const [result] = await pool.query(query, [
+      Department,
+      Date,
       productSales,
       serviceIncome,
-      discounts,
+      Discounts,
       netRevenue,
       revenueTarget,
-      variance,
-      department,
-      currentDate,
+      Variance,
     ]);
 
-    if (results.affectedRows > 0) {
-      res.send("Current month's revenue updated successfully.");
-    } else {
-      res
+    // Send a response with the inserted data
+    res.status(201).json({
+      Department,
+      Date,
+      "Product Sales": productSales,
+      "Service Income": serviceIncome,
+      Discounts,
+      "Net Revenue": netRevenue,
+      "Revenue Target": revenueTarget,
+      Variance,
+    });
+  } catch (error) {
+    console.error("Error inserting data:", error);
+    res.status(500).json({ error: "Error inserting data" });
+  }
+});
+router.put("/revenue/:department/:date", async (req, res) => {
+  const { department, date } = req.params;
+  const {
+    "Product Sales": productSales,
+    "Service Income": serviceIncome,
+    Discounts,
+    "Net Revenue": netRevenue,
+    "Revenue Target": revenueTarget,
+    Variance,
+  } = req.body;
+
+  try {
+    // SQL query to update revenue data based on department and date
+    const query = `
+      UPDATE revenue_with_targets
+      SET 
+        \`Product Sales\` = ?,
+        \`Service Income\` = ?,
+        Discounts = ?,
+        \`Net Revenue\` = ?,
+        \`Revenue Target\` = ?,
+        Variance = ?
+      WHERE Department = ? AND Date = ?
+    `;
+
+    // Execute the query using pool.query
+    const [result] = await pool.query(query, [
+      productSales,
+      serviceIncome,
+      Discounts,
+      netRevenue,
+      revenueTarget,
+      Variance,
+      department, // Assuming 'Department' is unique
+      date, // Assuming 'Date' is unique
+    ]);
+
+    if (result.affectedRows === 0) {
+      return res
         .status(404)
-        .send("No record found for the given department and date.");
+        .json({ error: "No matching record found to update" });
     }
-  } catch (err) {
-    console.error("Error updating revenue data:", err);
-    res.status(500).send("Failed to update revenue data.");
+
+    // Send a response with the updated data
+    res.status(200).json({
+      department,
+      date,
+      "Product Sales": productSales,
+      "Service Income": serviceIncome,
+      Discounts,
+      "Net Revenue": netRevenue,
+      "Revenue Target": revenueTarget,
+      Variance,
+    });
+  } catch (error) {
+    console.error("Error updating revenue data:", error.message);
+    res
+      .status(500)
+      .json({ error: "Error updating revenue data", details: error.message });
+  }
+});
+router.get("/profit", async (req, res) => {
+  try {
+    // Query to fetch data from the `profit` table
+    const [results] = await pool.query("SELECT * FROM profit_table");
+    res.status(200).json(results);
+  } catch (error) {
+    console.error("Error retrieving profit data:", error);
+    res.status(500).json({ error: "Error retrieving profit data" });
+  }
+});
+// Insert Profit Data
+router.post("/profit", async (req, res) => {
+  const {
+    Department,
+    Date,
+    Revenue,
+    COGS,
+    OperatingExpenses,
+    GrossProfit,
+    NetProfit,
+    ProfitMargin,
+  } = req.body;
+
+  try {
+    const query = `
+      INSERT INTO profit_table (\`Department\`, \`Date\`, \`Revenue\`, \`Cost of Goods Sold (COGS)\`, \`Operating Expenses\`, \`Gross Profit\`, \`Net Profit\`, \`Profit Margin\`)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    await pool.query(query, [
+      Department,
+      Date,
+      Revenue,
+      COGS,
+      OperatingExpenses,
+      GrossProfit,
+      NetProfit,
+      ProfitMargin,
+    ]);
+
+    res.status(201).json({ message: "Profit data added successfully." });
+  } catch (error) {
+    console.error("Error inserting profit data:", error);
+    res.status(500).json({ error: "Error inserting profit data." });
   }
 });
 
+// Update Profit Data
+router.put("/profit/:department/:date", async (req, res) => {
+  const { department, date } = req.params;
+  const {
+    Revenue,
+    COGS,
+    OperatingExpenses,
+    GrossProfit,
+    NetProfit,
+    ProfitMargin,
+  } = req.body;
+
+  const query = `
+    UPDATE profit_table
+    SET 
+      \`Revenue\` = ?, 
+      \`Cost of Goods Sold (COGS)\` = ?, 
+      \`Operating Expenses\` = ?, 
+      \`Gross Profit\` = ?, 
+      \`Net Profit\` = ?, 
+      \`Profit Margin\` = ?
+    WHERE 
+      \`Department\` = ? AND \`Date\` = ?
+  `;
+
+  const values = [
+    Revenue,
+    COGS,
+    OperatingExpenses,
+    GrossProfit,
+    NetProfit,
+    ProfitMargin,
+    department,
+    date,
+  ];
+
+  try {
+    const [results] = await pool.query(query, values);
+    if (results.affectedRows === 0) {
+      return res.status(404).send("Profit data not found");
+    }
+    res.json({ message: "Profit data updated successfully" });
+  } catch (error) {
+    console.error("Error updating profit data:", error);
+    res.status(500).send("Error updating profit data");
+  }
+});
 module.exports = router;
