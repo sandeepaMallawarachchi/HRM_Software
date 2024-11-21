@@ -1,43 +1,44 @@
 import React, { useEffect, useState } from "react";
-import { FaUserEdit, FaTrash, FaEye } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 import NewTeamModel from "./NewTeamModel";
 import axios from "axios";
+import UpdateTeamModel from "./UpdateTeamModel";
 
 const TeamManage = () => {
   const [teamData, setTeamData] = useState([]);
   const [allTeamData, setAllTeamData] = useState([]);
-  const [filteredTeamName, setAllFilteredData] = useState([]);
+  const [filteredTeamName, setFilteredTeamName] = useState("");
   const [filteredData, setFilteredData] = useState([]);
   const [filter, setFilter] = useState("");
   const [isTeamMembersModalOpen, setIsTeamMembersModalOpen] = useState(false);
-  const empId = localStorage.getItem('empId');
+  const [isUpdateTeamModalOpen, setIsUpdateTeamModalOpen] = useState(false);
+  const empId = localStorage.getItem("empId");
 
   const handleTeamNameChange = async (e) => {
     const selectedTeamName = e.target.value;
-    setAllFilteredData(selectedTeamName);
+    setFilteredTeamName(selectedTeamName);
 
     if (selectedTeamName === "") {
-      setFilteredData([]); // Clear data if no team is selected
+      setFilteredData([]);
       return;
     }
 
     try {
-      const requestResponse = await axios.get(`http://localhost:4000/admin/getTeam/${empId}/${selectedTeamName}`);
-      setTeamData(requestResponse.data);
-      setFilteredData(requestResponse.data);
+      const response = await axios.get(`http://localhost:4000/admin/getTeam/${empId}/${selectedTeamName}`);
+      setTeamData(response.data);
+      setFilteredData(response.data);
     } catch (err) {
-      console.log("Error fetching filtered team data:", err);
+      console.error(err);
     }
   };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const requestResponse = await axios.get(`http://localhost:4000/admin/getAllTeams/${empId}`);
-        setAllTeamData(requestResponse.data);
-        // setFilteredData(requestResponse.data);
+        const response = await axios.get(`http://localhost:4000/admin/getAllTeams/${empId}`);
+        setAllTeamData(response.data);
       } catch (err) {
-        console.log("Error fetching data:", err);
+        console.error(err);
       }
     };
     fetchData();
@@ -58,17 +59,31 @@ const TeamManage = () => {
     }
   };
 
-  const handleTeam = () => {
+  const handleNewTeam = () => {
     setIsTeamMembersModalOpen(true);
+  };
+
+  const handleUpdate = (teamName) => {
+    setFilteredTeamName(teamName);
+    setIsUpdateTeamModalOpen(true);
   };
 
   const handleModalClose = () => {
     setIsTeamMembersModalOpen(false);
+    setIsUpdateTeamModalOpen(false);
   };
 
-  const handleSave = (teamData) => {
-    console.log("Team Created", teamData);
-    setIsTeamMembersModalOpen(false);
+  const handleDeleteTeamMember = async (memberEmpId, teamName) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this member?");
+    if (confirmDelete) {
+      try {
+        await axios.delete(`http://localhost:4000/admin/deleteTeamMember/${memberEmpId}/${teamName}`);
+        setFilteredData((prevData) => prevData.filter((member) => member.empId !== memberEmpId));
+        alert("Team member deleted successfully.");
+      } catch (error) {
+        alert("Failed to delete team member.");
+      }
+    }
   };
 
   return (
@@ -76,14 +91,14 @@ const TeamManage = () => {
       <h2 className="text-3xl font-bold text-center text-gray-700 mb-8">
         Team Management
       </h2>
-      <div className="flex justify-between mb-6">
-        <div className="flex gap-3">
+      <div className="flex flex-wrap justify-between gap-4 items-center mb-6">
+        <div className="flex flex-wrap gap-3 items-center">
           <select
             value={filteredTeamName}
             onChange={handleTeamNameChange}
-            className="border-gray-300 rounded-md p-2 w-full"
+            className="border border-gray-300 rounded-md p-2 w-60 sm:w-72 lg:w-80"
           >
-            <option value="">All Teams</option>
+            <option value="">Select a Team</option>
             {[...new Set(allTeamData.map((team) => team.teamName))].sort().map((teamName) => (
               <option key={teamName} value={teamName}>
                 {teamName}
@@ -92,20 +107,25 @@ const TeamManage = () => {
           </select>
           <input
             type="text"
-            className="p-2 border border-gray-300 rounded-lg w-64 focus:outline-none focus:ring focus:border-blue-300"
+            className="p-2 border border-gray-300 rounded-lg w-60 sm:w-72 lg:w-80"
             placeholder="Search by name, role, or department..."
             value={filter}
             onChange={handleFilterChange}
           />
+          <button
+            onClick={() => handleUpdate(filteredTeamName)}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition duration-300"
+          >
+            Update Team
+          </button>
         </div>
         <button
-          onClick={handleTeam}
-          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg disabled:bg-orange-300"
+          onClick={handleNewTeam}
+          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition duration-300"
         >
           New Team
         </button>
       </div>
-
       <div className="bg-white shadow-lg rounded-lg p-6">
         <table className="min-w-full table-auto">
           <thead>
@@ -129,11 +149,12 @@ const TeamManage = () => {
                   <span>{teamMember.department}</span>
                 </td>
                 <td className="py-3 px-6 text-center">
-                  <div className="flex items-center justify-center space-x-4">
-                    <button className="text-orange-500 hover:text-orange-600">
-                      <FaTrash size={20} />
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => handleDeleteTeamMember(teamMember.empId, filteredTeamName)}
+                    className="text-orange-500 hover:text-orange-600"
+                  >
+                    <FaTrash size={20} />
+                  </button>
                 </td>
               </tr>
             ))}
@@ -141,10 +162,10 @@ const TeamManage = () => {
         </table>
       </div>
       {isTeamMembersModalOpen && (
-        <NewTeamModel
-          onClose={handleModalClose}
-          onSave={handleSave}
-        />
+        <NewTeamModel onClose={handleModalClose} />
+      )}
+      {isUpdateTeamModalOpen && (
+        <UpdateTeamModel teamName={filteredTeamName} onClose={handleModalClose} />
       )}
     </div>
   );

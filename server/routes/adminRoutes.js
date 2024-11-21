@@ -264,8 +264,12 @@ router.post("/createTeam/:empId", async (req, res) => {
             insertedRows: results.affectedRows,
         });
     } catch (error) {
-        console.error("Error saving employee team data:", error);
-        res.status(500).json({ error: "Error creating team" });
+        if (error.code === "ER_DUP_ENTRY") {
+            res.status(409).json({ error: "Team name already taken. Please choose a different name." });
+        } else {
+            console.error("Error saving employee team data:", error);
+            res.status(500).json({ error: "Error creating team" });
+        }
     }
 });
 
@@ -277,7 +281,9 @@ router.get("/getTeam/:empId/:filteredTeamName", async (req, res) => {
     try {
         const [rows] = await pool.query(
             `SELECT t.teamName, tm.empId, tm.name, tm.role, tm.department
-             FROM teams t JOIN teammembers tm ON t.empId = tm.creator
+             FROM teams t 
+             JOIN teammembers tm 
+             ON t.empId = tm.creator AND t.teamName = tm.teamName
              WHERE t.empId = ? AND t.teamName = ?
              ORDER BY t.created_at DESC`,
             [employeeId, teamName]
@@ -304,7 +310,7 @@ router.get("/getAllTeams/:empId", async (req, res) => {
         );
 
         if (rows.length > 0) {
-            res.status(200).json(rows); 
+            res.status(200).json(rows);
         } else {
             res.status(404).json({ message: "No team records found" });
         }
@@ -313,4 +319,59 @@ router.get("/getAllTeams/:empId", async (req, res) => {
         res.status(500).json({ error: "Error fetching team details" });
     }
 });
+
+//update team
+router.post("/updateTeam/:empId", async (req, res) => {
+    const creatorEmpId = req.params.empId;
+    const { teamName, members } = req.body;
+
+    if (!members || members.length === 0) {
+        return res.status(400).json({ error: "No members provided" });
+    }
+
+    try {
+
+        // Update teammembers table
+        const teamMemberValues = members.map(({ empId, role, department, name }) => [empId, name, teamName, role, department, creatorEmpId]);
+
+        const [results] = await pool.query(
+            "INSERT INTO teammembers (empId, name, teamName, role, department, creator) VALUES ?",
+            [teamMemberValues]
+        );
+
+        res.status(201).json({
+            message: "Team created and members added successfully",
+            insertedRows: results.affectedRows,
+        });
+    } catch (error) {
+        if (error.code === "ER_DUP_ENTRY") {
+            res.status(409).json({ error: "Team name already taken. Please choose a different name." });
+        } else {
+            console.error("Error saving employee team data:", error);
+            res.status(500).json({ error: "Error creating team" });
+        }
+    }
+});
+
+//delete member from team
+router.delete("/deleteTeamMember/:empId/:teamName", async (req, res) => {
+    const empId = req.params.empId;
+    const teamName = req.params.teamName;
+
+    try {
+        const [result] = await pool.query(
+            "DELETE FROM teammembers WHERE empId = ? and teamName = ?",
+            [empId, teamName]
+        );
+
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: "Team member deleted successfully." });
+        } else {
+            res.status(404).json({ message: "Team member not found." });
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Server error." });
+    }
+});
+
 module.exports = router;
