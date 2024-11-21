@@ -1,24 +1,16 @@
-import { getDatabase, ref, update } from "firebase/database";
-import { initializeApp } from "firebase/app";
-
 import React, { useEffect, useState } from "react";
 import { FaUserPlus, FaUserMinus } from "react-icons/fa";
-import { firebaseConfig } from "../../firebase";
 import axios from "axios";
 
-// Initialize Firebase app
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-
-const ChatMembersModel = ({ onClose }) => {
+const NewTeamModel = ({ onClose }) => {
     const [employeeList, setEmployeeList] = useState([]);
     const [filteredEmployeeList, setFilteredEmployeeList] = useState([]);
     const [departmentFilter, setDepartmentFilter] = useState("");
     const [designationFilter, setDesignationFilter] = useState("");
     const [selectedMembers, setSelectedMembers] = useState([]);
-    const empId = localStorage.getItem("empId");
+    const [teamName, setTeamName] = useState("");
+    const creatorEmpId = localStorage.getItem('empId');
 
-    // Fetch employee data
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -58,27 +50,50 @@ const ChatMembersModel = ({ onClose }) => {
         );
     };
 
-    // Save selected members to Firebase
     const handleSave = async () => {
         try {
-            const dateTimeNow = new Date().toISOString().replace(/[-:.]/g, "");
-            const chatId = `chat_${dateTimeNow}`;
-            const chatRef = ref(database, "chats/" + chatId);
-            const membersWithEmpId = [...new Set([empId, ...selectedMembers])];
-            await update(chatRef, {
-                members: membersWithEmpId,
+            const membersWithDetails = selectedMembers.map((empId) => {
+                const employee = employeeList.find(emp => emp.empId === empId);
+                return {
+                    empId,
+                    name: employee?.name,
+                    role: employee?.role,
+                    department: employee?.department
+                };
             });
-            console.log("Chat members added successfully to Firebase!");
-            onClose();
+
+            const newTeamData = {
+                teamName,
+                creator: creatorEmpId,
+                members: membersWithDetails,
+            };
+
+            await axios.post(`http://localhost:4000/admin/createTeam/${creatorEmpId}`, newTeamData);
+            alert("Team created and members added successfully!");
         } catch (error) {
-            console.error("Error adding members to chat in Firebase:", error);
+            if (error.response && error.response.status === 409) {
+                alert(error.response.data.error);
+            } else {
+                console.error("Error creating team:", error);
+                alert("An error occurred while creating the team.");
+            }
         }
-    };    
+    };
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white rounded-lg p-8 w-2/3 shadow-lg">
-                <h2 className="text-2xl font-semibold mb-4">Add Chat Members</h2>
+                <h2 className="text-2xl font-semibold mb-4">Create New Team</h2>
+                <div className="mb-5">
+                    <label className="block text-gray-700">Team Name</label>
+                    <input
+                        type="text"
+                        value={teamName}
+                        onChange={(e) => setTeamName(e.target.value)}
+                        className="border-gray-300 rounded-md p-2 w-full"
+                        required
+                    />
+                </div>
                 <div className="flex space-x-4 mt-5">
                     <div>
                         <label className="block text-gray-700">Filter by Department</label>
@@ -173,4 +188,4 @@ const ChatMembersModel = ({ onClose }) => {
     );
 };
 
-export default ChatMembersModel;
+export default NewTeamModel;
