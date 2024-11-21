@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaUsers } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const Messages = ({ onMessageRead }) => {
     const empId = localStorage.getItem('empId');
@@ -32,7 +33,7 @@ const Messages = ({ onMessageRead }) => {
                     msg.id === id ? { ...msg, read: 'read' } : msg
                 )
             );
-            onMessageRead(); 
+            onMessageRead();
         } catch (error) {
             console.log("Error updating message status:", error);
         }
@@ -41,23 +42,26 @@ const Messages = ({ onMessageRead }) => {
     return (
         <div>
             {groupMessages.length > 0 && (
-                <div>
+                <Link to={'/communication'}><div>
                     {groupMessages.slice(0, 5).map((chat) => (
                         <div
                             key={chat.id}
                             className={`flex gap-4 my-2 p-4 rounded-xl ${chat.read === 'read' ? 'bg-gray-100' : 'bg-green-200'}`}
                         >
                             <FaUsers size={20} color="blue" />
-                            <span>Group chat - {formatDate(chat.created_at)}</span>
+                            <span className="flex-1 truncate">
+                                <span className="truncate block">{chat.chatId}</span>
+                                <span className="pl-4 text-sm text-gray-500">{formatDate(chat.created_at)}</span>
+                            </span>
                             <input
                                 type="checkbox"
-                                className="m-auto"
+                                className="m-auto mr-2"
                                 onChange={() => markAsRead(chat.id, chat.chatId)}
                                 checked={chat.read === 'read'}
                             />
                         </div>
                     ))}
-                </div>
+                </div></Link>
             )}
 
             {groupMessages.length === 0 && (

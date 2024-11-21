@@ -137,27 +137,35 @@ const TeamManage = () => {
             </tr>
           </thead>
           <tbody className="text-gray-600 text-sm font-light">
-            {filteredData.map((teamMember) => (
-              <tr key={teamMember.id} className="border-b border-gray-200 hover:bg-gray-100">
-                <td className="py-3 px-6 text-left whitespace-nowrap">
-                  <span className="font-medium">{teamMember.name}</span>
-                </td>
-                <td className="py-3 px-6 text-left">
-                  <span>{teamMember.role}</span>
-                </td>
-                <td className="py-3 px-6 text-left">
-                  <span>{teamMember.department}</span>
-                </td>
-                <td className="py-3 px-6 text-center">
-                  <button
-                    onClick={() => handleDeleteTeamMember(teamMember.empId, filteredTeamName)}
-                    className="text-orange-500 hover:text-orange-600"
-                  >
-                    <FaTrash size={20} />
-                  </button>
+            {filteredTeamName === "" ? (
+              <tr>
+                <td colSpan="4" className="p-4 text-center text-gray-500">
+                  Please select a team to view performance data.
                 </td>
               </tr>
-            ))}
+            ) : (
+              filteredData.map((teamMember) => (
+                <tr key={teamMember.id} className="border-b border-gray-200 hover:bg-gray-100">
+                  <td className="py-3 px-6 text-left whitespace-nowrap">
+                    <span className="font-medium">{teamMember.name}</span>
+                  </td>
+                  <td className="py-3 px-6 text-left">
+                    <span>{teamMember.role}</span>
+                  </td>
+                  <td className="py-3 px-6 text-left">
+                    <span>{teamMember.department}</span>
+                  </td>
+                  <td className="py-3 px-6 text-center">
+                    <button
+                      onClick={() => handleDeleteTeamMember(teamMember.empId, filteredTeamName)}
+                      className="text-orange-500 hover:text-orange-600"
+                    >
+                      <FaTrash size={20} />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

@@ -209,6 +209,26 @@ router.get("/getMember/:empId", async (req, res) => {
     }
 });
 
+//delete chat
+router.delete("/deleteChat/:chatId", async (req, res) => {
+    const chatId = req.params.chatId;
+
+    try {
+        const [result] = await pool.query(
+            "DELETE FROM chatmembers WHERE chatId = ?",
+            [chatId]
+        );
+
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: "Chat deleted successfully." });
+        } else {
+            res.status(404).json({ message: "Chat not found." });
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Server error." });
+    }
+});
+
 //mark as read
 router.put("/markAsRead/:empId/:chatId", async (req, res) => {
     const empId = req.params.empId;

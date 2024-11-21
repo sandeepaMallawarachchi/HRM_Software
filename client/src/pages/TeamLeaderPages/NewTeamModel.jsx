@@ -91,6 +91,7 @@ const NewTeamModel = ({ onClose }) => {
                         value={teamName}
                         onChange={(e) => setTeamName(e.target.value)}
                         className="border-gray-300 rounded-md p-2 w-full"
+                        required
                     />
                 </div>
                 <div className="flex space-x-4 mt-5">

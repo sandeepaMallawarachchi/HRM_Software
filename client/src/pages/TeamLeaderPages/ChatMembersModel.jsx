@@ -15,6 +15,7 @@ const ChatMembersModel = ({ onClose }) => {
     const [filteredEmployeeList, setFilteredEmployeeList] = useState([]);
     const [departmentFilter, setDepartmentFilter] = useState("");
     const [designationFilter, setDesignationFilter] = useState("");
+    const [chatName, setChatName] = useState("");
     const [selectedMembers, setSelectedMembers] = useState([]);
     const empId = localStorage.getItem("empId");
 
@@ -61,8 +62,8 @@ const ChatMembersModel = ({ onClose }) => {
     // Save selected members to Firebase
     const handleSave = async () => {
         try {
-            const dateTimeNow = new Date().toISOString().replace(/[-:.]/g, "");
-            const chatId = `chat_${dateTimeNow}`;
+            // const dateTimeNow = new Date().toISOString().replace(/[-:.]/g, "");
+            const chatId = `${chatName}`;
             const chatRef = ref(database, "chats/" + chatId);
             const membersWithEmpId = [...new Set([empId, ...selectedMembers])];
             await update(chatRef, {
@@ -88,6 +89,16 @@ const ChatMembersModel = ({ onClose }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white rounded-lg p-8 w-2/3 shadow-lg">
                 <h2 className="text-2xl font-semibold mb-4">Add Chat Members</h2>
+                <div className="mb-5">
+                    <label className="block text-gray-700">Chat Name</label>
+                    <input
+                        type="text"
+                        value={chatName}
+                        onChange={(e) => setChatName(e.target.value)}
+                        required
+                        className="border-gray-300 rounded-md p-2 w-full"
+                    />
+                </div>
                 <div className="flex space-x-4 mt-5">
                     <div>
                         <label className="block text-gray-700">Filter by Department</label>
