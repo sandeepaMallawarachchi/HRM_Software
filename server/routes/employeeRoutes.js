@@ -1227,7 +1227,20 @@ router.get("/getAllReminders/:empId", async (req, res) => {
     res.status(500).json({ error: "Error retrieving reminders" });
   }
 });
+// Get all strategic insights
+router.get("/strategic-insights", async (req, res) => {
+  try {
+    // Define your query to fetch data from the `strategic_insights` table
+    const [results] = await pool.query("SELECT * FROM strategic_insights");
 
+    // Return the fetched data as JSON
+    res.status(200).json(results);
+  } catch (error) {
+    // Handle errors and respond with a status code and message
+    console.error("Error retrieving strategic insights:", error);
+    res.status(500).json({ error: "Error retrieving strategic insights" });
+  }
+});
 router.get("/revenue", async (req, res) => {
   try {
     // Query to fetch data from the `revenue` table
