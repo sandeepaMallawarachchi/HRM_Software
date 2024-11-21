@@ -11,14 +11,17 @@ const PunchInOut = () => {
     const [errors, setErrors] = useState({ time: '' });
 
     useEffect(() => {
-        const storedPunchInTime = localStorage.getItem('punchInTime');
-        if (storedPunchInTime) {
-            const timeElapsed = moment().diff(moment(storedPunchInTime, 'HH:mm'), 'hours');
-            if (timeElapsed >= 12) {
-                localStorage.removeItem('punchInTime');
+        const storedPunchInData = localStorage.getItem('punchInData');
+        if (storedPunchInData) {
+            const { time, date } = JSON.parse(storedPunchInData);
+            const currentDate = moment().format('YYYY-MM-DD');
+
+            // Check if the stored date is different from the current date
+            if (moment(date).isBefore(currentDate, 'day')) {
+                localStorage.removeItem('punchInData'); // Clear outdated punch-in data
             } else {
                 setIsPunchedIn(true);
-                setPunchInTime(storedPunchInTime);
+                setPunchInTime(time);
             }
         }
     }, []);
@@ -52,10 +55,11 @@ const PunchInOut = () => {
                 note,
             });
             if (response.status === 201 || response.status === 200) {
+                const currentDate = moment().format('YYYY-MM-DD');
                 setPunchInTime(time);
                 setIsPunchedIn(true);
                 setTime('');
-                localStorage.setItem('punchInTime', time); 
+                localStorage.setItem('punchInData', JSON.stringify({ time, date: currentDate }));
                 alert('Punched in successfully');
             }
         } catch (error) {
@@ -75,7 +79,7 @@ const PunchInOut = () => {
                 setIsPunchedIn(false);
                 setPunchInTime('');
                 setTime('');
-                localStorage.removeItem('punchInTime'); 
+                localStorage.removeItem('punchInData'); // Clear punch-in data on punch-out
                 alert('Punched out successfully');
             }
         } catch (error) {

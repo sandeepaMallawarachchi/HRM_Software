@@ -34,25 +34,25 @@ const Reminders = () => {
     return (
         <div>
             {learningReminders.length > 0 && (
-                <div >
+                <Link to={'/learn'}><div >
                     {learningReminders.map((reminder) => (
                         <div key={reminder.id} className="flex gap-4 mt-3 p-4 bg-gray-100 rounded-xl">
                             <FaBookReader size={20} color='red' />
                             <span>{reminder.reminder}</span>
                         </div>
                     ))}
-                </div>
+                </div></Link>
             )}
 
             {otherReminders.length > 0 && (
-                <div>
+                <Link to={'/reminders'}><div>
                     {otherReminders.map((reminder) => (
                         <div key={reminder.id} className="flex gap-4 mt-3 p-4 bg-gray-100 rounded-xl">
                             <FaBell size={20} color='blue' />
                             <span>{reminder.reminder}</span>
                         </div>
                     ))}
-                </div>
+                </div></Link>
             )}
 
             {learningReminders.length === 0 && otherReminders.length === 0 && (

@@ -19,7 +19,7 @@ const auth = getAuth();
 // Sign in anonymously
 signInAnonymously(auth)
   .then(() => {
-    console.log("Signed in anonymously");
+    console.log("Signed");
   })
   .catch((error) => {
     console.error("Error with anonymous sign-in", error);

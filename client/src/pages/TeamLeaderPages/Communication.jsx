@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { FaPaperPlane, FaFileUpload, FaFileAlt, FaUserCircle } from "react-icons/fa";
+import { FaPaperPlane, FaFileUpload, FaFileAlt, FaUserCircle, FaTrash } from "react-icons/fa";
 import ProfilePicture from "../../components/subComponents/ProfilePicture";
 import { db } from "../../firebase";
-import { ref, set, push, onValue } from "firebase/database";
+import { ref, set, push, onValue, remove } from "firebase/database";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-import ChatMembersModel from "../subPages/ChatMembersModel";
+import ChatMembersModel from "./ChatMembersModel";
+import axios from "axios";
 
 const Communication = () => {
   const [messages, setMessages] = useState([]);
@@ -15,7 +16,6 @@ const Communication = () => {
   const [role, setRole] = useState("");
   const [chats, setChats] = useState([]);
   const [currentChatId, setCurrentChatId] = useState(null);
-  const [currentChat, setCurrentChat] = useState(null);
   const [isChatMembersModalOpen, setIsChatMembersModalOpen] = useState(false);
 
   useEffect(() => {
@@ -43,13 +43,9 @@ const Communication = () => {
             timestamp: value.timestamp || Date.now(),
             participants: value.members || [],
           }))
-          .filter(chat => {
-            // Hide chat if the employee is a participant
-            return chat.participants.includes(selectedUser);
-          })
-          .sort((a, b) => b.timestamp - a.timestamp);
+          .filter(chat => chat.participants.includes(selectedUser))
+        loadedChats.reverse();
         setChats(loadedChats);
-
         if (loadedChats.length > 0 && !currentChatId) {
           setCurrentChatId(loadedChats[0].chatId);
         }
@@ -66,19 +62,16 @@ const Communication = () => {
         if (data) {
           const loadedMessages = Object.values(data);
           setMessages(loadedMessages);
+        } else {
+          setMessages([]);
         }
       });
-      const chatRef = ref(db, `chats/${currentChatId}`);
-      const chatUnsubscribe = onValue(chatRef, (snapshot) => {
-        const chatData = snapshot.val();
-        setCurrentChat(chatData);
-      });
-      return () => {
-        unsubscribe();
-        chatUnsubscribe();
-      };
+      return () => unsubscribe();
+    } else {
+      setMessages([]);
     }
   }, [currentChatId]);
+
 
   const handleSendMessage = async () => {
     if (message.trim() || file) {
@@ -148,6 +141,21 @@ const Communication = () => {
     setIsChatMembersModalOpen(false);
   };
 
+  const handleDelete = async (chatId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this chat?");
+
+    if (confirmDelete) {
+      try {
+        const chatRef = ref(db, `chats/${chatId}`);
+        await remove(chatRef);
+        await axios.delete(`http://localhost:4000/admin/deleteChat/${chatId}`);
+      } catch (error) {
+        console.error("Error deleting chat: ", error);
+        alert("Error deleting chat");
+      }
+    }
+  };
+
   return (
     <div className="p-6 px-20 bg-white rounded-lg shadow-md flex m-5 mb-0 pb-8 h-full">
       <div className="w-1/4 p-4 border-r-2">
@@ -164,15 +172,15 @@ const Communication = () => {
             <div
               key={chat.chatId}
               onClick={() => setCurrentChatId(chat.chatId)}
-              className={`cursor-pointer p-2 rounded-lg hover:bg-gray-300 ${currentChatId === chat.chatId ? "bg-gray-300" : "bg-gray-100"
+              className={`flex justify-between cursor-pointer p-2 px-3 rounded-lg hover:bg-gray-300 ${currentChatId === chat.chatId ? "bg-gray-300" : "bg-gray-100"
                 }`}
             >
               <span>
-                Chat -{" "}
-                {chat.timestamp
-                  ? new Date(chat.timestamp).toLocaleDateString()
-                  : "No Date Available"}
+                {chat.chatId}
               </span>
+              <button onClick={() => handleDelete(chat.chatId)} >
+                <FaTrash className="text-orange-500 my-auto" size={16} />
+              </button>
             </div>
           ))}
         </div>

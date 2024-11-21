@@ -188,20 +188,20 @@ router.post("/addMember", async (req, res) => {
     }
 });
 
-//get members in chat 
+// Get all chat records for an employee, ordered by latest first
 router.get("/getMember/:empId", async (req, res) => {
     const employeeId = req.params.empId;
 
     try {
         const [rows] = await pool.query(
-            "SELECT * FROM chatmembers WHERE empId = ?",
+            "SELECT * FROM chatmembers WHERE empId = ? ORDER BY created_at DESC",
             [employeeId]
         );
 
         if (rows.length > 0) {
-            res.status(200).json(rows[0]);
+            res.status(200).json(rows); // Return all rows
         } else {
-            res.status(404).json({ message: "Chat member not found" });
+            res.status(404).json({ message: "No chat records found for this employee" });
         }
     } catch (error) {
         console.error("Error fetching chat member details:", error);
@@ -209,5 +209,189 @@ router.get("/getMember/:empId", async (req, res) => {
     }
 });
 
+//delete chat
+router.delete("/deleteChat/:chatId", async (req, res) => {
+    const chatId = req.params.chatId;
+
+    try {
+        const [result] = await pool.query(
+            "DELETE FROM chatmembers WHERE chatId = ?",
+            [chatId]
+        );
+
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: "Chat deleted successfully." });
+        } else {
+            res.status(404).json({ message: "Chat not found." });
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Server error." });
+    }
+});
+
+//mark as read
+router.put("/markAsRead/:empId/:chatId", async (req, res) => {
+    const empId = req.params.empId;
+    const chatId = req.params.chatId;
+
+    try {
+        const [results] = await pool.query(
+            "UPDATE chatmembers SET `read` = 'read' WHERE empId = ? AND chatId = ?",
+            [empId, chatId]
+        );
+
+        if (results.affectedRows > 0) {
+            res.status(200).json({
+                message: "Marked as read successfully",
+                affectedRows: results.affectedRows,
+            });
+        } else {
+            res.status(404).json({
+                message: "No messages found for the provided empId",
+            });
+        }
+    } catch (error) {
+        console.error("Error updating employee chat data:", error);
+        res.status(500).json({ error: "Error updating employee chat data" });
+    }
+});
+
+//add members to new team
+router.post("/createTeam/:empId", async (req, res) => {
+    const creator = req.params.empId;
+    const { teamName, members } = req.body;
+
+    if (!members || members.length === 0) {
+        return res.status(400).json({ error: "No members provided" });
+    }
+
+    try {
+        await pool.query(
+            "INSERT INTO teams (empId, teamName) VALUES (?, ?)",
+            [creator, teamName]
+        );
+
+        // Insert each member into the teammembers table
+        const teamMemberValues = members.map(({ empId, role, department, name }) => [empId, name, teamName, role, department, creator]);
+
+        const [results] = await pool.query(
+            "INSERT INTO teammembers (empId, name, teamName, role, department, creator) VALUES ?",
+            [teamMemberValues]
+        );
+
+        res.status(201).json({
+            message: "Team created and members added successfully",
+            insertedRows: results.affectedRows,
+        });
+    } catch (error) {
+        if (error.code === "ER_DUP_ENTRY") {
+            res.status(409).json({ error: "Team name already taken. Please choose a different name." });
+        } else {
+            console.error("Error saving employee team data:", error);
+            res.status(500).json({ error: "Error creating team" });
+        }
+    }
+});
+
+// Get team by creator's empId
+router.get("/getTeam/:empId/:filteredTeamName", async (req, res) => {
+    const employeeId = req.params.empId;
+    const teamName = req.params.filteredTeamName;
+
+    try {
+        const [rows] = await pool.query(
+            `SELECT t.teamName, tm.empId, tm.name, tm.role, tm.department
+             FROM teams t 
+             JOIN teammembers tm 
+             ON t.empId = tm.creator AND t.teamName = tm.teamName
+             WHERE t.empId = ? AND t.teamName = ?
+             ORDER BY t.created_at DESC`,
+            [employeeId, teamName]
+        );
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: "No team records found for this creator" });
+        }
+    } catch (error) {
+        res.status(500).json({ error: "Error fetching team details" });
+    }
+});
+
+// Get all teams
+router.get("/getAllTeams/:empId", async (req, res) => {
+    const employeeId = req.params.empId;
+
+    try {
+        const [rows] = await pool.query(
+            "SELECT * FROM teams WHERE empId = ?",
+            [employeeId]
+        );
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: "No team records found" });
+        }
+    } catch (error) {
+        console.error("Error fetching team details:", error);
+        res.status(500).json({ error: "Error fetching team details" });
+    }
+});
+
+//update team
+router.post("/updateTeam/:empId", async (req, res) => {
+    const creatorEmpId = req.params.empId;
+    const { teamName, members } = req.body;
+
+    if (!members || members.length === 0) {
+        return res.status(400).json({ error: "No members provided" });
+    }
+
+    try {
+
+        // Update teammembers table
+        const teamMemberValues = members.map(({ empId, role, department, name }) => [empId, name, teamName, role, department, creatorEmpId]);
+
+        const [results] = await pool.query(
+            "INSERT INTO teammembers (empId, name, teamName, role, department, creator) VALUES ?",
+            [teamMemberValues]
+        );
+
+        res.status(201).json({
+            message: "Team created and members added successfully",
+            insertedRows: results.affectedRows,
+        });
+    } catch (error) {
+        if (error.code === "ER_DUP_ENTRY") {
+            res.status(409).json({ error: "Team name already taken. Please choose a different name." });
+        } else {
+            console.error("Error saving employee team data:", error);
+            res.status(500).json({ error: "Error creating team" });
+        }
+    }
+});
+
+//delete member from team
+router.delete("/deleteTeamMember/:empId/:teamName", async (req, res) => {
+    const empId = req.params.empId;
+    const teamName = req.params.teamName;
+
+    try {
+        const [result] = await pool.query(
+            "DELETE FROM teammembers WHERE empId = ? and teamName = ?",
+            [empId, teamName]
+        );
+
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: "Team member deleted successfully." });
+        } else {
+            res.status(404).json({ message: "Team member not found." });
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Server error." });
+    }
+});
 
 module.exports = router;

@@ -6,6 +6,7 @@ import Support from "../pages/profileComponents/Support";
 import axios from "axios";
 import ProfilePicture from "./subComponents/ProfilePicture";
 import ReminderIcon from "./subComponents/ReminderIcon";
+import MessageIcon from "./subComponents/MessageIcon";
 
 const Header = () => {
   const location = useLocation();
@@ -82,10 +83,7 @@ const Header = () => {
 
       <div className="flex-grow flex justify-end gap-5 items-center pr-5">
         <ReminderIcon />
-        <FaEnvelope
-          className="text-white cursor-pointer hover:text-orange-300"
-          size={20}
-        />
+        <MessageIcon />
       </div>
 
       <div className="relative flex items-center border border-white rounded-full p-2 px-3 space-x-3 backdrop-blur-lg group">
