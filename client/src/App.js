@@ -15,7 +15,7 @@ import EmployeeRegistration from "./pages/auth/EmployeeRegistration";
 import LeaveAndAttendance from "./pages/LeaveAndAttendance";
 import LearningDevelopment from "./pages/LearningDevelopment";
 import AttendanceAndTime from "./pages/AttendanceAndTime";
-import ReminderPage from './pages/subPages/ReminderPage.jsx'
+import ReminderPage from "./pages/subPages/ReminderPage.jsx";
 
 //team leader routes
 import TeamManage from "./pages/TeamLeaderPages/TeamManage";
@@ -36,7 +36,13 @@ import SuccessPlaning from "./pages/TopLvlManagerPages/SuccessPlaning";
 import Budgeting from "./pages/TopLvlManagerPages/Budgeting";
 import CompilenceTrack from "./pages/TopLvlManagerPages/CompilenceTrack";
 
+//Accountant routes
+import Expenses from "./pages/AccountantPages/Expenses";
+import Profit from "./pages/AccountantPages/Profit";
+import Revenue from "./pages/AccountantPages/Revenue";
+
 //Ceo routes
+import ExecutiveDashboard from "./pages/CEOpages/ExecutiveDashboard";
 import StrategicInsights from "./pages/CEOpages/StrategicInsights";
 import TalentManagement from "./pages/CEOpages/TalentManagement";
 import CultureandEngagement from "./pages/CEOpages/CultureandEngagement";
@@ -152,6 +158,22 @@ const App = () => {
             <Route
               path="/compliance-tracking"
               element={<ProtectedRoute element={<CompilenceTrack />} />}
+            />
+            <Route
+              path="/expences"
+              element={<ProtectedRoute element={<Expenses />} />}
+            />
+            <Route
+              path="/profits"
+              element={<ProtectedRoute element={<Profit />} />}
+            />
+            <Route
+              path="/Revenue"
+              element={<ProtectedRoute element={<Revenue />} />}
+            />
+            <Route
+              path="/executive-dashboard"
+              element={<ProtectedRoute element={<ExecutiveDashboard />} />}
             />
             <Route
               path="/strategic-insights"
