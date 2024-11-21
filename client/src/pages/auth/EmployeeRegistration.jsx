@@ -100,7 +100,7 @@ const EmployeeRegistration = () => {
     e.preventDefault();
     try {
       const response = await fetch(
-        "http://localhost:4000/employees/workDetails",
+        `http://localhost:4000/employees/workDetails/${loginFormData.empId}`,
         {
           method: "POST",
           headers: {

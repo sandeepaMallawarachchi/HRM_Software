@@ -144,4 +144,70 @@ router.get('/getPayslip/:empId', async (req, res) => {
     }
 });
 
+// Get all employee details
+router.get("/getAllEmployee", async (req, res) => {
+    try {
+        const [rows] = await pool.query(
+            "SELECT p.name, l.empId, l.role, w.department, w.designation FROM logindetails l, workdetails w, personaldetails p WHERE l.empId = w.empId AND l.empId = p.empId"
+        );
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: "Employee details not found" });
+        }
+    } catch (error) {
+        console.error("Error fetching Employee details:", error);
+        res.status(500).json({ error: "Error fetching Employee details" });
+    }
+});
+
+//add members to chat
+router.post("/addMember", async (req, res) => {
+    const { members, chatId } = req.body;
+
+    if (!members || members.length === 0) {
+        return res.status(400).json({ error: "No members provided" });
+    }
+
+    try {
+        const chatMemberValues = members.map(empId => [empId, chatId]);
+
+        const [results] = await pool.query(
+            "INSERT INTO chatmembers (empId, chatId) VALUES ?",
+            [chatMemberValues]
+        );
+
+        res.status(201).json({
+            message: "Employees added to chat successfully",
+            insertedRows: results.affectedRows,
+        });
+    } catch (error) {
+        console.error("Error saving employee chat data:", error);
+        res.status(500).json({ error: "Error saving employee chat data" });
+    }
+});
+
+//get members in chat 
+router.get("/getMember/:empId", async (req, res) => {
+    const employeeId = req.params.empId;
+
+    try {
+        const [rows] = await pool.query(
+            "SELECT * FROM chatmembers WHERE empId = ?",
+            [employeeId]
+        );
+
+        if (rows.length > 0) {
+            res.status(200).json(rows[0]);
+        } else {
+            res.status(404).json({ message: "Chat member not found" });
+        }
+    } catch (error) {
+        console.error("Error fetching chat member details:", error);
+        res.status(500).json({ error: "Error fetching chat member details" });
+    }
+});
+
+
 module.exports = router;
