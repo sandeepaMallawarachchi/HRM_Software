@@ -19,6 +19,7 @@ import MidLvlManagersidebar from "../components/SidebarComponents/MidLvlManagers
 import TopLvlManagersidebar from "../components/SidebarComponents/TopLvlManagersidebar";
 import CeoSidebar from "../components/SidebarComponents/CeoSidebar";
 import HRsidebar from "./SidebarComponents/HRsidebar";
+import AccountantSidebar from "./SidebarComponents/AccountantSidebar";
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -236,6 +237,9 @@ const Sidebar = () => {
         )}
         {role === "Ceo" && <CeoSidebar isCollapsed={isCollapsed} />}
         {role === "HR" && <HRsidebar isCollapsed={isCollapsed} />}
+        {role === "Accountant" && (
+          <AccountantSidebar isCollapsed={isCollapsed} />
+        )}
       </div>
     </div>
   );
