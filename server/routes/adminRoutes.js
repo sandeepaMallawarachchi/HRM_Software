@@ -209,6 +209,27 @@ router.get("/getMember/:empId", async (req, res) => {
     }
 });
 
+// Get all chat members
+router.get("/getAllMembers/:chatId", async (req, res) => {
+    const chatId = req.params.chatId;
+
+    try {
+        const [rows] = await pool.query(
+            "SELECT p.name, c.empId, c.chatId FROM chatmembers c JOIN personaldetails p ON c.empId = p.empId WHERE c.chatId = ?",
+            [chatId]
+        );
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: "No chat records found for this chat id" });
+        }
+    } catch (error) {
+        console.error("Error fetching chat members:", error);
+        res.status(500).json({ error: "Error fetching chat members" });
+    }
+});
+
 //delete chat
 router.delete("/deleteChat/:chatId", async (req, res) => {
     const chatId = req.params.chatId;
