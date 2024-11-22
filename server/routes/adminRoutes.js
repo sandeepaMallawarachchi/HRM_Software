@@ -209,6 +209,27 @@ router.get("/getMember/:empId", async (req, res) => {
     }
 });
 
+// Get all chat members
+router.get("/getAllMembers/:chatId", async (req, res) => {
+    const chatId = req.params.chatId;
+
+    try {
+        const [rows] = await pool.query(
+            "SELECT p.name, c.empId, c.chatId FROM chatmembers c JOIN personaldetails p ON c.empId = p.empId WHERE c.chatId = ?",
+            [chatId]
+        );
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: "No chat records found for this chat id" });
+        }
+    } catch (error) {
+        console.error("Error fetching chat members:", error);
+        res.status(500).json({ error: "Error fetching chat members" });
+    }
+});
+
 //delete chat
 router.delete("/deleteChat/:chatId", async (req, res) => {
     const chatId = req.params.chatId;
@@ -391,6 +412,43 @@ router.delete("/deleteTeamMember/:empId/:teamName", async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({ message: "Server error." });
+    }
+});
+
+//create strategic plan
+router.post("/addStrategicPlan/:empId", async (req, res) => {
+    const empId = req.params.empId;
+    const { goal, description, deadline, progress } = req.body;
+
+    try {
+        await pool.query(
+            "INSERT INTO strategicplans (empId, goal, description, deadline, progress) VALUES (?, ?, ?, ?, ?)",
+            [empId, goal, description, deadline, progress]
+        );
+        res.status(201).json({ message: "Strategic plan added successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Error adding startegic plan" });
+    }
+});
+
+// Get all strategic plans by id
+router.get("/getPlans/:empId", async (req, res) => {
+    const employeeId = req.params.empId;
+
+    try {
+        const [rows] = await pool.query(
+            "SELECT * FROM strategicplans WHERE empId = ?",
+            [employeeId]
+        );
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: "No strategic plan records found" });
+        }
+    } catch (error) {
+        console.error("Error fetching strategic plan details:", error);
+        res.status(500).json({ error: "Error fetching strategic plan details" });
     }
 });
 

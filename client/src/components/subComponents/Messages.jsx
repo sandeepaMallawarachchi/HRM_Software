@@ -47,12 +47,10 @@ const Messages = ({ onMessageRead }) => {
                         <div
                             key={chat.id}
                             className={`flex gap-4 my-2 p-4 rounded-xl ${chat.read === 'read' ? 'bg-gray-100' : 'bg-green-200'}`}
+                            onClick={() => markAsRead(chat.id, chat.chatId)}
                         >
                             <FaUsers size={20} color="blue" />
-                            <span className="flex-1 truncate">
-                                <span className="truncate block">{chat.chatId}</span>
-                                <span className="pl-4 text-sm text-gray-500">{formatDate(chat.created_at)}</span>
-                            </span>
+                            <span>{chat.chatId} <span className='pl-2 text-sm text-gray-500 '>{formatDate(chat.created_at)}</span></span>
                             <input
                                 type="checkbox"
                                 className="m-auto mr-2"

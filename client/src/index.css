@@ -75,3 +75,18 @@
     transform: translateX(-100%);
     transition: opacity 500ms, transform 500ms;
 }
+
+/* For Webkit browsers like Chrome, Safari */
+::-webkit-scrollbar {
+    width: 8px; /* Adjust the width of the scrollbar */
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.1); /* Light color for the scrollbar thumb */
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent; /* Transparent track */
+  }
+  
