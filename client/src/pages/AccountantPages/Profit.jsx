@@ -197,21 +197,6 @@ const Profit = () => {
   const handleUpdateSubmit = (e) => {
     e.preventDefault();
 
-    // Check if all necessary fields are filled out
-    if (
-      !rowToUpdate.Department ||
-      !rowToUpdate.Date ||
-      !rowToUpdate.Revenue ||
-      !rowToUpdate.COGS ||
-      !rowToUpdate.OperatingExpenses ||
-      !rowToUpdate.GrossProfit ||
-      !rowToUpdate.NetProfit ||
-      !rowToUpdate.ProfitMargin
-    ) {
-      alert("Please fill in all fields before updating.");
-      return;
-    }
-
     // Send PUT request to update the row in the backend using Department and Date
     axios
       .put(
@@ -223,7 +208,7 @@ const Profit = () => {
         const updatedData = data.map((row) =>
           row.Department === rowToUpdate.Department &&
           row.Date === rowToUpdate.Date
-            ? rowToUpdate
+            ? { ...row, ...rowToUpdate } // Merge updated fields into existing row
             : row
         );
         setData(updatedData);
@@ -258,7 +243,7 @@ const Profit = () => {
     const { name, value } = e.target;
     setRowToUpdate({
       ...rowToUpdate,
-      [name]: value,
+      [name]: value, // Update only the changed field
     });
   };
 
@@ -268,12 +253,13 @@ const Profit = () => {
     const exportData = filteredData.map((row) => ({
       Department: row.Department,
       Date: row.Date,
-      "Product Sales": row["Product Sales"],
-      "Service Income": row["Service Income"],
-      Discounts: row.Discounts,
-      "Net Profit": row["Net Profit"], // Changed to "Net Profit"
-      "Profit Target": row["Profit Target"], // Changed to "Profit Target"
-      Variance: row.Variance,
+      Revenue: row.Revenue,
+      "Cost of Goods Sold (COGS)": row["Cost of Goods Sold (COGS)"],
+      "Operating Expenses": row["Operating Expenses"],
+
+      "Gross Profit": row["Gross Profit"], // Changed to "Net Profit"
+      "Net Profit": row["Net Profit"], // Changed to "Profit Target"
+      "Profit Margin": row["Profit Margin"], // Changed to "Profit Target"
     }));
 
     // Create a new workbook
@@ -465,9 +451,47 @@ const Profit = () => {
         </form>
       </div>
 
+      {/* Conditional Table Rendering */}
+      <div className="overflow-x-auto">
+        {selectedDepartment !== "All" && (
+          <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
+            <thead>
+              <tr>
+                <th className="py-2 px-4 border-b">Department</th>
+                <th className="py-2 px-4 border-b">Date</th>
+                <th className="py-2 px-4 border-b">Revenue</th>
+                <th className="py-2 px-4 border-b">
+                  Cost of Goods Sold (COGS)
+                </th>
+                <th className="py-2 px-4 border-b">Operating Expenses</th>
+                <th className="py-2 px-4 border-b">Gross Profit</th>
+                <th className="py-2 px-4 border-b">Net Profit</th>
+                <th className="py-2 px-4 border-b">Profit Margin</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredData.map((row, index) => (
+                <tr key={index}>
+                  <td className="py-2 px-4 border-b">{row.Department}</td>
+                  <td className="py-2 px-4 border-b">{row.Date}</td>
+                  <td className="py-2 px-4 border-b">{row.Revenue}</td>
+                  <td className="py-2 px-4 border-b">
+                    {row["Cost of Goods Sold (COGS)"]}
+                  </td>
+                  <td className="py-2 px-4 border-b">
+                    {row["Operating Expenses"]}
+                  </td>
+                  <td className="py-2 px-4 border-b">{row["Gross Profit"]}</td>
+                  <td className="py-2 px-4 border-b">{row["Net Profit"]}</td>
+                  <td className="py-2 px-4 border-b">{row["Profit Margin"]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
       {/* Update Profit Data */}
       <div className="mb-6">
-        <h2 className="text-xl font-medium mb-4">Update Profit Data</h2>
         <div className="text-center">
           <button
             onClick={() => updateMostRecentRow(selectedDepartment)}
@@ -521,8 +545,8 @@ const Profit = () => {
                 </label>
                 <input
                   type="number"
-                  name="COGS"
-                  value={rowToUpdate.COGS}
+                  name="Cost of Goods Sold (COGS)"
+                  value={rowToUpdate["Cost of Goods Sold (COGS)"]}
                   onChange={handleUpdateInputChange}
                   className="border border-gray-300 rounded-md px-4 py-2 w-full"
                 />
@@ -539,8 +563,8 @@ const Profit = () => {
                 </label>
                 <input
                   type="number"
-                  name="OperatingExpenses"
-                  value={rowToUpdate.OperatingExpenses}
+                  name="Operating Expenses"
+                  value={rowToUpdate["Operating Expenses"]}
                   onChange={handleUpdateInputChange}
                   className="border border-gray-300 rounded-md px-4 py-2 w-full"
                 />
@@ -554,8 +578,8 @@ const Profit = () => {
                 </label>
                 <input
                   type="number"
-                  name="GrossProfit"
-                  value={rowToUpdate.GrossProfit}
+                  name="Gross Profit"
+                  value={rowToUpdate["Gross Profit"]}
                   onChange={handleUpdateInputChange}
                   className="border border-gray-300 rounded-md px-4 py-2 w-full"
                 />
@@ -572,8 +596,8 @@ const Profit = () => {
                 </label>
                 <input
                   type="number"
-                  name="NetProfit"
-                  value={rowToUpdate.NetProfit}
+                  name="Net Profit"
+                  value={rowToUpdate["Net Profit"]}
                   onChange={handleUpdateInputChange}
                   className="border border-gray-300 rounded-md px-4 py-2 w-full"
                 />
@@ -587,8 +611,8 @@ const Profit = () => {
                 </label>
                 <input
                   type="text"
-                  name="ProfitMargin"
-                  value={rowToUpdate.ProfitMargin}
+                  name="Profit Margin"
+                  value={rowToUpdate["Profit Margin"]}
                   onChange={handleUpdateInputChange}
                   className="border border-gray-300 rounded-md px-4 py-2 w-full"
                 />

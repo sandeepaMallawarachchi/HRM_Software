@@ -1456,4 +1456,116 @@ router.put("/profit/:department/:date", async (req, res) => {
     res.status(500).send("Error updating profit data");
   }
 });
+
+router.get("/expenses", async (req, res) => {
+  try {
+    // Query to fetch data from the `expenses_data` table
+    const [results] = await pool.query("SELECT * FROM expenses_data");
+
+    // Return the fetched data as JSON
+    res.status(200).json(results);
+  } catch (error) {
+    // Handle errors and respond with a status code and message
+    console.error("Error retrieving expenses data:", error);
+    res.status(500).json({ error: "Error retrieving expenses data" });
+  }
+});
+
+router.post("/expenses", async (req, res) => {
+  try {
+    // Destructure values from req.body
+    const {
+      Department,
+      Date,
+      "Operational Costs": operationalCosts,
+      Marketing,
+      "Research & Development": researchAndDevelopment,
+      Miscellaneous,
+    } = req.body;
+
+    // SQL query to insert data into the expenses_data table
+    const query = `
+      INSERT INTO expenses_data (Department, Date, \`Operational Costs\`, Marketing, \`Research & Development\`, Miscellaneous)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+    // Execute the query using pool.query and pass the correct values
+    const [result] = await pool.query(query, [
+      Department,
+      Date,
+      operationalCosts,
+      Marketing,
+      researchAndDevelopment,
+      Miscellaneous,
+    ]);
+
+    // Send a response with the inserted data
+    res.status(201).json({
+      Department,
+      Date,
+      "Operational Costs": operationalCosts,
+      Marketing,
+      "Research & Development": researchAndDevelopment,
+      Miscellaneous,
+    });
+  } catch (error) {
+    console.error("Error inserting data:", error);
+    res.status(500).json({ error: "Error inserting data" });
+  }
+});
+
+router.put("/expenses/:department/:date", async (req, res) => {
+  const { department, date } = req.params;
+  const {
+    "Operational Costs": operationalCosts,
+    Marketing,
+    "Research & Development": researchAndDevelopment,
+    Miscellaneous,
+  } = req.body;
+
+  try {
+    // SQL query to update expenses data based on department and date
+    const query = `
+      UPDATE expenses_data
+      SET 
+        \`Operational Costs\` = ?,
+        Marketing = ?,
+        \`Research & Development\` = ?,
+        Miscellaneous = ?
+      WHERE Department = ? AND Date = ?
+    `;
+
+    // Execute the query using pool.query
+    const [result] = await pool.query(query, [
+      operationalCosts,
+      Marketing,
+      researchAndDevelopment,
+      Miscellaneous,
+      department, // Assuming 'Department' is unique
+      date, // Assuming 'Date' is unique
+    ]);
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ error: "No matching record found to update" });
+    }
+
+    // Send a response with the updated data
+    res.status(200).json({
+      department,
+      date,
+      "Operational Costs": operationalCosts,
+      Marketing,
+      "Research & Development": researchAndDevelopment,
+      Miscellaneous,
+    });
+  } catch (error) {
+    console.error("Error updating expenses data:", error.message);
+    res
+      .status(500)
+      .json({ error: "Error updating expenses data", details: error.message });
+  }
+});
+
 module.exports = router;
