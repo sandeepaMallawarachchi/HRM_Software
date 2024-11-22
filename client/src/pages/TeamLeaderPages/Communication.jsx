@@ -69,12 +69,22 @@ const Communication = () => {
           setMessages([]);
         }
       });
+
+      const fetchChatMembers = async () => {
+        try {
+          const response = await axios.get(`http://localhost:4000/admin/getAllMembers/${currentChatId}`);
+          setChatMembers(response.data);
+        } catch (error) {
+          console.error("Error fetching chat members:", error);
+        }
+      };
+
+      fetchChatMembers();
       return () => unsubscribe();
     } else {
       setMessages([]);
     }
   }, [currentChatId]);
-
 
   const handleSendMessage = async () => {
     if (message.trim() || file) {
@@ -159,18 +169,6 @@ const Communication = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchAllMembers = async () => {
-      try {
-        const chatMembers = await axios.get(`http://localhost:4000/admin/getAllMembers/${currentChatId}`);
-        setChatMembers(chatMembers.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchAllMembers();
-  }, []);
-
   return (
     <div className="p-6 px-20 bg-white rounded-lg shadow-md flex m-5 mb-0 pb-8 h-full">
       <div className="w-1/4 p-4 border-r-2">
@@ -204,7 +202,7 @@ const Communication = () => {
         <div className="flex-1 overflow-y-auto h-full" style={{ maxHeight: "calc(100vh - 200px)" }}>
           <div className="flex justify-between mb-4">
             <select
-              value={chatMembers}
+              defaultValue={chatMembers}
               className="border rounded-lg px-4 py-2 w-1/3"
             >
               <option value="">Chat Members</option>
