@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require("../database");
 const nodemailer = require("nodemailer");
 const { validationResult } = require("express-validator");
+const bcrypt = require("bcrypt");
 const { initializeApp } = require("firebase/app");
 const {
   getStorage,
@@ -134,7 +135,8 @@ router.get("/getEmployee/:empId", async (req, res) => {
 });
 
 // Create work details
-router.post("/workDetails", async (req, res) => {
+router.post("/workDetails/:empId", async (req, res) => {
+  const empId = req.params.empId;
   const {
     workEmail,
     workPhone,
@@ -146,6 +148,7 @@ router.post("/workDetails", async (req, res) => {
 
   try {
     const newWorkDetails = {
+      empId,
       workEmail,
       workPhone,
       department,
@@ -155,8 +158,9 @@ router.post("/workDetails", async (req, res) => {
     };
 
     const [results] = await pool.query(
-      "INSERT INTO workdetails (workEmail, workPhone, department, location, designation, supervisor) VALUES (?, ?, ?, ?, ?, ?)",
+      "INSERT INTO workdetails (empId, workEmail, workPhone, department, location, designation, supervisor) VALUES (?, ?, ?, ?, ?, ?, ?)",
       [
+        newWorkDetails.empId,
         newWorkDetails.workEmail,
         newWorkDetails.workPhone,
         newWorkDetails.department,
@@ -318,47 +322,50 @@ function giveCurrentDateTime() {
 }
 
 //save profile pic
-router.post("/uploadProfileImage/:empId", upload.single("profilePic"), async (req, res) => {
-  const empId = req.params.empId;
+router.post(
+  "/uploadProfileImage/:empId",
+  upload.single("profilePic"),
+  async (req, res) => {
+    const empId = req.params.empId;
 
-  try {
-    if (!req.file) {
-      return res.status(400).send("No file uploaded.");
+    try {
+      if (!req.file) {
+        return res.status(400).send("No file uploaded.");
+      }
+
+      const dateTime = giveCurrentDateTime();
+      const storageRef = ref(
+        storage,
+        `profilepic/${req.file.originalname} ${dateTime}`
+      );
+      const metadata = {
+        contentType: req.file.mimetype,
+      };
+
+      const snapshot = await uploadBytesResumable(
+        storageRef,
+        req.file.buffer,
+        metadata
+      );
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      // Update profile picture URL in the database
+      const updateQuery =
+        "UPDATE personaldetails SET profilepic = ? WHERE empId = ?";
+      await pool.query(updateQuery, [downloadURL, empId]);
+
+      return res.send({
+        message:
+          "File uploaded to Firebase Storage and profile picture updated successfully",
+        name: req.file.originalname,
+        type: req.file.mimetype,
+        downloadURL: downloadURL,
+      });
+    } catch (error) {
+      console.error("Error uploading file or updating profile picture:", error);
+      return res.status(500).send(error.message);
     }
-
-    const dateTime = giveCurrentDateTime();
-    const storageRef = ref(
-      storage,
-      `profilepic/${req.file.originalname} ${dateTime}`
-    );
-    const metadata = {
-      contentType: req.file.mimetype,
-    };
-
-    const snapshot = await uploadBytesResumable(
-      storageRef,
-      req.file.buffer,
-      metadata
-    );
-    const downloadURL = await getDownloadURL(snapshot.ref);
-
-    // Update profile picture URL in the database
-    const updateQuery =
-      "UPDATE personaldetails SET profilepic = ? WHERE empId = ?";
-    await pool.query(updateQuery, [downloadURL, empId]);
-
-    return res.send({
-      message:
-        "File uploaded to Firebase Storage and profile picture updated successfully",
-      name: req.file.originalname,
-      type: req.file.mimetype,
-      downloadURL: downloadURL,
-    });
-  } catch (error) {
-    console.error("Error uploading file or updating profile picture:", error);
-    return res.status(500).send(error.message);
   }
-}
 );
 
 //get profile pic
@@ -618,23 +625,25 @@ router.post("/support/:empId", async (req, res) => {
   }
 });
 
-router.post('/requestPasswordReset', async (req, res) => {
+router.post("/requestPasswordReset", async (req, res) => {
   try {
     const { empId, email } = req.body;
 
     if (!empId && !email) {
-      return res.status(400).json({ message: "Please provide either employee ID or email." });
+      return res
+        .status(400)
+        .json({ message: "Please provide either employee ID or email." });
     }
 
     // Query the database using either empId or email
-    let query = '';
-    let queryParam = '';
+    let query = "";
+    let queryParam = "";
 
     if (empId) {
-      query = 'SELECT * FROM logindetails WHERE empId = ?';
+      query = "SELECT * FROM logindetails WHERE empId = ?";
       queryParam = empId;
     } else if (email) {
-      query = 'SELECT * FROM logindetails WHERE email = ?';
+      query = "SELECT * FROM logindetails WHERE email = ?";
       queryParam = email;
     }
 
@@ -653,7 +662,7 @@ router.post('/requestPasswordReset', async (req, res) => {
     const resetCodeExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
 
     await pool.query(
-      'UPDATE logindetails SET resetcode = ?, resetcodeexpires = ? WHERE empId = ?',
+      "UPDATE logindetails SET resetcode = ?, resetcodeexpires = ? WHERE empId = ?",
       [resetCode, resetCodeExpires, employee.empId]
     );
 
@@ -675,23 +684,26 @@ router.post('/requestPasswordReset', async (req, res) => {
 });
 
 //reset password
-router.post('/resetPassword', async (req, res) => {
+router.post("/resetPassword", async (req, res) => {
   try {
     const { resetCode, newPassword } = req.body;
 
     // Fetch the user with the given reset code
-    const [rows] = await pool.query('SELECT * FROM logindetails WHERE resetcode = ?', [resetCode]);
+    const [rows] = await pool.query(
+      "SELECT * FROM logindetails WHERE resetcode = ?",
+      [resetCode]
+    );
 
     // If no user is found with the reset code
     if (rows.length === 0) {
-      return res.status(404).json({ message: 'Reset code not found' });
+      return res.status(404).json({ message: "Reset code not found" });
     }
 
     const user = rows[0];
 
     // Check if the reset code is expired
     if (new Date(user.resetCodeExpires) < Date.now()) {
-      return res.status(400).json({ message: 'Reset code has expired' });
+      return res.status(400).json({ message: "Reset code has expired" });
     }
 
     // Hash the new password
@@ -699,15 +711,14 @@ router.post('/resetPassword', async (req, res) => {
 
     // Update the user's password and clear the reset code fields
     await pool.query(
-      'UPDATE logindetails SET password = ?, resetcode = NULL, resetcodeexpires = NULL WHERE empId = ?',
+      "UPDATE logindetails SET password = ?, resetcode = NULL, resetcodeexpires = NULL WHERE empId = ?",
       [hashedPassword, user.empId]
     );
 
-    res.status(200).json({ message: 'Password updated successfully' });
-
+    res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
     console.error("Error resetting password:", error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
@@ -1002,11 +1013,7 @@ router.get("/getCurrentDateAttendance/:empId", async (req, res) => {
 //pay roll assistance
 router.post("/payrollAssistance/:empId", async (req, res) => {
   const empId = req.params.empId;
-  const {
-    date,
-    subject,
-    description
-  } = req.body;
+  const { date, subject, description } = req.body;
 
   try {
     const newAssistance = {
@@ -1037,41 +1044,66 @@ router.post("/payrollAssistance/:empId", async (req, res) => {
 });
 
 //financial request
-router.post('/financialRequest/:empId', upload.single("financialAttachment"), async (req, res) => {
-  const empId = req.params.empId;
-  const { request_type, date_of_request, amount, reason, repayment_terms } = req.body;
-  let downloadURL = null;
+router.post(
+  "/financialRequest/:empId",
+  upload.single("financialAttachment"),
+  async (req, res) => {
+    const empId = req.params.empId;
+    const { request_type, date_of_request, amount, reason, repayment_terms } =
+      req.body;
+    let downloadURL = null;
 
-  try {
-    // Check if there's an attachment to upload
-    if (req.file) {
-      const dateTime = giveCurrentDateTime();
-      const storageRef = ref(storage, `attachment/${req.file.originalname} ${dateTime}`);
-      const metadata = { contentType: req.file.mimetype };
+    try {
+      // Check if there's an attachment to upload
+      if (req.file) {
+        const dateTime = giveCurrentDateTime();
+        const storageRef = ref(
+          storage,
+          `attachment/${req.file.originalname} ${dateTime}`
+        );
+        const metadata = { contentType: req.file.mimetype };
 
-      const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
-      downloadURL = await getDownloadURL(snapshot.ref);
-    }
+        const snapshot = await uploadBytesResumable(
+          storageRef,
+          req.file.buffer,
+          metadata
+        );
+        downloadURL = await getDownloadURL(snapshot.ref);
+      }
 
-    // Insert financial request into the database
-    const query = `
+      // Insert financial request into the database
+      const query = `
       INSERT INTO financial_requests (empId, request_type, date_of_request, amount, reason, repayment_terms, attachment) 
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
-    await pool.query(query, [empId, request_type, date_of_request, amount, reason, repayment_terms || null, downloadURL]);
+      await pool.query(query, [
+        empId,
+        request_type,
+        date_of_request,
+        amount,
+        reason,
+        repayment_terms || null,
+        downloadURL,
+      ]);
 
-    res.status(201).json({
-      message: `${request_type === 'loan' ? 'Loan' : 'Salary advance'} request submitted successfully.`,
-      attachmentURL: downloadURL
-    });
-  } catch (error) {
-    console.error('Error submitting financial request or uploading attachment:', error);
-    res.status(500).json({ error: 'Failed to submit financial request.' });
+      res.status(201).json({
+        message: `${
+          request_type === "loan" ? "Loan" : "Salary advance"
+        } request submitted successfully.`,
+        attachmentURL: downloadURL,
+      });
+    } catch (error) {
+      console.error(
+        "Error submitting financial request or uploading attachment:",
+        error
+      );
+      res.status(500).json({ error: "Failed to submit financial request." });
+    }
   }
-});
+);
 
 // get financial requests by empId
-router.get('/getFinancialRequests/:empId', async (req, res) => {
+router.get("/getFinancialRequests/:empId", async (req, res) => {
   const empId = req.params.empId;
   const { request_type } = req.query;
 
@@ -1090,19 +1122,15 @@ router.get('/getFinancialRequests/:empId', async (req, res) => {
 
     res.status(200).json(results);
   } catch (error) {
-    console.error('Error fetching financial requests:', error);
-    res.status(500).json({ error: 'Failed to fetch financial requests.' });
+    console.error("Error fetching financial requests:", error);
+    res.status(500).json({ error: "Failed to fetch financial requests." });
   }
 });
 
 //add certifications and achievements
 router.post("/addCertificate/:empId", async (req, res) => {
   const empId = req.params.empId;
-  const {
-    certificate_name,
-    link,
-    status,
-  } = req.body;
+  const { certificate_name, link, status } = req.body;
 
   try {
     const newCertificate = {
@@ -1138,13 +1166,14 @@ router.get("/getCertificates/:empId", async (req, res) => {
 
   try {
     const [records] = await pool.query(
-      "SELECT * FROM certificates_achievements WHERE empId = ?", [empId]
+      "SELECT * FROM certificates_achievements WHERE empId = ?",
+      [empId]
     );
 
     if (records.length > 0) {
-      res.status(200).json(records); 
+      res.status(200).json(records);
     } else {
-      res.status(404).json('No certificates found');
+      res.status(404).json("No certificates found");
     }
   } catch (error) {
     res.status(500).json({ error: "Error fetching certificates" });
@@ -1154,12 +1183,12 @@ router.get("/getCertificates/:empId", async (req, res) => {
 //add reminders by empId
 router.post("/addReminders/:empId", async (req, res) => {
   const empId = req.params.empId;
-  const { date, reminder } = req.body;
+  const { date, reminder, subject } = req.body;
 
   try {
     await pool.query(
-      "INSERT INTO learning_reminders (empId, date, reminder) VALUES (?, ?, ?)",
-      [empId, date, reminder]
+      "INSERT INTO reminders (empId, date, reminder, subject) VALUES (?, ?, ?, ?)",
+      [empId, date, reminder, subject]
     );
     res.status(201).json({ message: "Reminder added successfully" });
   } catch (error) {
@@ -1167,19 +1196,375 @@ router.post("/addReminders/:empId", async (req, res) => {
   }
 });
 
-//get reminders by empId
+//get reminders by empId and current date
 router.get("/getReminders/:empId", async (req, res) => {
+  const empId = req.params.empId;
+  const { date, subject } = req.query;
+
+  try {
+    const [results] = await pool.query(
+      "SELECT * FROM reminders WHERE empId = ? AND date = ? AND subject = ?",
+      [empId, date, subject]
+    );
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({ error: "Error retrieving reminders" });
+  }
+});
+
+//get all reminders by empId
+router.get("/getAllReminders/:empId", async (req, res) => {
   const empId = req.params.empId;
   const { date } = req.query;
 
   try {
     const [results] = await pool.query(
-      "SELECT * FROM learning_reminders WHERE empId = ? AND date = ?",
+      "SELECT * FROM reminders WHERE empId = ? AND date = ?",
       [empId, date]
     );
     res.status(200).json(results);
   } catch (error) {
     res.status(500).json({ error: "Error retrieving reminders" });
+  }
+});
+// Get all strategic insights
+router.get("/strategic-insights", async (req, res) => {
+  try {
+    // Define your query to fetch data from the `strategic_insights` table
+    const [results] = await pool.query("SELECT * FROM strategic_insights");
+
+    // Return the fetched data as JSON
+    res.status(200).json(results);
+  } catch (error) {
+    // Handle errors and respond with a status code and message
+    console.error("Error retrieving strategic insights:", error);
+    res.status(500).json({ error: "Error retrieving strategic insights" });
+  }
+});
+router.get("/revenue", async (req, res) => {
+  try {
+    // Query to fetch data from the `revenue` table
+    const [results] = await pool.query("SELECT * FROM revenue_with_targets");
+
+    // Return the fetched data as JSON
+    res.status(200).json(results);
+  } catch (error) {
+    // Handle errors and respond with a status code and message
+    console.error("Error retrieving revenue data:", error);
+    res.status(500).json({ error: "Error retrieving revenue data" });
+  }
+});
+router.post("/revenue", async (req, res) => {
+  try {
+    // Destructure values from req.body
+    const {
+      Department,
+      Date,
+      "Product Sales": productSales,
+      "Service Income": serviceIncome,
+      Discounts,
+      "Net Revenue": netRevenue,
+      "Revenue Target": revenueTarget,
+      Variance,
+    } = req.body;
+
+    // SQL query to insert data into the revenue table
+    const query = `
+      INSERT INTO revenue_with_targets (Department, Date, \`Product Sales\`, \`Service Income\`, Discounts, \`Net Revenue\`, \`Revenue Target\`, Variance)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    // Execute the query using pool.query and pass the correct values
+    const [result] = await pool.query(query, [
+      Department,
+      Date,
+      productSales,
+      serviceIncome,
+      Discounts,
+      netRevenue,
+      revenueTarget,
+      Variance,
+    ]);
+
+    // Send a response with the inserted data
+    res.status(201).json({
+      Department,
+      Date,
+      "Product Sales": productSales,
+      "Service Income": serviceIncome,
+      Discounts,
+      "Net Revenue": netRevenue,
+      "Revenue Target": revenueTarget,
+      Variance,
+    });
+  } catch (error) {
+    console.error("Error inserting data:", error);
+    res.status(500).json({ error: "Error inserting data" });
+  }
+});
+router.put("/revenue/:department/:date", async (req, res) => {
+  const { department, date } = req.params;
+  const {
+    "Product Sales": productSales,
+    "Service Income": serviceIncome,
+    Discounts,
+    "Net Revenue": netRevenue,
+    "Revenue Target": revenueTarget,
+    Variance,
+  } = req.body;
+
+  try {
+    // SQL query to update revenue data based on department and date
+    const query = `
+      UPDATE revenue_with_targets
+      SET 
+        \`Product Sales\` = ?,
+        \`Service Income\` = ?,
+        Discounts = ?,
+        \`Net Revenue\` = ?,
+        \`Revenue Target\` = ?,
+        Variance = ?
+      WHERE Department = ? AND Date = ?
+    `;
+
+    // Execute the query using pool.query
+    const [result] = await pool.query(query, [
+      productSales,
+      serviceIncome,
+      Discounts,
+      netRevenue,
+      revenueTarget,
+      Variance,
+      department, // Assuming 'Department' is unique
+      date, // Assuming 'Date' is unique
+    ]);
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ error: "No matching record found to update" });
+    }
+
+    // Send a response with the updated data
+    res.status(200).json({
+      department,
+      date,
+      "Product Sales": productSales,
+      "Service Income": serviceIncome,
+      Discounts,
+      "Net Revenue": netRevenue,
+      "Revenue Target": revenueTarget,
+      Variance,
+    });
+  } catch (error) {
+    console.error("Error updating revenue data:", error.message);
+    res
+      .status(500)
+      .json({ error: "Error updating revenue data", details: error.message });
+  }
+});
+router.get("/profit", async (req, res) => {
+  try {
+    // Query to fetch data from the `profit` table
+    const [results] = await pool.query("SELECT * FROM profit_table");
+    res.status(200).json(results);
+  } catch (error) {
+    console.error("Error retrieving profit data:", error);
+    res.status(500).json({ error: "Error retrieving profit data" });
+  }
+});
+// Insert Profit Data
+router.post("/profit", async (req, res) => {
+  const {
+    Department,
+    Date,
+    Revenue,
+    COGS,
+    OperatingExpenses,
+    GrossProfit,
+    NetProfit,
+    ProfitMargin,
+  } = req.body;
+
+  try {
+    const query = `
+      INSERT INTO profit_table (\`Department\`, \`Date\`, \`Revenue\`, \`Cost of Goods Sold (COGS)\`, \`Operating Expenses\`, \`Gross Profit\`, \`Net Profit\`, \`Profit Margin\`)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    await pool.query(query, [
+      Department,
+      Date,
+      Revenue,
+      COGS,
+      OperatingExpenses,
+      GrossProfit,
+      NetProfit,
+      ProfitMargin,
+    ]);
+
+    res.status(201).json({ message: "Profit data added successfully." });
+  } catch (error) {
+    console.error("Error inserting profit data:", error);
+    res.status(500).json({ error: "Error inserting profit data." });
+  }
+});
+
+// Update Profit Data
+router.put("/profit/:department/:date", async (req, res) => {
+  const { department, date } = req.params;
+  const {
+    Revenue,
+    COGS,
+    OperatingExpenses,
+    GrossProfit,
+    NetProfit,
+    ProfitMargin,
+  } = req.body;
+
+  const query = `
+    UPDATE profit_table
+    SET 
+      \`Revenue\` = ?, 
+      \`Cost of Goods Sold (COGS)\` = ?, 
+      \`Operating Expenses\` = ?, 
+      \`Gross Profit\` = ?, 
+      \`Net Profit\` = ?, 
+      \`Profit Margin\` = ?
+    WHERE 
+      \`Department\` = ? AND \`Date\` = ?
+  `;
+
+  const values = [
+    Revenue,
+    COGS,
+    OperatingExpenses,
+    GrossProfit,
+    NetProfit,
+    ProfitMargin,
+    department,
+    date,
+  ];
+
+  try {
+    const [results] = await pool.query(query, values);
+    if (results.affectedRows === 0) {
+      return res.status(404).send("Profit data not found");
+    }
+    res.json({ message: "Profit data updated successfully" });
+  } catch (error) {
+    console.error("Error updating profit data:", error);
+    res.status(500).send("Error updating profit data");
+  }
+});
+
+router.get("/expenses", async (req, res) => {
+  try {
+    // Query to fetch data from the `expenses_data` table
+    const [results] = await pool.query("SELECT * FROM expenses_data");
+
+    // Return the fetched data as JSON
+    res.status(200).json(results);
+  } catch (error) {
+    // Handle errors and respond with a status code and message
+    console.error("Error retrieving expenses data:", error);
+    res.status(500).json({ error: "Error retrieving expenses data" });
+  }
+});
+
+router.post("/expenses", async (req, res) => {
+  try {
+    // Destructure values from req.body
+    const {
+      Department,
+      Date,
+      "Operational Costs": operationalCosts,
+      Marketing,
+      "Research & Development": researchAndDevelopment,
+      Miscellaneous,
+    } = req.body;
+
+    // SQL query to insert data into the expenses_data table
+    const query = `
+      INSERT INTO expenses_data (Department, Date, \`Operational Costs\`, Marketing, \`Research & Development\`, Miscellaneous)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+    // Execute the query using pool.query and pass the correct values
+    const [result] = await pool.query(query, [
+      Department,
+      Date,
+      operationalCosts,
+      Marketing,
+      researchAndDevelopment,
+      Miscellaneous,
+    ]);
+
+    // Send a response with the inserted data
+    res.status(201).json({
+      Department,
+      Date,
+      "Operational Costs": operationalCosts,
+      Marketing,
+      "Research & Development": researchAndDevelopment,
+      Miscellaneous,
+    });
+  } catch (error) {
+    console.error("Error inserting data:", error);
+    res.status(500).json({ error: "Error inserting data" });
+  }
+});
+
+router.put("/expenses/:department/:date", async (req, res) => {
+  const { department, date } = req.params;
+  const {
+    "Operational Costs": operationalCosts,
+    Marketing,
+    "Research & Development": researchAndDevelopment,
+    Miscellaneous,
+  } = req.body;
+
+  try {
+    // SQL query to update expenses data based on department and date
+    const query = `
+      UPDATE expenses_data
+      SET 
+        \`Operational Costs\` = ?,
+        Marketing = ?,
+        \`Research & Development\` = ?,
+        Miscellaneous = ?
+      WHERE Department = ? AND Date = ?
+    `;
+
+    // Execute the query using pool.query
+    const [result] = await pool.query(query, [
+      operationalCosts,
+      Marketing,
+      researchAndDevelopment,
+      Miscellaneous,
+      department, // Assuming 'Department' is unique
+      date, // Assuming 'Date' is unique
+    ]);
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ error: "No matching record found to update" });
+    }
+
+    // Send a response with the updated data
+    res.status(200).json({
+      department,
+      date,
+      "Operational Costs": operationalCosts,
+      Marketing,
+      "Research & Development": researchAndDevelopment,
+      Miscellaneous,
+    });
+  } catch (error) {
+    console.error("Error updating expenses data:", error.message);
+    res
+      .status(500)
+      .json({ error: "Error updating expenses data", details: error.message });
   }
 });
 

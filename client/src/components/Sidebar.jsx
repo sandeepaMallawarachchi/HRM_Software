@@ -10,7 +10,7 @@ import {
   FaAngleRight,
   FaTachometerAlt,
   FaBook,
-  FaFire
+  FaFire,
 } from "react-icons/fa";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import logo from "../images/hrm withoutbackground.png";
@@ -19,6 +19,7 @@ import MidLvlManagersidebar from "../components/SidebarComponents/MidLvlManagers
 import TopLvlManagersidebar from "../components/SidebarComponents/TopLvlManagersidebar";
 import CeoSidebar from "../components/SidebarComponents/CeoSidebar";
 import HRsidebar from "./SidebarComponents/HRsidebar";
+import AccountantSidebar from "./SidebarComponents/AccountantSidebar";
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -30,11 +31,14 @@ const Sidebar = () => {
   };
 
   const location = useLocation();
-  const isRecruitmentActive = location.pathname.includes("/offers") || location.pathname.includes("/onboarding");
+  const isRecruitmentActive =
+    location.pathname.includes("/offers") ||
+    location.pathname.includes("/onboarding");
   return (
     <div
-      className={`z-50 flex flex-col ${isCollapsed ? "w-16" : "w-64"
-        } pr-3 h-screen bg-white text-black shadow-xl transition-all duration-300 rounded-r-[40px] border-r relative`}
+      className={`z-50 flex flex-col ${
+        isCollapsed ? "w-16" : "w-64"
+      } pr-3 h-screen bg-white text-black shadow-xl transition-all duration-300 rounded-r-[40px] border-r relative`}
     >
       <button
         onClick={handleToggle}
@@ -48,8 +52,9 @@ const Sidebar = () => {
           <img
             src={logo}
             alt="Logo"
-            className={`transition-all duration-300 ${isCollapsed ? "w-8 h-8" : "w-16 h-16"
-              }`}
+            className={`transition-all duration-300 ${
+              isCollapsed ? "w-8 h-8" : "w-16 h-16"
+            }`}
           />
           {!isCollapsed && (
             <span className="mt-2 text-lg transition-all duration-300 font-serif text-center">
@@ -64,9 +69,10 @@ const Sidebar = () => {
           <NavLink
             to="/executive-dashboard"
             className={({ isActive }) =>
-              `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-                : ""
+              `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+                isActive
+                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                  : ""
               }`
             }
           >
@@ -80,9 +86,10 @@ const Sidebar = () => {
           <NavLink
             to="/dashboard"
             className={({ isActive }) =>
-              `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-                : ""
+              `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+                isActive
+                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                  : ""
               }`
             }
           >
@@ -97,9 +104,10 @@ const Sidebar = () => {
         <NavLink
           to="/payroll"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+              isActive
+                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                : ""
             }`
           }
         >
@@ -113,9 +121,10 @@ const Sidebar = () => {
         <NavLink
           to="/attendance"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+              isActive
+                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                : ""
             }`
           }
         >
@@ -129,9 +138,10 @@ const Sidebar = () => {
         <NavLink
           to="/leave"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+              isActive
+                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                : ""
             }`
           }
         >
@@ -142,31 +152,38 @@ const Sidebar = () => {
           {!isCollapsed && <span>Leave & Attendance</span>}
         </NavLink>
 
-        <NavLink
-          to="/learn"
-          className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
-            }`
-          }
-        >
-          <FaBookReader
-            size={20}
-            className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-          />
-          {!isCollapsed && <span>Learning & Development</span>}
-        </NavLink>
+        {role !== "HR" && role !== "Ceo" && (
+          <NavLink
+            to="/learn"
+            className={({ isActive }) =>
+              `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+                isActive
+                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                  : ""
+              }`
+            }
+          >
+            <FaBookReader
+              size={20}
+              className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+            />
+            {!isCollapsed && <span>Learning & Development</span>}
+          </NavLink>
+        )}
 
         <NavLink
           to="#"
           onClick={() => setIsRecruitmentOpen(!isRecruitmentOpen)}
-          className={`flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isRecruitmentActive
-            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-            : ""
-            }`}
+          className={`flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+            isRecruitmentActive
+              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+              : ""
+          }`}
         >
-          <FaCheckDouble size={20} className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`} />
+          <FaCheckDouble
+            size={20}
+            className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+          />
           {!isCollapsed && <span>Recruitment</span>}
         </NavLink>
 
@@ -176,26 +193,34 @@ const Sidebar = () => {
             <NavLink
               to="/offers"
               className={({ isActive }) =>
-                `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-                  : ""
+                `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+                  isActive
+                    ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                    : ""
                 }`
               }
             >
-              <FaFire size={20} className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`} />
+              <FaFire
+                size={20}
+                className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+              />
               {!isCollapsed && <span>Offers</span>}
             </NavLink>
 
             <NavLink
               to="/onboarding"
               className={({ isActive }) =>
-                `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-                  : ""
+                `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+                  isActive
+                    ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                    : ""
                 }`
               }
             >
-              <FaBook size={20} className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`} />
+              <FaBook
+                size={20}
+                className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+              />
               {!isCollapsed && <span>Onboarding</span>}
             </NavLink>
           </div>
@@ -210,11 +235,10 @@ const Sidebar = () => {
         {role === "Top Lvl Manager" && (
           <TopLvlManagersidebar isCollapsed={isCollapsed} />
         )}
-        {role === "Ceo" && (
-          <CeoSidebar isCollapsed={isCollapsed} />
-        )}
-        {role === "HR" && (
-          <HRsidebar isCollapsed={isCollapsed} />
+        {role === "Ceo" && <CeoSidebar isCollapsed={isCollapsed} />}
+        {role === "HR" && <HRsidebar isCollapsed={isCollapsed} />}
+        {role === "Accountant" && (
+          <AccountantSidebar isCollapsed={isCollapsed} />
         )}
       </div>
     </div>

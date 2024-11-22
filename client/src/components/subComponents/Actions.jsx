@@ -42,7 +42,7 @@ const Actions = () => {
                         <ul>
                             {leaveRequestList.map((leave) => (
                                 <li key={leave.id} className='flex gap-4'>
-                                    <FaCalendar size={20} color='red'/>
+                                    <FaCalendar size={20} color='red' />
                                     Leave Request - {leave.leave_type}
                                 </li>
                             ))}
@@ -50,20 +50,26 @@ const Actions = () => {
                     </div>
                 </Link>
             )}
-            
+
             {financialRequestList.length > 0 && (
                 <Link to='/payroll'>
                     <div className="text-left bg-gray-100 rounded-xl p-4 mt-5">
                         <ul>
                             {financialRequestList.map((financial) => (
                                 <li key={financial.id} className='flex gap-4'>
-                                    <FaWallet size={20} color='red'/>
+                                    <FaWallet size={20} color='red' />
                                     Financial Request - {financial.request_type}
                                 </li>
                             ))}
                         </ul>
                     </div>
                 </Link>
+            )}
+
+            {leaveRequestList.length === 0 && financialRequestList.length === 0 && (
+                <div className="text-sm text-gray-500 mt-4">
+                    No actions available for today.
+                </div>
             )}
         </div>
     );

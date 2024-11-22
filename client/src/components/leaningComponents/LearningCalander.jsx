@@ -10,11 +10,16 @@ const LearningCalendar = () => {
     const [reminder, setReminder] = useState("");
     const [reminders, setReminders] = useState([]);
 
+    const formatDateForDB = (selectedDate) => {
+        const adjustedDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000);
+        return adjustedDate.toISOString().slice(0, 10);
+    };
+
     const fetchReminders = async (selectedDate) => {
         try {
-            const formattedDate = selectedDate.toISOString().slice(0, 10);
+            const formattedDate = formatDateForDB(selectedDate);
             const response = await axios.get(`http://localhost:4000/employees/getReminders/${empId}`, {
-                params: { date: formattedDate },
+                params: { date: formattedDate, subject: "Learning" },
             });
             setReminders(response.data);
         } catch (error) {
@@ -34,22 +39,20 @@ const LearningCalendar = () => {
     const handleAddReminder = async () => {
         if (reminder.trim()) {
             try {
-                const adjustedDate = new Date(date);
-                adjustedDate.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-                const formattedDate = adjustedDate.toISOString().slice(0, 10);
-    
+                const formattedDate = formatDateForDB(date);
                 await axios.post(`http://localhost:4000/employees/addReminders/${empId}`, {
                     date: formattedDate,
                     reminder,
+                    subject: "Learning",
                 });
-    
                 setReminder("");
                 fetchReminders(date);
             } catch (error) {
                 console.log("Error adding reminder:", error);
+                alert('Error adding reminder');
             }
         }
-    };    
+    };
 
     return (
         <div className="card bg-gray-100 border border-gray-300 rounded-lg p-5">
@@ -66,7 +69,7 @@ const LearningCalendar = () => {
                 />
                 <button
                     onClick={handleAddReminder}
-                    className="bg-orange-500 hover:bg-orange-600 text-white rounded-[20px] px-2"
+                    className="bg-orange-500 hover:bg-orange-600 text-white rounded-lg px-2"
                 >
                     Add Reminder
                 </button>
