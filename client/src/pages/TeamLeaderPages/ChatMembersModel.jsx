@@ -65,9 +65,11 @@ const ChatMembersModel = ({ onClose }) => {
             // const dateTimeNow = new Date().toISOString().replace(/[-:.]/g, "");
             const chatId = `${chatName}`;
             const chatRef = ref(database, "chats/" + chatId);
+            const timestamp = Date.now();
             const membersWithEmpId = [...new Set([empId, ...selectedMembers])];
             await update(chatRef, {
                 members: membersWithEmpId,
+                timestamp: timestamp,
             });
             console.log("Chat members added successfully to Firebase!");
             onClose();
@@ -75,7 +77,7 @@ const ChatMembersModel = ({ onClose }) => {
             //save member to db
             const newMember = {
                 members: membersWithEmpId,
-                chatId
+                chatId,
             };
 
             await axios.post(`http://localhost:4000/admin/addMember`, newMember);
