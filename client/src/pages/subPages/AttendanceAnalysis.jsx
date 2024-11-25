@@ -59,12 +59,12 @@ const AttendanceAnalysis = () => {
 
             {attendanceAnalysis.monthData.length > 0 ? (
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="p-6 px-20 bg-[#eaeaea] rounded-lg shadow-md mt-10">
+                    <div className="p-6 px-20 bg-white rounded-lg shadow-md mt-10">
                         <h3 className="text-lg mb-4">Worked Hours in the Week</h3>
                         <AttandanceAnalysisComponent />
                     </div>
 
-                    <div className="p-6 px-20 bg-[#eaeaea] rounded-lg shadow-md mt-10">
+                    <div className="p-6 px-20 bg-white rounded-lg shadow-md mt-10">
                         <h3 className="text-lg mb-4">Worked Hours in the Month</h3>
                         <Pie data={pieData} options={{ responsive: true }} />
                     </div>

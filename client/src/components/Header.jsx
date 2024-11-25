@@ -42,24 +42,68 @@ const Header = () => {
 
   const getPageTitle = () => {
     switch (location.pathname) {
+      case "/dashboard":
+        return "Dashboard";
       case "/profile":
         return "Profile";
-      case "/support":
-        return "Support";
-      case "/leave":
-        return "Leave & Attendance";
       case "/payroll":
         return "Payroll";
       case "/registration":
         return "Registration";
+      case "/leave":
+        return "Leave & Attendance";
       case "/attendance":
         return "Attendance & Time";
       case "/learn":
         return "Learning & Development";
       case "/offers":
         return "Offers";
+      case "/onboarding":
+        return "Onboarding";
+      case "/team-management":
+        return "Team Management";
+      case "/reporting":
+        return "Reporting";
       case "/communication":
         return "Communication Tool";
+      case "/performance-management":
+        return "Performance Management";
+      case "/resource-allocation":
+        return "Resource Allocation";
+      case "/reporting-analytics":
+        return "Reports & Analytics";
+      case "/conflict-resolution":
+        return "Conflict Resolution";
+      case "/training-oversight":
+        return "Training Oversight";
+      case "/strategic-planning":
+        return "Strategic Planning";
+      case "/performance-dashboards":
+        return "Performance Dashboards";
+      case "/succession-planning":
+        return "Succession Planning";
+      case "/budgeting":
+        return "Budgeting";
+      case "/compliance-tracking":
+        return "Compliance Tracking";
+      case "/expences":
+        return "Expenses";
+      case "/profits":
+        return "Profits";
+      case "/Revenue":
+        return "Revenue";
+      case "/executive-dashboard":
+        return "Executive Dashboard";
+      case "/strategic-insights":
+        return "Strategic Insights";
+      case "/talent-management":
+        return "Talent Management";
+      case "/culture-engagement":
+        return "Culture & Engagement";
+      case "/decision-support":
+        return "Decision Support";
+      case "/reminders":
+        return "Reminders";
       default:
         return "Dashboard";
     }

@@ -321,7 +321,7 @@ router.get("/getTeam/:empId/:filteredTeamName", async (req, res) => {
 
     try {
         const [rows] = await pool.query(
-            `SELECT t.teamName, tm.empId, tm.name, tm.role, tm.department
+            `SELECT t.teamName, tm.empId, tm.name, tm.role, tm.department, tm.performance, tm.taskcompleted
              FROM teams t 
              JOIN teammembers tm 
              ON t.empId = tm.creator AND t.teamName = tm.teamName
@@ -415,6 +415,43 @@ router.delete("/deleteTeamMember/:empId/:teamName", async (req, res) => {
     }
 });
 
+//add employee's performance
+router.post("/addPerformance/:empId/:teamName", async (req, res) => {
+    const { empId, teamName } = req.params;
+    const { performance, taskcompleted } = req.body;
+
+    try {
+        await pool.query(
+            "UPDATE teammembers SET performance = ?, taskcompleted = ? WHERE empId = ? AND teamName = ?",
+            [performance, taskcompleted, empId, teamName]
+        );
+        res.status(200).json({ message: "Performance updated successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Error updating performance" });
+    }
+});
+
+// Get all strategic plans by id
+router.get("/getPlans/:empId", async (req, res) => {
+    const employeeId = req.params.empId;
+
+    try {
+        const [rows] = await pool.query(
+            "SELECT * FROM strategicplans WHERE empId = ?",
+            [employeeId]
+        );
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: "No strategic plan records found" });
+        }
+    } catch (error) {
+        console.error("Error fetching strategic plan details:", error);
+        res.status(500).json({ error: "Error fetching strategic plan details" });
+    }
+});
+
 //create strategic plan
 router.post("/addStrategicPlan/:empId", async (req, res) => {
     const empId = req.params.empId;
@@ -449,6 +486,50 @@ router.get("/getPlans/:empId", async (req, res) => {
     } catch (error) {
         console.error("Error fetching strategic plan details:", error);
         res.status(500).json({ error: "Error fetching strategic plan details" });
+    }
+});
+
+//get employee count by department
+router.get("/getEmployeeStats/:department", async (req, res) => {
+    const department = req.params.department;
+
+    try {
+        const [rows] = await pool.query(
+            `SELECT COUNT(DISTINCT empId) AS employeeCount
+             FROM teammembers 
+             WHERE department = ?`,
+            [department]
+        );
+
+        const [topPerformerRow] = await pool.query(
+            `SELECT name, AVG(performance) AS avgPerformance 
+             FROM teammembers 
+             WHERE department = ? 
+             GROUP BY empId 
+             ORDER BY avgPerformance DESC 
+             LIMIT 1`,
+            [department]
+        );
+
+        const [avgPerformanceRow] = await pool.query(
+            `SELECT AVG(performance) AS departmentAvgPerformance 
+             FROM teammembers 
+             WHERE department = ?`,
+            [department]
+        );
+
+        const employeeCount = rows[0]?.employeeCount || 0;
+        const topPerformer = topPerformerRow[0] || null;
+        const departmentAvgPerformance = avgPerformanceRow[0]?.departmentAvgPerformance || 0;
+
+        res.status(200).json({
+            employeeCount,
+            topPerformer,
+            departmentAvgPerformance,
+        });
+    } catch (error) {
+        console.error("Error fetching employee stats:", error);
+        res.status(500).json({ error: "Error fetching employee stats" });
     }
 });
 
