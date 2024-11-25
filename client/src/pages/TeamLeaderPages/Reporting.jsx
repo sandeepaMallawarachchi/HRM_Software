@@ -235,7 +235,7 @@ const Reporting = () => {
               </tr>
             ) : (
               filteredData.map((item) => (
-                <tr key={item.id} className="border-b hover:bg-gray-50">
+                <tr key={item.id} className="border-b">
                   <td className="p-4">{item.name}</td>
                   <td className="p-4">
                     <input

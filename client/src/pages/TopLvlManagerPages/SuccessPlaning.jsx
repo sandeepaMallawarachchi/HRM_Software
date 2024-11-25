@@ -88,11 +88,10 @@ const SuccessPlanning = () => {
           <button
             key={department}
             onClick={() => handleDepartmentChange(department)}
-            className={`px-4 py-2 mx-2 rounded-lg ${
-              selectedDepartment === department
+            className={`px-4 py-2 mx-2 rounded-lg ${selectedDepartment === department
                 ? "bg-orange-500 text-white"
                 : "bg-white text-gray-800 border border-gray-300"
-            }`}
+              }`}
           >
             {department}
           </button>
@@ -111,7 +110,7 @@ const SuccessPlanning = () => {
           </div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-md flex items-center">
-          <FaUserFriends className="text-4xl text-orange-500 mr-4" />
+          <FaChartPie className="text-4xl text-orange-500 mr-4" />
           <div>
             <h3 className="text-xl font-semibold">Achieved</h3>
             <p className="text-gray-700">
@@ -120,7 +119,7 @@ const SuccessPlanning = () => {
           </div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-md flex items-center">
-          <FaChartPie className="text-4xl text-orange-500 mr-4" />
+          <FaUserFriends className="text-4xl text-orange-500 mr-4" />
           <div>
             <h3 className="text-xl font-semibold">Team Size</h3>
             <p className="text-gray-700">
@@ -130,35 +129,32 @@ const SuccessPlanning = () => {
         </div>
       </div>
 
-      {/* Smaller Bar Chart for Targets vs Achieved */}
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6 h-64">
-        <h3 className="text-xl font-semibold mb-4">Targets vs Achieved</h3>
-        <Bar
-          data={barChartData}
-          options={{
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                beginAtZero: true,
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-md h-[300px] flex flex-col">
+          <h3 className="text-xl font-semibold mb-4">Targets vs Achieved</h3>
+          <Bar
+            data={barChartData}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                },
               },
-            },
-          }}
-          height={200} // Set the height of the chart
-        />
-      </div>
-
-      {/* Smaller Doughnut Chart for Team Capacity */}
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6 h-64">
-        <h3 className="text-xl font-semibold mb-4">Team Capacity</h3>
-        <Doughnut
-          data={doughnutChartData}
-          options={{
-            responsive: true,
-            maintainAspectRatio: false,
-          }}
-          height={200} // Set the height of the chart
-        />
+            }}
+          />
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-md h-[300px] flex flex-col">
+          <h3 className="text-xl font-semibold mb-4">Team Capacity</h3>
+          <Doughnut
+            data={doughnutChartData}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+            }}
+          />
+        </div>
       </div>
 
       {/* Goals Overview */}

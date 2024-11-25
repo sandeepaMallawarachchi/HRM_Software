@@ -489,4 +489,48 @@ router.get("/getPlans/:empId", async (req, res) => {
     }
 });
 
+//get employee count by department
+router.get("/getEmployeeStats/:department", async (req, res) => {
+    const department = req.params.department;
+
+    try {
+        const [rows] = await pool.query(
+            `SELECT COUNT(DISTINCT empId) AS employeeCount
+             FROM teammembers 
+             WHERE department = ?`,
+            [department]
+        );
+
+        const [topPerformerRow] = await pool.query(
+            `SELECT name, AVG(performance) AS avgPerformance 
+             FROM teammembers 
+             WHERE department = ? 
+             GROUP BY empId 
+             ORDER BY avgPerformance DESC 
+             LIMIT 1`,
+            [department]
+        );
+
+        const [avgPerformanceRow] = await pool.query(
+            `SELECT AVG(performance) AS departmentAvgPerformance 
+             FROM teammembers 
+             WHERE department = ?`,
+            [department]
+        );
+
+        const employeeCount = rows[0]?.employeeCount || 0;
+        const topPerformer = topPerformerRow[0] || null;
+        const departmentAvgPerformance = avgPerformanceRow[0]?.departmentAvgPerformance || 0;
+
+        res.status(200).json({
+            employeeCount,
+            topPerformer,
+            departmentAvgPerformance,
+        });
+    } catch (error) {
+        console.error("Error fetching employee stats:", error);
+        res.status(500).json({ error: "Error fetching employee stats" });
+    }
+});
+
 module.exports = router;

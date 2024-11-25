@@ -79,7 +79,6 @@ const TeamManage = () => {
       try {
         await axios.delete(`http://localhost:4000/admin/deleteTeamMember/${memberEmpId}/${teamName}`);
         setFilteredData((prevData) => prevData.filter((member) => member.empId !== memberEmpId));
-        alert("Team member deleted successfully.");
       } catch (error) {
         alert("Failed to delete team member.");
       }
@@ -127,16 +126,16 @@ const TeamManage = () => {
         </button>
       </div>
       <div className="bg-white shadow-lg rounded-lg p-6">
-        <table className="min-w-full table-auto">
-          <thead>
-            <tr className="bg-orange-500 text-white uppercase text-sm leading-normal">
-              <th className="py-3 px-6 text-left">Name</th>
-              <th className="py-3 px-6 text-left">Role</th>
-              <th className="py-3 px-6 text-left">Department</th>
-              <th className="py-3 px-6 text-center">Actions</th>
+      <table className="table-auto w-full border-collapse">
+      <thead>
+      <tr className="bg-gray-100 text-left">
+      <th className="p-4 border-b">Name</th>
+              <th className="p-4 border-b">Role</th>
+              <th className="p-4 border-b">Department</th>
+              <th className="p-4 border-b">Actions</th>
             </tr>
           </thead>
-          <tbody className="text-gray-600 text-sm font-light">
+          <tbody>
             {filteredTeamName === "" ? (
               <tr>
                 <td colSpan="4" className="p-4 text-center text-gray-500">
@@ -145,17 +144,17 @@ const TeamManage = () => {
               </tr>
             ) : (
               filteredData.map((teamMember) => (
-                <tr key={teamMember.id} className="border-b border-gray-200 hover:bg-gray-100">
-                  <td className="py-3 px-6 text-left whitespace-nowrap">
+                <tr key={teamMember.id} className="border-b">
+                  <td className="p-4">
                     <span className="font-medium">{teamMember.name}</span>
                   </td>
-                  <td className="py-3 px-6 text-left">
+                  <td className="p-4">
                     <span>{teamMember.role}</span>
                   </td>
-                  <td className="py-3 px-6 text-left">
+                  <td className="p-4">
                     <span>{teamMember.department}</span>
                   </td>
-                  <td className="py-3 px-6 text-center">
+                  <td className="p-4">
                     <button
                       onClick={() => handleDeleteTeamMember(teamMember.empId, filteredTeamName)}
                       className="text-orange-500 hover:text-orange-600"

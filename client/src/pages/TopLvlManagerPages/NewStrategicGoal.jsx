@@ -63,7 +63,7 @@ const NewStrategicGoal = () => {
 
     return (
         <div className="container mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
-            <div className="bg-white p-4 rounded-lg shadow-lg mb-6">
+            <div >
                 <h3 className="text-xl font-semibold mb-4">Add New Strategic Goal</h3>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
