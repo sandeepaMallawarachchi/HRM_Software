@@ -1568,4 +1568,90 @@ router.put("/expenses/:department/:date", async (req, res) => {
   }
 });
 
+//get total revenue
+router.get("/total-revenue/last-quarter", async (req, res) => {
+  try {
+    // Query to fetch the total revenue sum (last 3 months or all data if none in 3 months)
+    const query = `
+      SELECT 
+        SUM(\`Product Sales\` + \`Service Income\` - Discounts) AS totalRevenue
+      FROM 
+        revenue_with_targets
+      WHERE 
+        Date >= (
+          CASE 
+            WHEN EXISTS (
+              SELECT 1 
+              FROM revenue_with_targets 
+              WHERE Date >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+            ) 
+            THEN DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+            ELSE '0000-01-01' -- Include all data if no recent data exists
+          END
+        )
+    `;
+
+    // Execute the query
+    const [results] = await pool.query(query);
+
+    // Extract total revenue from the result
+    const totalRevenue = results[0]?.totalRevenue || 0;
+
+    // Response
+    res.status(200).json({
+      message: "Total revenue fetched successfully.",
+      totalRevenue,
+    });
+  } catch (error) {
+    console.error("Error fetching total revenue:", error.message);
+    res.status(500).json({
+      message: "Error fetching total revenue.",
+      error: error.message,
+    });
+  }
+});
+
+// Route to get the average profit margin
+router.get("/avg-profit-margin", async (req, res) => {
+  try {
+    const query = `
+      SELECT Department, \`Profit Margin\`
+      FROM profit_table 
+      WHERE Date = (
+        SELECT MAX(Date) 
+        FROM profit_table AS sub
+        WHERE sub.Department = profit_table.Department
+      )
+    `;
+
+    // Execute the query and get the results
+    const [results] = await pool.query(query);
+
+    if (results.length === 0) {
+      return res.status(404).json({
+        message: "No profit margin data available.",
+      });
+    }
+
+    // Sum up all the profit margins
+    const totalProfitMargin = results.reduce((sum, row) => {
+      return sum + parseFloat(row["Profit Margin"]); // Access the column with a space using bracket notation
+    }, 0);
+
+    // Calculate the average profit margin
+    const avgProfitMargin = totalProfitMargin / results.length;
+
+    res.status(200).json({
+      message: "Average profit margin fetched successfully.",
+      avgProfitMargin,
+    });
+  } catch (error) {
+    console.error("Error fetching average profit margin:", error.message);
+    res.status(500).json({
+      message: "Error fetching average profit margin.",
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;

@@ -10,12 +10,12 @@ import axios from "axios";
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-const ChatMembersModel = ({ onClose }) => {
+const MeetingssModel = ({ onClose }) => {
   const [employeeList, setEmployeeList] = useState([]);
   const [filteredEmployeeList, setFilteredEmployeeList] = useState([]);
   const [departmentFilter, setDepartmentFilter] = useState("");
   const [designationFilter, setDesignationFilter] = useState("");
-  const [chatName, setChatName] = useState("");
+  const [meetingName, setmeetingName] = useState("");
   const [selectedMembers, setSelectedMembers] = useState([]);
   const empId = localStorage.getItem("empId");
 
@@ -65,39 +65,39 @@ const ChatMembersModel = ({ onClose }) => {
   const handleSave = async () => {
     try {
       // const dateTimeNow = new Date().toISOString().replace(/[-:.]/g, "");
-      const chatId = `${chatName}`;
-      const chatRef = ref(database, "chats/" + chatId);
+      const meetingId = `${meetingName}`;
+      const meetingRef = ref(database, "meetings/" + meetingId);
       const timestamp = Date.now();
       const membersWithEmpId = [...new Set([empId, ...selectedMembers])];
-      await update(chatRef, {
+      await update(meetingRef, {
         members: membersWithEmpId,
         timestamp: timestamp,
       });
-      console.log("Chat members added successfully to Firebase!");
+      console.log("Meeting members added successfully to Firebase!");
       onClose();
 
       //save member to db
       const newMember = {
         members: membersWithEmpId,
-        chatId,
+        meetingId,
       };
 
-      await axios.post(`http://localhost:4000/admin/addMember`, newMember);
+      await axios.post(`http://localhost:4000/admin/addMMember`, newMember);
     } catch (error) {
-      console.error("Error adding members to chat:", error);
+      console.error("Error adding members to meeting:", error);
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg p-8 w-2/3 shadow-lg">
-        <h2 className="text-2xl font-semibold mb-4">Add Chat Members</h2>
+        <h2 className="text-2xl font-semibold mb-4">Add Meeting Members</h2>
         <div className="mb-5">
-          <label className="block text-gray-700">Chat Name</label>
+          <label className="block text-gray-700">Meeting Name</label>
           <input
             type="text"
-            value={chatName}
-            onChange={(e) => setChatName(e.target.value)}
+            value={meetingName}
+            onChange={(e) => setmeetingName(e.target.value)}
             required
             className="border-gray-300 rounded-md p-2 w-full"
           />
@@ -211,4 +211,4 @@ const ChatMembersModel = ({ onClose }) => {
   );
 };
 
-export default ChatMembersModel;
+export default MeetingssModel;

@@ -1,63 +1,56 @@
 import React, { useState, useEffect } from "react";
-
-// Mock data for departments and employees
-const mockDepartments = [
-  {
-    id: 1,
-    name: "Sales",
-    employees: [
-      {
-        id: 101,
-        name: "Alice",
-        performance: "Excellent",
-        achievements: ["Top Salesperson", "Best Customer Feedback"],
-        salary: 70000,
-      },
-      {
-        id: 102,
-        name: "Bob",
-        performance: "Good",
-        achievements: ["Consistent Performer"],
-        salary: 60000,
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "Marketing",
-    employees: [
-      {
-        id: 201,
-        name: "Charlie",
-        performance: "Average",
-        achievements: ["Campaign of the Month"],
-        salary: 50000,
-      },
-      {
-        id: 202,
-        name: "David",
-        performance: "Excellent",
-        achievements: ["Social Media Guru"],
-        salary: 80000,
-      },
-    ],
-  },
-  // Add more departments as needed
-];
+import axios from "axios";
 
 const TalentManagement = () => {
   const [departments, setDepartments] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [employeeList, setEmployeeList] = useState([]); // List of all employees
+  const [filteredEmployeeList, setFilteredEmployeeList] = useState([]); // Filtered list based on role
 
+  // Fetch employee data
   useEffect(() => {
-    // Fetch departments from an API or use mock data
-    setDepartments(mockDepartments);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:4000/admin/getAllEmployee"
+        );
+        setEmployeeList(response.data);
+        setFilteredEmployeeList(response.data); // Initialize with all employees
+      } catch (error) {
+        console.error("Error fetching employee details:", error);
+      }
+    };
+    fetchData();
   }, []);
 
-  const handleDepartmentSelect = (department) => {
+  // Use departments and filter employees based on the department
+  useEffect(() => {
+    if (employeeList.length > 0) {
+      // Group employees by departments
+      const groupedDepartments = employeeList.reduce((acc, employee) => {
+        const department = employee.department;
+        if (!acc[department])
+          acc[department] = { name: department, employees: [] };
+        acc[department].employees.push(employee);
+        return acc;
+      }, {});
+
+      setDepartments(Object.values(groupedDepartments)); // Set the departments
+    }
+  }, [employeeList]);
+
+  const handleDepartmentSelect = (e) => {
+    const departmentName = e.target.value;
+    const department = departments.find((dept) => dept.name === departmentName);
     setSelectedDepartment(department);
     setSelectedEmployee(null); // Reset selected employee when department changes
+
+    // Automatically filter "Mid Lvl Manager" for the selected department
+    const filteredEmployees = department.employees.filter(
+      (emp) => emp.role === "Mid Lvl Manager"
+    );
+    setFilteredEmployeeList(filteredEmployees);
   };
 
   const handleEmployeeSelect = (employee) => {
@@ -65,18 +58,14 @@ const TalentManagement = () => {
   };
 
   const handlePromoteEmployee = () => {
-    // Logic to promote the employee
     alert(`Promoting ${selectedEmployee.name}...`);
-    // Inform HR about the promotion (e.g., send a notification or update HR records)
   };
 
   const handleIncrementSalary = () => {
-    // Logic to increment the employee's salary
-    const newSalary = selectedEmployee.salary + 5000; // Increment by $5000
+    const newSalary = selectedEmployee.salary + 5000;
     alert(
       `Incrementing salary for ${selectedEmployee.name} to $${newSalary}...`
     );
-    // Inform HR about the salary increment
   };
 
   return (
@@ -85,38 +74,45 @@ const TalentManagement = () => {
         Talent Management Dashboard
       </h1>
 
-      {/* Department Selection */}
+      {/* Department Dropdown */}
       <div className="mb-6">
         <h2 className="text-xl">Select Department:</h2>
-        <ul className="space-y-2">
+        <select
+          onChange={handleDepartmentSelect}
+          className="p-2 border rounded"
+          defaultValue=""
+        >
+          <option value="" disabled>
+            Select Department
+          </option>
           {departments.map((dept) => (
-            <li
-              key={dept.id}
-              className="cursor-pointer hover:bg-gray-200 p-2 rounded"
-              onClick={() => handleDepartmentSelect(dept)}
-            >
+            <option key={dept.name} value={dept.name}>
               {dept.name}
-            </li>
+            </option>
           ))}
-        </ul>
+        </select>
       </div>
 
       {/* Selected Department Employees */}
       {selectedDepartment && (
         <div>
           <h2 className="text-xl mb-4">
-            Employees in {selectedDepartment.name}:
+            Mid Level Managers in {selectedDepartment.name}:
           </h2>
           <ul className="space-y-2">
-            {selectedDepartment.employees.map((emp) => (
-              <li
-                key={emp.id}
-                className="cursor-pointer hover:bg-gray-200 p-2 rounded"
-                onClick={() => handleEmployeeSelect(emp)}
-              >
-                {emp.name} - Performance: {emp.performance}
-              </li>
-            ))}
+            {filteredEmployeeList.length > 0 ? (
+              filteredEmployeeList.map((emp) => (
+                <li
+                  key={emp.id}
+                  className="cursor-pointer hover:bg-gray-200 p-2 rounded"
+                  onClick={() => handleEmployeeSelect(emp)}
+                >
+                  {emp.name} - Role: {emp.role} - Performance: {emp.performance}
+                </li>
+              ))
+            ) : (
+              <li>No Mid Level Managers found in this department.</li>
+            )}
           </ul>
         </div>
       )}
@@ -126,6 +122,7 @@ const TalentManagement = () => {
         <div className="mt-4 bg-white shadow-lg rounded-lg p-4">
           <h3 className="text-lg font-semibold">Employee Details:</h3>
           <p>Name: {selectedEmployee.name}</p>
+          <p>Role: {selectedEmployee.role}</p>
           <p>Performance: {selectedEmployee.performance}</p>
           <p>Achievements: {selectedEmployee.achievements.join(", ")}</p>
           <p>Current Salary: ${selectedEmployee.salary}</p>

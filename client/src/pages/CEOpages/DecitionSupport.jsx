@@ -1,50 +1,27 @@
 import React, { useState, useEffect } from "react";
-
-// Mock data for decisions made by top-level managers
-const mockDecisions = [
-  {
-    id: 1,
-    department: "Sales",
-    decision: "Increase sales target by 20%",
-    status: "Pending",
-    reason: "",
-    date: "2023-10-15",
-  },
-  {
-    id: 2,
-    department: "Marketing",
-    decision: "Launch new social media campaign",
-    status: "Accepted",
-    reason: "Aligns with quarterly goals",
-    date: "2023-09-10",
-  },
-  {
-    id: 3,
-    department: "HR",
-    decision: "Implement a new performance review system",
-    status: "Rejected",
-    reason: "Need more data on effectiveness",
-    date: "2023-08-20",
-  },
-  {
-    id: 4,
-    department: "IT",
-    decision: "Upgrade network infrastructure",
-    status: "Pending",
-    reason: "",
-    date: "2023-11-01",
-  },
-  // More mock decisions can be added here
-];
+import axios from "axios";
 
 const DecisionSupport = () => {
   const [decisions, setDecisions] = useState([]);
   const [selectedDecision, setSelectedDecision] = useState(null);
-  const [responseReason, setResponseReason] = useState("");
+  const [responseReason, setResponseReason] = useState([]);
 
   useEffect(() => {
-    // Fetch decisions from an API or use mock data
-    setDecisions(mockDecisions);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:4000/admin/getDecisions"
+        );
+        // Assuming response.data is an array of employee decisions
+        const filteredDecisions = response.data.filter(
+          (decision) => decision.role === "Top Lvl Manager"
+        );
+        setDecisions(filteredDecisions);
+      } catch (error) {
+        console.error("Error fetching decision data:", error);
+      }
+    };
+    fetchData();
   }, []);
 
   const handleDecisionSelect = (decision) => {
@@ -110,8 +87,8 @@ const DecisionSupport = () => {
               }`}
               onClick={() => handleDecisionSelect(decision)}
             >
-              <strong>{decision.department}</strong>: {decision.decision}{" "}
-              (Status: {decision.status})
+              <strong>{decision.department}</strong> (Role: {decision.role}):{" "}
+              {decision.decision} (Status: {decision.status})
               <br />
               <span className="text-sm text-gray-600">
                 Date: {decision.date}
@@ -127,6 +104,9 @@ const DecisionSupport = () => {
           <h3 className="text-lg font-semibold">Selected Decision:</h3>
           <p>
             <strong>Department:</strong> {selectedDecision.department}
+          </p>
+          <p>
+            <strong>Role:</strong> {selectedDecision.role}
           </p>
           <p>
             <strong>Decision:</strong> {selectedDecision.decision}
