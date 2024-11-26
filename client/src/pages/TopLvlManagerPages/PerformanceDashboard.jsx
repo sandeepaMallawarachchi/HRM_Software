@@ -32,11 +32,11 @@ const PerformanceDashboard = () => {
   }, [selectedDepartment]);
 
   const chartData = {
-    labels: ["January", "February", "March", "April", "May", "June"],
+    labels: empData.monthlyAvgPerformance?.map((item) => item.month) || [],
     datasets: [
       {
         label: `${selectedDepartment} Performance Over Time`,
-        data: [75, 80, 78, 90, 85, 92],
+        data: empData.monthlyAvgPerformance?.map((item) => item.avgPerformance) || [],
         fill: false,
         borderColor: "#ff7f50",
         tension: 0.1,
@@ -76,31 +76,29 @@ const PerformanceDashboard = () => {
           </button>
         ))}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow-md flex items-center">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-1 gap-4 mb-6 w-full">
+        <div className="bg-white p-4 rounded-lg shadow-md flex items-center w-full">
           <FaUser className="text-4xl text-orange-500 mr-4" />
           <div>
             <h3 className="text-xl font-semibold">Total Employees</h3>
             <p className="text-gray-700">{empData.employeeCount || 0}</p>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-md flex items-center">
+        <div className="bg-white p-4 rounded-lg shadow-md flex items-center w-full">
           <FaStar className="text-4xl text-orange-500 mr-4" />
           <div>
             <h3 className="text-xl font-semibold">Top Performer</h3>
             <p className="text-gray-700">
-              {empData.topPerformer
-                ? `${empData.topPerformer.name}`
-                : "N/A"}
+              {empData.topPerformer ? `${empData.topPerformer.name}` : "N/A"}
             </p>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-md flex items-center">
+        <div className="bg-white p-4 rounded-lg shadow-md flex items-center w-full">
           <FaChartLine className="text-4xl text-orange-500 mr-4" />
           <div>
             <h3 className="text-xl font-semibold">Average Performance</h3>
             <p className="text-gray-700">
-              {empData.departmentAvgPerformance} %
+              {empData.monthlyAvgPerformance?.[0]?.avgPerformance || "N/A"} %
             </p>
           </div>
         </div>
@@ -109,36 +107,29 @@ const PerformanceDashboard = () => {
         <h3 className="text-xl font-semibold mb-4">Performance Trends</h3>
         <Line data={chartData} options={chartOptions} />
       </div>
-      {/* <div className="bg-white p-4 rounded-lg shadow-md">
+      <div className="bg-white p-4 rounded-lg shadow-md">
         <h3 className="text-xl font-semibold mb-4">Employee Performance</h3>
         <table className="min-w-full bg-white rounded-lg border border-gray-300">
           <thead className="bg-orange-500 text-white">
             <tr>
-              <th className="border border-gray-300 px-4 py-2">
-                Employee Name
-              </th>
-              <th className="border border-gray-300 px-4 py-2">
-                Performance (%)
-              </th>
+              <th className="border border-gray-300 px-4 py-2">Employee Name</th>
+              <th className="border border-gray-300 px-4 py-2">Performance (%)</th>
             </tr>
           </thead>
           <tbody>
-            {employeeData[selectedDepartment].map((employee, index) => (
-              <tr
-                key={index}
-                className="hover:bg-gray-100 transition duration-200"
-              >
-                <td className="border border-gray-300 px-4 py-2">
-                  {employee.name}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {employee.performance}%
-                </td>
+            {empData.employeePerformance?.map((employee, index) => (
+              <tr key={index} className="hover:bg-gray-100 transition duration-200">
+                <td className="border border-gray-300 px-4 py-2">{employee.name}</td>
+                <td className="border border-gray-300 px-4 py-2">{employee.performance}%</td>
               </tr>
-            ))}
+            )) || (
+                <tr>
+                  <td colSpan="2" className="border border-gray-300 px-4 py-2 text-center">No employees data available</td>
+                </tr>
+              )}
           </tbody>
         </table>
-      </div> */}
+      </div>
     </div>
   );
 };
