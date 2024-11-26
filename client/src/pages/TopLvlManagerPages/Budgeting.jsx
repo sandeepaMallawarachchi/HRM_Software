@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { Bar, Pie } from "react-chartjs-2";
 import { FaMoneyBillWave, FaChartLine, FaClipboardList } from "react-icons/fa";
 
 const Budgeting = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("Sales");
+  const [departments, setDepartments] = useState([]);
 
   // Sample budget data for different departments
   const budgetData = {
@@ -40,6 +42,19 @@ const Budgeting = () => {
       ],
     },
   };
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await axios.get("http://localhost:4000/admin/getAllDepartments");
+        setDepartments(response.data.map((dept) => dept.department));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchDepartments();
+  }, [selectedDepartment]);
+
 
   const barChartData = {
     labels: ["Allocated", "Spent"],
@@ -78,16 +93,15 @@ const Budgeting = () => {
       </h2>
 
       {/* Department Navigation */}
-      <div className="flex justify-center mb-6">
-        {Object.keys(budgetData).map((department) => (
+      <div className="grid grid-cols-6 gap-2 justify-center mb-6">
+        {departments.map((department) => (
           <button
             key={department}
-            onClick={() => handleDepartmentChange(department)}
-            className={`px-4 py-2 mx-2 rounded-lg ${
-              selectedDepartment === department
-                ? "bg-orange-500 text-white"
-                : "bg-white text-gray-800 border border-gray-300"
-            }`}
+            onClick={() => setSelectedDepartment(department)}
+            className={`px-4 py-2 rounded-lg ${selectedDepartment === department
+              ? "bg-orange-500 text-white"
+              : "bg-white text-gray-800 border border-gray-300 hover:bg-orange-100"
+              }`}
           >
             {department}
           </button>
