@@ -15,7 +15,7 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "firebase/storage";
-import ChatMembersModel from "./ChatMembersModel";
+import MeetingssModel from "./MeetingssModel.jsx";
 import axios from "axios";
 
 const Communication = () => {
@@ -25,10 +25,10 @@ const Communication = () => {
   const [fileName, setFileName] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
   const [role, setRole] = useState("");
-  const [chats, setChats] = useState([]);
-  const [chatMembers, setChatMembers] = useState([]);
-  const [currentChatId, setCurrentChatId] = useState(null);
-  const [isChatMembersModalOpen, setIsChatMembersModalOpen] = useState(false);
+  const [meetings, setMeetings] = useState([]);
+  const [meetingMembers, setMeetingMembers] = useState([]);
+  const [currentMeetingId, setCurrentMeetingId] = useState(null);
+  const [isMeetingssModelOpen, setIsMeetingssModelOpen] = useState(false);
 
   useEffect(() => {
     const empId = localStorage.getItem("empId");
@@ -45,32 +45,32 @@ const Communication = () => {
   }, []);
 
   useEffect(() => {
-    const chatsRef = ref(db, "chats/");
-    const unsubscribe = onValue(chatsRef, (snapshot) => {
+    const meetingsRef = ref(db, "meetings/");
+    const unsubscribe = onValue(meetingsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const loadedChats = Object.entries(data)
+        const loadedMeetings = Object.entries(data)
           .map(([key, value]) => ({
-            chatId: key,
+            meetingId: key,
             timestamp: value.timestamp || Date.now(),
             participants: value.members || [],
           }))
-          .filter((chat) => {
-            return chat.participants.includes(selectedUser);
+          .filter((meeting) => {
+            return meeting.participants.includes(selectedUser);
           })
           .sort((a, b) => b.timestamp - a.timestamp);
-        setChats(loadedChats);
-        if (loadedChats.length > 0 && !currentChatId) {
-          setCurrentChatId(loadedChats[0].chatId);
+        setMeetings(loadedMeetings);
+        if (loadedMeetings.length > 0 && !currentMeetingId) {
+          setCurrentMeetingId(loadedMeetings[0].meetingId);
         }
       }
     });
     return () => unsubscribe();
-  }, [currentChatId, selectedUser]);
+  }, [currentMeetingId, selectedUser]);
 
   useEffect(() => {
-    if (currentChatId) {
-      const messagesRef = ref(db, `chats/${currentChatId}/messages/`);
+    if (currentMeetingId) {
+      const messagesRef = ref(db, `meetings/${currentMeetingId}/messages/`);
       const unsubscribe = onValue(messagesRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -81,23 +81,23 @@ const Communication = () => {
         }
       });
 
-      const fetchChatMembers = async () => {
+      const fetchMeetingMembers = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:4000/admin/getAllMembers/${currentChatId}`
+            `http://localhost:4000/admin/getAllMMembers/${currentMeetingId}`
           );
-          setChatMembers(response.data);
+          setMeetingMembers(response.data);
         } catch (error) {
-          console.error("Error fetching chat members:", error);
+          console.error("Error fetching meeting members:", error);
         }
       };
 
-      fetchChatMembers();
+      fetchMeetingMembers();
       return () => unsubscribe();
     } else {
       setMessages([]);
     }
-  }, [currentChatId]);
+  }, [currentMeetingId]);
 
   const handleSendMessage = async () => {
     if (message.trim() || file) {
@@ -126,7 +126,7 @@ const Communication = () => {
       };
 
       try {
-        const messagesRef = ref(db, `chats/${currentChatId}/messages/`);
+        const messagesRef = ref(db, `meetings/${currentMeetingId}/messages/`);
         const newMessageRef = push(messagesRef);
         await set(newMessageRef, newMessage);
         setMessages([
@@ -150,39 +150,41 @@ const Communication = () => {
     }
   };
 
-  const handleNewChat = () => {
-    setIsChatMembersModalOpen(true);
+  const handleNewMeeting = () => {
+    setIsMeetingssModelOpen(true);
   };
 
   const handleModalClose = () => {
-    setIsChatMembersModalOpen(false);
+    setIsMeetingssModelOpen(false);
   };
 
-  const handleCreateChatWithMembers = async (members) => {
-    const newChatRef = push(ref(db, "chats/"));
-    const newChat = {
+  const handleCreateMeetingWithMembers = async (members) => {
+    const newMeetingRef = push(ref(db, "meeting/"));
+    const newMeeting = {
       participants: [selectedUser, ...members],
       timestamp: Date.now(),
     };
-    await set(newChatRef, newChat);
-    setCurrentChatId(newChatRef.key);
+    await set(newMeetingRef, newMeeting);
+    setCurrentMeetingId(newMeetingRef.key);
     setMessages([]);
-    setIsChatMembersModalOpen(false);
+    setIsMeetingssModelOpen(false);
   };
 
-  const handleDelete = async (chatId) => {
+  const handleDelete = async (meetingId) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this chat?"
+      "Are you sure you want to remove this meeting?"
     );
 
     if (confirmDelete) {
       try {
-        const chatRef = ref(db, `chats/${chatId}`);
-        await remove(chatRef);
-        await axios.delete(`http://localhost:4000/admin/deleteChat/${chatId}`);
+        const meetingRef = ref(db, `meetings/${meetingId}`);
+        await remove(meetingRef);
+        await axios.delete(
+          `http://localhost:4000/admin/deleteMeeting/${meetingId}`
+        );
       } catch (error) {
-        console.error("Error deleting chat: ", error);
-        alert("Error deleting chat");
+        console.error("Error removing meeting: ", error);
+        alert("Error removing meeting");
       }
     }
   };
@@ -190,9 +192,9 @@ const Communication = () => {
   return (
     <div className="p-6 px-20 bg-white rounded-lg shadow-md flex m-5 mb-0 pb-8 h-full">
       <div className="w-1/4 p-4 border-r-2">
-        <h1 className="text-2xl font-semibold mb-4">Team Group Chat</h1>
+        <h1 className="text-2xl font-semibold mb-4">Meetings</h1>
         <button
-          onClick={handleNewChat}
+          onClick={handleNewMeeting}
           disabled={role === "Employee"}
           className={`w-full ${
             role === "Employee"
@@ -200,19 +202,21 @@ const Communication = () => {
               : "bg-orange-500 hover:bg-orange-600"
           } text-white p-2 rounded-lg mb-4`}
         >
-          New Chat
+          New Meeting
         </button>
         <div className="space-y-4">
-          {chats.map((chat) => (
+          {meetings.map((meeting) => (
             <div
-              key={chat.chatId}
-              onClick={() => setCurrentChatId(chat.chatId)}
+              key={meeting.meetingId}
+              onClick={() => setCurrentMeetingId(meeting.meetingId)}
               className={`flex justify-between cursor-pointer p-2 px-3 rounded-lg hover:bg-gray-300 ${
-                currentChatId === chat.chatId ? "bg-gray-300" : "bg-gray-100"
+                currentMeetingId === meeting.meetingId
+                  ? "bg-gray-300"
+                  : "bg-gray-100"
               }`}
             >
-              <span>{chat.chatId}</span>
-              <button onClick={() => handleDelete(chat.chatId)}>
+              <span>{meeting.meetingId}</span>
+              <button onClick={() => handleDelete(meeting.meetingId)}>
                 <FaTrash
                   className={`my-auto ${
                     role === "Employee"
@@ -236,8 +240,8 @@ const Communication = () => {
               defaultValue=""
               className="border rounded-lg px-4 py-2 w-1/3"
             >
-              <option value="">Chat Members</option>
-              {[...new Set(chatMembers)]
+              <option value="">Meeting Members</option>
+              {[...new Set(meetingMembers)]
                 .sort((a, b) => a.name.localeCompare(b.name)) // Sort by name
                 .map(({ empId, name }) => (
                   <option key={empId} value={empId}>
@@ -315,10 +319,10 @@ const Communication = () => {
           </button>
         </div>
       </div>
-      {isChatMembersModalOpen && (
-        <ChatMembersModel
+      {isMeetingssModelOpen && (
+        <MeetingssModel
           onClose={handleModalClose}
-          onSave={handleCreateChatWithMembers}
+          onSave={handleCreateMeetingWithMembers}
         />
       )}
     </div>

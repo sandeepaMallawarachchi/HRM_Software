@@ -45,7 +45,7 @@ import Revenue from "./pages/AccountantPages/Revenue";
 import ExecutiveDashboard from "./pages/CEOpages/ExecutiveDashboard";
 import StrategicInsights from "./pages/CEOpages/StrategicInsights";
 import TalentManagement from "./pages/CEOpages/TalentManagement";
-import CultureandEngagement from "./pages/CEOpages/CultureandEngagement";
+import Meetings from "./pages/CEOpages/Meetings";
 import DecitionSupport from "./pages/CEOpages/DecitionSupport";
 
 //auth routes
@@ -183,17 +183,14 @@ const App = () => {
               path="/talent-management"
               element={<ProtectedRoute element={<TalentManagement />} />}
             />
-            <Route
-              path="/culture-engagement"
-              element={<ProtectedRoute element={<CultureandEngagement />} />}
-            />
+
             <Route
               path="/decision-support"
               element={<ProtectedRoute element={<DecitionSupport />} />}
             />
             <Route
-              path="/decision-support"
-              element={<ProtectedRoute element={<DecitionSupport />} />}
+              path="/meetings"
+              element={<ProtectedRoute element={<Meetings />} />}
             />
             <Route
               path="/reminders"
