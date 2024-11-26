@@ -608,4 +608,49 @@ router.put("/markAsRead/:empId/:meetingId", async (req, res) => {
   }
 });
 
+//validate password
+const bcrypt = require("bcrypt");
+router.post("/validatePassword/:empId", async (req, res) => {
+  const { password } = req.body;
+  const currentUserId = req.params.empId;
+
+  if (!password || password.length < 8) {
+    return res.status(400).json({ message: "Invalid password format." });
+  }
+
+  try {
+    if (!currentUserId) {
+      return res.status(401).json({ message: "Unauthorized access." });
+    }
+
+    const [rows] = await pool.query(
+      `SELECT password FROM logindetails WHERE empId = ?`,
+      [currentUserId]
+    );
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const currentUser = rows[0];
+    const match = await bcrypt.compare(password, currentUser.password);
+
+    if (!match) {
+      return res.status(403).json({ message: "Invalid password." });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Password validated successfully." });
+  } catch (error) {
+    console.error(
+      `[${new Date().toISOString()}] Error during password validation:`,
+      error.message
+    );
+    return res
+      .status(500)
+      .json({ message: "An internal server error occurred." });
+  }
+});
+
 module.exports = router;

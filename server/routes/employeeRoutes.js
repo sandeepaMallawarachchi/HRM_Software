@@ -180,6 +180,62 @@ router.post("/workDetails/:empId", async (req, res) => {
   }
 });
 
+// Update work details
+router.put("/workDetails/:empId", async (req, res) => {
+  const empId = req.params.empId;
+  const {
+    workEmail,
+    workPhone,
+    department,
+    location,
+    designation,
+    supervisor,
+  } = req.body;
+
+  try {
+    const updateWorkDetails = {
+      workEmail,
+      workPhone,
+      department,
+      location,
+      designation,
+      supervisor,
+    };
+
+    // Build the SET part of the query dynamically
+    let query = "UPDATE workdetails SET ";
+    let values = [];
+    for (let key in updateWorkDetails) {
+      if (updateWorkDetails[key]) {
+        query += `${key} = ?, `;
+        values.push(updateWorkDetails[key]);
+      }
+    }
+
+    // Remove the trailing comma and space
+    query = query.slice(0, -2);
+    query += " WHERE empId = ?";
+
+    // Add the empId as the last value for the WHERE condition
+    values.push(empId);
+
+    const [results] = await pool.query(query, values);
+
+    if (results.affectedRows > 0) {
+      res.status(200).json({
+        message: "Employee work details updated successfully",
+      });
+    } else {
+      res.status(404).json({
+        message: "Employee not found or no changes made",
+      });
+    }
+  } catch (error) {
+    console.error("Error updating employee work data:", error);
+    res.status(500).json({ error: "Error updating employee work data" });
+  }
+});
+
 // Get employee by id
 router.get("/getEmployee/:empId", async (req, res) => {
   const employeeId = req.params.empId;
