@@ -468,6 +468,21 @@ router.post("/addStrategicPlan/:empId", async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Error adding startegic plan" });
   }
+
+//add employee's performance
+router.post("/addPerformance/:empId/:teamName", async (req, res) => {
+    const { empId, teamName } = req.params;
+    const { performance, taskcompleted } = req.body;
+
+    try {
+        await pool.query(
+            "UPDATE teammembers SET performance = ?, taskcompleted = ?, updated_at = NOW() WHERE empId = ? AND teamName = ?",
+            [performance, taskcompleted, empId, teamName]
+        );
+        res.status(200).json({ message: "Performance updated successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Error updating performance" });
+    }
 });
 
 // Get all strategic plans by id
@@ -575,6 +590,61 @@ router.delete("/deleteMeeting/:meetingId", async (req, res) => {
       res.status(200).json({ message: "Meeting deleted successfully." });
     } else {
       res.status(404).json({ message: "Meeting not found." });
+
+//get employee count by department
+router.get("/getEmployeeStats/:department", async (req, res) => {
+    const department = req.params.department;
+
+    try {
+        const [rows] = await pool.query(
+            `SELECT COUNT(DISTINCT empId) AS employeeCount
+             FROM teammembers 
+             WHERE department = ?`,
+            [department]
+        );
+
+        const [topPerformerRow] = await pool.query(
+            `SELECT name, FORMAT(AVG(performance), 2) AS avgPerformance 
+             FROM teammembers 
+             WHERE department = ? 
+             GROUP BY empId 
+             ORDER BY avgPerformance DESC 
+             LIMIT 1`,
+            [department]
+        );
+
+        const [monthlyAvgPerformanceRows] = await pool.query(
+            `SELECT DATE_FORMAT(created_at, '%Y-%m') AS month, 
+                    FORMAT(AVG(performance), 2) AS avgPerformance 
+             FROM teammembers 
+             WHERE department = ? 
+             GROUP BY month
+             ORDER BY month DESC`,
+            [department]
+        );
+
+        const [employeePerformanceRows] = await pool.query(
+            `SELECT name, performance
+             FROM teammembers
+             WHERE department = ?`,
+            [department]
+        );
+
+        const employeeCount = rows[0]?.employeeCount || 0;
+        const topPerformer = topPerformerRow[0] || null;
+        const monthlyAvgPerformance = monthlyAvgPerformanceRows || [];
+        const employeePerformance = employeePerformanceRows || [];
+
+        res.status(200).json({
+            employeeCount,
+            topPerformer,
+            monthlyAvgPerformance,
+            employeePerformance,
+        });
+    } catch (error) {
+        console.error("Error fetching employee stats:", error);
+        res.status(500).json({ error: "Error fetching employee stats" });
+
     }
   } catch (error) {
     res.status(500).json({ message: "Server error." });
@@ -651,6 +721,100 @@ router.post("/validatePassword/:empId", async (req, res) => {
       .status(500)
       .json({ message: "An internal server error occurred." });
   }
+});
+
+//get all departments
+router.get("/getAllDepartments", async (req, res) => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT DISTINCT department 
+            FROM workdetails 
+            WHERE department IS NOT NULL AND department != ''
+        `);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching departments:", error);
+        res.status(500).json({ error: "Error fetching departments" });
+    }
+});
+
+//allocate budget for departments
+router.post("/allocateBudget/:department", async (req, res) => {
+    const department = req.params.department;
+    const { date, budget } = req.body;
+
+    try {
+        await pool.query(
+            "INSERT INTO budgets (department, date, budget) VALUES (?, ?, ?)",
+            [department, date, budget]
+        );
+        res.status(201).json({ message: "Budget added successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Error adding budget" });
+    }
+});
+
+//get allocated budgets by year and month
+router.get("/getAllocatedBudget/:department/:year/:month", async (req, res) => {
+    const { department, year, month } = req.params;
+
+    try {
+        const [rows] = await pool.query(
+            `
+            SELECT * 
+            FROM budgets 
+            WHERE department = ? AND DATE_FORMAT(date, '%Y-%m') = ?`,
+            [department, `${year}-${month}`]
+        );
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching budget:", error);
+        res.status(500).json({ error: "Error fetching budget" });
+    }
+});
+
+//get spent budget
+router.get("/getSpentBudget/:department/:year/:month", async (req, res) => {
+    const { department, year, month } = req.params;
+
+    try {
+        const [expenses] = await pool.query(
+            `SELECT 
+                department AS Department,
+                DATE_FORMAT(date, '%Y-%m-%d') AS Date,
+                SUM(\`operational costs\`) AS "Operational Costs",
+                SUM(marketing) AS Marketing,
+                SUM(\`research & development\`) AS "Research & Development",
+                SUM(miscellaneous) AS Miscellaneous
+            FROM expenses_data
+            WHERE department = ? AND DATE_FORMAT(date, '%Y-%m') = ?
+            GROUP BY Date`,
+            [department, `${year}-${month}`]
+        );
+
+        const [totals] = await pool.query(
+            `SELECT 
+                SUM(\`operational costs\`) AS "Operational Costs",
+                SUM(marketing) AS Marketing,
+                SUM(\`research & development\`) AS "Research & Development",
+                SUM(miscellaneous) AS Miscellaneous
+            FROM expenses_data
+            WHERE department = ? AND DATE_FORMAT(date, '%Y-%m') = ?`,
+            [department, `${year}-${month}`]
+        );
+
+        res.status(200).json({
+            expenses,
+            totals: totals[0] || {
+                "Operational Costs": 0,
+                Marketing: 0,
+                "Research & Development": 0,
+                Miscellaneous: 0,
+            },
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Error retrieving expenses data" });
+    }
 });
 
 module.exports = router;
