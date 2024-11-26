@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Line, Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import { FaUser, FaStar, FaChartLine } from "react-icons/fa";
 
 const PerformanceDashboard = () => {
