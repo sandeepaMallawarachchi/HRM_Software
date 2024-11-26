@@ -502,7 +502,7 @@ router.get("/getEmployeeStats/:department", async (req, res) => {
         );
 
         const [topPerformerRow] = await pool.query(
-            `SELECT name, AVG(performance) AS avgPerformance 
+            `SELECT name, FORMAT(AVG(performance), 2) AS avgPerformance 
              FROM teammembers 
              WHERE department = ? 
              GROUP BY empId 
@@ -512,7 +512,7 @@ router.get("/getEmployeeStats/:department", async (req, res) => {
         );
 
         const [avgPerformanceRow] = await pool.query(
-            `SELECT AVG(performance) AS departmentAvgPerformance 
+            `SELECT FORMAT(AVG(performance), 2) AS departmentAvgPerformance 
              FROM teammembers 
              WHERE department = ?`,
             [department]
@@ -530,6 +530,21 @@ router.get("/getEmployeeStats/:department", async (req, res) => {
     } catch (error) {
         console.error("Error fetching employee stats:", error);
         res.status(500).json({ error: "Error fetching employee stats" });
+    }
+});
+
+//get all departments
+router.get("/getAllDepartments", async (req, res) => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT DISTINCT department 
+            FROM workdetails 
+            WHERE department IS NOT NULL AND department != ''
+        `);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching departments:", error);
+        res.status(500).json({ error: "Error fetching departments" });
     }
 });
 
