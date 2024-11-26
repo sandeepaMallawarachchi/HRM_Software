@@ -6,42 +6,8 @@ import { FaMoneyBillWave, FaChartLine, FaClipboardList } from "react-icons/fa";
 const Budgeting = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("Sales");
   const [departments, setDepartments] = useState([]);
-
-  // Sample budget data for different departments
-  const budgetData = {
-    Sales: {
-      allocated: 500000,
-      spent: 400000,
-      departments: [
-        { name: "Field Sales", budget: 300000, spent: 250000 },
-        { name: "Inside Sales", budget: 200000, spent: 150000 },
-      ],
-    },
-    Marketing: {
-      allocated: 300000,
-      spent: 250000,
-      departments: [
-        { name: "Digital Marketing", budget: 150000, spent: 100000 },
-        { name: "Traditional Marketing", budget: 150000, spent: 150000 },
-      ],
-    },
-    Development: {
-      allocated: 600000,
-      spent: 550000,
-      departments: [
-        { name: "Product Development", budget: 400000, spent: 350000 },
-        { name: "IT Support", budget: 200000, spent: 200000 },
-      ],
-    },
-    HR: {
-      allocated: 200000,
-      spent: 150000,
-      departments: [
-        { name: "Recruitment", budget: 100000, spent: 70000 },
-        { name: "Training", budget: 100000, spent: 80000 },
-      ],
-    },
-  };
+  const [allocatedBudget, setAllocatedBudget] = useState([]);
+  const [spentBudget, setSpentBudget] = useState({ expenses: [], totals: {} });
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -49,12 +15,36 @@ const Budgeting = () => {
         const response = await axios.get("http://localhost:4000/admin/getAllDepartments");
         setDepartments(response.data.map((dept) => dept.department));
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching departments:", error);
       }
     };
-    fetchDepartments();
-  }, [selectedDepartment]);
 
+    const fetchAllocatedBudget = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:4000/admin/getAllocatedBudget/${selectedDepartment}/${new Date().getFullYear()}/${new Date().getMonth() + 1}`
+        );
+        setAllocatedBudget(response.data);
+      } catch (error) {
+        console.error("Error fetching allocated budget:", error);
+      }
+    };
+
+    const fetchSpentBudget = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:4000/admin/getSpentBudget/${selectedDepartment}/${new Date().getFullYear()}/${new Date().getMonth() + 1}`
+        );
+        setSpentBudget(response.data);
+      } catch (error) {
+        console.error("Error fetching spent budget:", error);
+      }
+    };
+
+    fetchDepartments();
+    fetchAllocatedBudget();
+    fetchSpentBudget();
+  }, [selectedDepartment]);
 
   const barChartData = {
     labels: ["Allocated", "Spent"],
@@ -62,8 +52,8 @@ const Budgeting = () => {
       {
         label: `${selectedDepartment} Budget`,
         data: [
-          budgetData[selectedDepartment].allocated,
-          budgetData[selectedDepartment].spent,
+          allocatedBudget.reduce((sum, budget) => sum + budget.amount, 0),
+          Object.values(spentBudget.totals).reduce((sum, value) => sum + value, 0),
         ],
         backgroundColor: ["rgba(54, 162, 235, 0.6)", "rgba(255, 99, 132, 0.6)"],
       },
@@ -71,19 +61,18 @@ const Budgeting = () => {
   };
 
   const pieChartData = {
-    labels: budgetData[selectedDepartment].departments.map((dept) => dept.name),
+    labels: ["Operational Costs", "Marketing", "R&D", "Miscellaneous"],
     datasets: [
       {
-        data: budgetData[selectedDepartment].departments.map(
-          (dept) => dept.spent
-        ),
-        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+        data: [
+          spentBudget.totals["Operational Costs"] || 0,
+          spentBudget.totals.Marketing || 0,
+          spentBudget.totals["Research & Development"] || 0,
+          spentBudget.totals.Miscellaneous || 0,
+        ],
+        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"],
       },
     ],
-  };
-
-  const handleDepartmentChange = (department) => {
-    setSelectedDepartment(department);
   };
 
   return (
@@ -92,30 +81,29 @@ const Budgeting = () => {
         Budgeting Dashboard
       </h2>
 
-      {/* Department Navigation */}
       <div className="grid grid-cols-6 gap-2 justify-center mb-6">
         {departments.map((department) => (
           <button
             key={department}
             onClick={() => setSelectedDepartment(department)}
-            className={`px-4 py-2 rounded-lg ${selectedDepartment === department
-              ? "bg-orange-500 text-white"
-              : "bg-white text-gray-800 border border-gray-300 hover:bg-orange-100"
-              }`}
+            className={`px-4 py-2 rounded-lg ${
+              selectedDepartment === department
+                ? "bg-orange-500 text-white"
+                : "bg-white text-gray-800 border border-gray-300 hover:bg-orange-100"
+            }`}
           >
             {department}
           </button>
         ))}
       </div>
 
-      {/* Budget Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow-md flex items-center">
           <FaMoneyBillWave className="text-4xl text-green-500 mr-4" />
           <div>
             <h3 className="text-xl font-semibold">Allocated Budget</h3>
             <p className="text-gray-700">
-              ${budgetData[selectedDepartment].allocated.toLocaleString()}
+              ${allocatedBudget.reduce((sum, budget) => sum + budget.amount, 0).toLocaleString()}
             </p>
           </div>
         </div>
@@ -124,7 +112,7 @@ const Budgeting = () => {
           <div>
             <h3 className="text-xl font-semibold">Spent Budget</h3>
             <p className="text-gray-700">
-              ${budgetData[selectedDepartment].spent.toLocaleString()}
+              ${Object.values(spentBudget.totals).reduce((sum, value) => sum + value, 0).toLocaleString()}
             </p>
           </div>
         </div>
@@ -135,92 +123,43 @@ const Budgeting = () => {
             <p className="text-gray-700">
               $
               {(
-                budgetData[selectedDepartment].allocated -
-                budgetData[selectedDepartment].spent
+                allocatedBudget.reduce((sum, budget) => sum + budget.amount, 0) -
+                Object.values(spentBudget.totals).reduce((sum, value) => sum + value, 0)
               ).toLocaleString()}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Bar Chart for Allocated vs Spent Budget */}
       <div className="bg-white p-4 rounded-lg shadow-md mb-6 h-64">
-        <h3 className="text-xl font-semibold mb-4">
-          Allocated vs Spent Budget
-        </h3>
-        <Bar
-          data={barChartData}
-          options={{
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                beginAtZero: true,
-              },
-            },
-          }}
-          height={200} // Set the height of the bar chart
-        />
+        <h3 className="text-xl font-semibold mb-4">Allocated vs Spent Budget</h3>
+        <Bar data={barChartData} options={{ responsive: true, maintainAspectRatio: false }} />
       </div>
 
-      {/* Pie Chart for Department Spending */}
       <div className="bg-white p-4 rounded-lg shadow-md mb-6 h-48">
-        <h3 className="text-xl font-semibold mb-4">Department Spending</h3>
-        <div className="h-32">
-          <Pie
-            data={pieChartData}
-            options={{
-              responsive: true,
-              maintainAspectRatio: true,
-              plugins: {
-                legend: {
-                  position: "top",
-                },
-                tooltip: {
-                  callbacks: {
-                    label: function (context) {
-                      let label = context.label || "";
-                      if (context.parsed !== null) {
-                        label += `: $${context.parsed.toLocaleString()}`;
-                      }
-                      return label;
-                    },
-                  },
-                },
-              },
-            }}
-            height={200} // Set the height of the pie chart
-          />
-        </div>
+        <h3 className="text-xl font-semibold mb-4">Spending Breakdown</h3>
+        <Pie data={pieChartData} options={{ responsive: true, maintainAspectRatio: true }} />
       </div>
 
-      {/* Budget Details Overview */}
       <div className="bg-white p-4 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold mb-4">
-          Department Budget Details
-        </h3>
+        <h3 className="text-xl font-semibold mb-4">Department Budget Details</h3>
         <table className="min-w-full bg-white rounded-lg border border-gray-300">
           <thead className="bg-orange-500 text-white">
             <tr>
-              <th className="border border-gray-300 px-4 py-2">Department</th>
-              <th className="border border-gray-300 px-4 py-2">Budget</th>
-              <th className="border border-gray-300 px-4 py-2">Spent</th>
+              <th className="border border-gray-300 px-4 py-2">Date</th>
+              <th className="border border-gray-300 px-4 py-2">Allocated Budget</th>
+              <th className="border border-gray-300 px-4 py-2">Expenses</th>
             </tr>
           </thead>
           <tbody>
-            {budgetData[selectedDepartment].departments.map((dept, index) => (
-              <tr
-                key={index}
-                className="hover:bg-gray-100 transition duration-200"
-              >
+            {spentBudget.expenses.map((expense, index) => (
+              <tr key={index} className="hover:bg-gray-100 transition duration-200">
+                <td className="border border-gray-300 px-4 py-2">{expense.Date}</td>
                 <td className="border border-gray-300 px-4 py-2">
-                  {dept.name}
+                  ${allocatedBudget.find((alloc) => alloc.date === expense.Date)?.amount || 0}
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
-                  ${dept.budget.toLocaleString()}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  ${dept.spent.toLocaleString()}
+                  ${Object.values(expense).reduce((sum, value) => (typeof value === "number" ? sum + value : sum), 0)}
                 </td>
               </tr>
             ))}

@@ -560,4 +560,83 @@ router.get("/getAllDepartments", async (req, res) => {
     }
 });
 
+//allocate budget for departments
+router.post("/allocateBudget/:department", async (req, res) => {
+    const department = req.params.department;
+    const { date, budget } = req.body;
+
+    try {
+        await pool.query(
+            "INSERT INTO budgets (department, date, budget) VALUES (?, ?, ?)",
+            [department, date, budget]
+        );
+        res.status(201).json({ message: "Budget added successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Error adding budget" });
+    }
+});
+
+//get allocated budgets by year and month
+router.get("/getAllocatedBudget/:department/:year/:month", async (req, res) => {
+    const { department, year, month } = req.params;
+
+    try {
+        const [rows] = await pool.query(
+            `
+            SELECT * 
+            FROM budgets 
+            WHERE department = ? AND DATE_FORMAT(date, '%Y-%m') = ?`,
+            [department, `${year}-${month}`]
+        );
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching budget:", error);
+        res.status(500).json({ error: "Error fetching budget" });
+    }
+});
+
+//get spent budget
+router.get("/getSpentBudget/:department/:year/:month", async (req, res) => {
+    const { department, year, month } = req.params;
+
+    try {
+        const [expenses] = await pool.query(
+            `SELECT 
+                department AS Department,
+                DATE_FORMAT(date, '%Y-%m-%d') AS Date,
+                SUM(\`operational costs\`) AS "Operational Costs",
+                SUM(marketing) AS Marketing,
+                SUM(\`research & development\`) AS "Research & Development",
+                SUM(miscellaneous) AS Miscellaneous
+            FROM expenses_data
+            WHERE department = ? AND DATE_FORMAT(date, '%Y-%m') = ?
+            GROUP BY Date`,
+            [department, `${year}-${month}`]
+        );
+
+        const [totals] = await pool.query(
+            `SELECT 
+                SUM(\`operational costs\`) AS "Operational Costs",
+                SUM(marketing) AS Marketing,
+                SUM(\`research & development\`) AS "Research & Development",
+                SUM(miscellaneous) AS Miscellaneous
+            FROM expenses_data
+            WHERE department = ? AND DATE_FORMAT(date, '%Y-%m') = ?`,
+            [department, `${year}-${month}`]
+        );
+
+        res.status(200).json({
+            expenses,
+            totals: totals[0] || {
+                "Operational Costs": 0,
+                Marketing: 0,
+                "Research & Development": 0,
+                Miscellaneous: 0,
+            },
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Error retrieving expenses data" });
+    }
+});
+
 module.exports = router;
