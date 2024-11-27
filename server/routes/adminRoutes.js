@@ -588,7 +588,7 @@ router.get("/getAllocatedBudget/:department/:year/:month", async (req, res) => {
             WHERE department = ? AND DATE_FORMAT(date, '%Y-%m') = ?`,
             [department, `${year}-${month}`]
         );
-        res.status(200).json(rows);
+        res.status(200).json(rows[0]);
     } catch (error) {
         console.error("Error fetching budget:", error);
         res.status(500).json({ error: "Error fetching budget" });
@@ -600,40 +600,20 @@ router.get("/getSpentBudget/:department/:year/:month", async (req, res) => {
     const { department, year, month } = req.params;
 
     try {
-        const [expenses] = await pool.query(
-            `SELECT 
-                department AS Department,
-                DATE_FORMAT(date, '%Y-%m-%d') AS Date,
-                SUM(\`operational costs\`) AS "Operational Costs",
-                SUM(marketing) AS Marketing,
-                SUM(\`research & development\`) AS "Research & Development",
-                SUM(miscellaneous) AS Miscellaneous
-            FROM expenses_data
-            WHERE department = ? AND DATE_FORMAT(date, '%Y-%m') = ?
-            GROUP BY Date`,
-            [department, `${year}-${month}`]
-        );
 
         const [totals] = await pool.query(
             `SELECT 
-                SUM(\`operational costs\`) AS "Operational Costs",
+                SUM(\`operational costs\`) AS "OperationalCosts",
                 SUM(marketing) AS Marketing,
-                SUM(\`research & development\`) AS "Research & Development",
-                SUM(miscellaneous) AS Miscellaneous
+                SUM(\`research & development\`) AS "ResearchDevelopment",
+                SUM(miscellaneous) AS Miscellaneous,
+                SUM(\`operational costs\` + marketing + \`research & development\` + miscellaneous) AS Total
             FROM expenses_data
             WHERE department = ? AND DATE_FORMAT(date, '%Y-%m') = ?`,
             [department, `${year}-${month}`]
         );
+        res.status(200).json(totals[0]);
 
-        res.status(200).json({
-            expenses,
-            totals: totals[0] || {
-                "Operational Costs": 0,
-                Marketing: 0,
-                "Research & Development": 0,
-                Miscellaneous: 0,
-            },
-        });
     } catch (error) {
         res.status(500).json({ error: "Error retrieving expenses data" });
     }
