@@ -619,4 +619,25 @@ router.get("/getSpentBudget/:department/:year/:month", async (req, res) => {
     }
 });
 
+//get team and average performance
+router.get("/getTeamAndPerformance", async (req, res) => {
+    try {
+        const [teamsWithPerformance] = await pool.query(
+            `SELECT 
+                t.teamName, 
+                t.creator AS creatorEmpId,
+                p.NAME AS creatorName, 
+                FORMAT(AVG(t.performance), 2) AS avgPerformance
+            FROM teammembers t
+            JOIN personaldetails p ON p.empId = t.creator
+            GROUP BY t.teamName, p.NAME`
+        );
+
+        res.status(200).json(teamsWithPerformance);
+    } catch (error) {
+        console.error("Error fetching team and performance:", error);
+        res.status(500).json({ error: "Error fetching team and performance" });
+    }
+});
+
 module.exports = router;
