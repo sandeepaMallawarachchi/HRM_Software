@@ -98,7 +98,8 @@ const PerformanceManage = () => {
           <tr className="text-left">
             <th className="p-4 border-b">Team</th>
             <th className="p-4 border-b">Creator</th>
-            <th className="p-4 border-b">Average Performance (%)</th>
+            <th className="p-4 border-b">Performance(%)</th>
+            <th className="p-4 border-b">Status</th>
             <th className="p-4 border-b">Actions</th>
           </tr>
         </thead>
@@ -109,13 +110,17 @@ const PerformanceManage = () => {
                 <td className="p-4 border-b">{record.teamName}</td>
                 <td className="p-4 border-b">{record.creatorName}</td>
                 <td className="p-4 border-b">{record.avgPerformance}%</td>
+                {parseFloat(record.avgPerformance) === 100 ? (
+                  <td className="p-4 border-b text-green-500">Completed</td>
+                ) : (
+                  <td className="p-4 border-b text-orange-500">Still Working</td>
+                )}
                 <td className="p-4 border-b">
                   <button
                     onClick={() => handleSave(record)}
                     disabled={loading}
-                    className={`${
-                      loading ? "bg-gray-500 cursor-not-allowed" : "bg-orange-500 hover:bg-orange-600"
-                    } text-white px-4 py-2 rounded-lg flex items-center gap-2`}
+                    className={`${loading ? "bg-gray-500 cursor-not-allowed" : "bg-orange-500 hover:bg-orange-600"
+                      } text-white px-4 py-2 rounded-lg flex items-center gap-2`}
                   >
                     <FaEnvelope />
                     <span>{loading ? "Opening..." : "Message"}</span>
