@@ -9,6 +9,7 @@ const ResourceAllocation = () => {
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [isResourseModalOpen, setIsResourseModalOpen] = useState(false);
   const [selectedResource, setSelectedResource] = useState(null);
+  const [selectedResourceId, setSelectedResourceId] = useState(null);
   const [editedQuantities, setEditedQuantities] = useState({});
 
   useEffect(() => {
@@ -35,8 +36,9 @@ const ResourceAllocation = () => {
     fetchAllocatedResources();
   }, []);
 
-  const handleNewAllocation = (resource) => {
+  const handleNewAllocation = (resource, id) => {
     setSelectedResource(resource);
+    setSelectedResourceId(id);
     setIsEmployeeModalOpen(true);
   };
 
@@ -127,7 +129,7 @@ const ResourceAllocation = () => {
               )}
               <td className="border-b px-4 py-2 text-center">
                 <button
-                  onClick={() => handleNewAllocation(resource.resource)}
+                  onClick={() => handleNewAllocation(resource.resource, resource.id)}
                   className={`px-2 py-1 rounded ${resource.quantity > 0
                     ? "bg-blue-500 text-white hover:bg-blue-600"
                     : "bg-blue-300 text-white cursor-not-allowed"
@@ -157,8 +159,10 @@ const ResourceAllocation = () => {
           <tr>
             <th className="border-b px-4 py-2">Allocated Employee</th>
             <th className="border-b px-4 py-2">Resource Name</th>
+            <th className="border-b px-4 py-2">Quantity</th>
             <th className="border-b px-4 py-2">Allocated Date</th>
             <th className="border-b px-4 py-2">Due Return Date</th>
+            <th className="border-b px-4 py-2">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -166,6 +170,7 @@ const ResourceAllocation = () => {
             <tr key={index} className="text-center">
               <td className="border-b px-4 py-2">{history.NAME}</td>
               <td className="border-b px-4 py-2">{history.resource}</td>
+              <td className="border-b px-4 py-2">{history.quantity}</td>
               <td className="border-b px-4 py-2">{formatDate(history.allocatedate)}</td>
               <td className="border-b px-4 py-2">{formatDate(history.returneddate)}</td>
             </tr>
@@ -173,7 +178,7 @@ const ResourceAllocation = () => {
         </tbody>
       </table>
 
-      {isEmployeeModalOpen && <NewResourceAllocation selectedResource={selectedResource} onClose={handleModalClose} />}
+      {isEmployeeModalOpen && <NewResourceAllocation selectedResource={selectedResource} selectedResourceId={selectedResourceId} onClose={handleModalClose} />}
       {isResourseModalOpen && <AddNewResource onClose={handleModalClose} />}
     </div>
   );

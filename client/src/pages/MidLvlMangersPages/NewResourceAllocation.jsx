@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FaUserCheck, FaUserTimes } from "react-icons/fa";
 import axios from "axios";
 
-const NewResourceAllocation = ({ selectedResource, onClose }) => {
+const NewResourceAllocation = ({ selectedResourceId, selectedResource, onClose }) => {
     const [employeeList, setEmployeeList] = useState([]);
     const [filteredEmployeeList, setFilteredEmployeeList] = useState([]);
     const [departmentFilter, setDepartmentFilter] = useState("");
@@ -58,9 +58,10 @@ const NewResourceAllocation = ({ selectedResource, onClose }) => {
         }
 
         const allocationData = {
+            id: selectedResourceId,
             empId: selectedEmployee.empId,
             resource: selectedResource,
-            quantity,
+            quantity: quantity,
             allocatedate: allocatedDate,
             returneddate: returnedDate,
         };
@@ -192,7 +193,7 @@ const NewResourceAllocation = ({ selectedResource, onClose }) => {
                         type="number"
                         min="1"
                         value={quantity}
-                        onChange={(e) => setQuantity(Math.max(1, e.target.value))}
+                        onChange={(e) => setQuantity(e.target.value)}
                         className="border-gray-300 rounded-md p-2 w-full"
                     />
                 </div>

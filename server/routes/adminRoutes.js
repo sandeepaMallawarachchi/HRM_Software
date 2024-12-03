@@ -688,17 +688,32 @@ router.put("/updateResource/:id/:quantity", async (req, res) => {
 //allocate resource to employee
 router.post("/allocateResource/:empId", async (req, res) => {
     const empId = req.params.empId;
-    const { resource, quantity, allocatedate, returneddate } = req.body;
-
-    if (!empId) {
-        return res.status(400).json({ error: "No employee found" });
-    }
+    const { id, resource, quantity, allocatedate, returneddate } = req.body;
 
     try {
         await pool.query(
             "INSERT INTO allocatedresources (empId, resource, quantity, allocatedate, returneddate) VALUES (?, ?, ?, ?, ?)",
             [empId, resource, quantity, allocatedate, returneddate]
         );
+
+        const [currentQuantityResult] = await pool.query(
+            "select quantity from resource where id = ?",
+            [id]
+        );
+
+        const currentQuantity = currentQuantityResult[0].quantity;
+
+        if (currentQuantity < quantity) {
+            return res.status(400).json({ error: "Not enough resource available" });
+        }
+
+        const newQuantity = currentQuantity - quantity;
+
+        await pool.query(`
+            UPDATE resource
+            SET quantity = ? 
+            WHERE id = ?
+        `, [newQuantity, id]);
 
         res.status(201).json({ message: "Resource allocated successfully" });
     } catch (error) {
