@@ -41,6 +41,11 @@ import Expenses from "./pages/AccountantPages/Expenses";
 import Profit from "./pages/AccountantPages/Profit";
 import Revenue from "./pages/AccountantPages/Revenue";
 
+//HR routes
+import EmployeeRelationships from "./pages/HRpages/EmployeeRelationships";
+import PayrollManagement from "./pages/HRpages/PayrollManagement";
+import PolicyManagement from "./pages/HRpages/PolicyManagement";
+
 //Ceo routes
 import ExecutiveDashboard from "./pages/CEOpages/ExecutiveDashboard";
 import StrategicInsights from "./pages/CEOpages/StrategicInsights";
@@ -195,6 +200,18 @@ const App = () => {
             <Route
               path="/reminders"
               element={<ProtectedRoute element={<ReminderPage />} />}
+            />
+            <Route
+              path="/employee-relations"
+              element={<ProtectedRoute element={<EmployeeRelationships />} />}
+            />
+            <Route
+              path="/payroll-management"
+              element={<ProtectedRoute element={<PayrollManagement />} />}
+            />
+            <Route
+              path="/policy-management"
+              element={<ProtectedRoute element={<PolicyManagement />} />}
             />
           </Routes>
         </div>

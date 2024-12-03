@@ -157,6 +157,59 @@ router.get("/getPayslip/:empId", async (req, res) => {
   }
 });
 
+// Get detailed earnings for an employee
+router.get("/getEarnings/:empId", async (req, res) => {
+  const empId = req.params.empId;
+
+  try {
+    const query = `
+      SELECT 
+        JSON_EXTRACT(earnings, '$.basic') AS basic,
+        JSON_EXTRACT(earnings, '$.bonus') AS bonus,
+        JSON_EXTRACT(earnings, '$.overtime') AS overtime,
+        JSON_EXTRACT(earnings, '$.allowance') AS allowance
+      FROM 
+        salary
+      WHERE 
+        empId = ?
+      ORDER BY date DESC
+      LIMIT 1; -- Fetch the latest earnings
+    `;
+    const [results] = await pool.query(query, [empId]);
+
+    if (results.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No earnings data found for this employee." });
+    }
+
+    res.status(200).json(results[0]);
+  } catch (error) {
+    console.error("Error fetching earnings details:", error);
+    res.status(500).json({ error: "Database query error" });
+  }
+});
+
+// Update bonus and allowance in the earnings table
+router.put("/updateEarnings/:empId", async (req, res) => {
+  const empId = req.params.empId;
+  const { bonus, allowance } = req.body;
+
+  try {
+    const query = `
+      UPDATE salary
+      SET earnings = JSON_SET(earnings, '$.bonus', ?, '$.allowance', ?)
+      WHERE empId = ?;
+    `;
+    await pool.query(query, [bonus, allowance, empId]);
+
+    res.status(200).json({ message: "Earnings updated successfully." });
+  } catch (error) {
+    console.error("Error updating earnings:", error);
+    res.status(500).json({ error: "Failed to update earnings." });
+  }
+});
+
 // Get all employee details
 router.get("/getAllEmployee", async (req, res) => {
   try {
