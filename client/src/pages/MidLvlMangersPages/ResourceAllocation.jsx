@@ -8,6 +8,7 @@ const ResourceAllocation = () => {
   const [allocationHistory, setAllocationHistory] = useState([]);
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [isResourseModalOpen, setIsResourseModalOpen] = useState(false);
+  const [selectedResource, setSelectedResource] = useState(null);
   const [editedQuantities, setEditedQuantities] = useState({});
 
   useEffect(() => {
@@ -15,12 +16,27 @@ const ResourceAllocation = () => {
       try {
         const response = await axios.get(`http://localhost:4000/admin/getAllResources`);
         setResources(response.data);
-      } catch (error) {}
+      } catch (error) {
+        console.log(error)
+      }
     };
     fetchResources();
   }, []);
 
-  const handleNewAllocation = () => {
+  useEffect(() => {
+    const fetchAllocatedResources = async () => {
+      try {
+        const response = await axios.get(`http://localhost:4000/admin/getAllAllocatedResources`);
+        setAllocationHistory(response.data);
+      } catch (error) {
+        console.log(error)
+      }
+    };
+    fetchAllocatedResources();
+  }, []);
+
+  const handleNewAllocation = (resource) => {
+    setSelectedResource(resource);
     setIsEmployeeModalOpen(true);
   };
 
@@ -31,6 +47,7 @@ const ResourceAllocation = () => {
   const handleModalClose = () => {
     setIsEmployeeModalOpen(false);
     setIsResourseModalOpen(false);
+    setSelectedResource(null);
   };
 
   const handleQuantityChange = (id, newQuantity) => {
@@ -58,6 +75,11 @@ const ResourceAllocation = () => {
     } catch (error) {
       alert("Error updating resource quantity!");
     }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-CA');
   };
 
   return (
@@ -94,7 +116,6 @@ const ResourceAllocation = () => {
                   type="number"
                   value={editedQuantities[resource.id] ?? resource.quantity}
                   min={0}
-                  max={100}
                   onChange={(e) => handleQuantityChange(resource.id, e.target.value)}
                   className="border-b rounded px-2 py-1 w-20"
                 />
@@ -106,12 +127,11 @@ const ResourceAllocation = () => {
               )}
               <td className="border-b px-4 py-2 text-center">
                 <button
-                  onClick={handleNewAllocation}
-                  className={`px-2 py-1 rounded ${
-                    resource.quantity > 0
-                      ? "bg-blue-500 text-white hover:bg-blue-600"
-                      : "bg-blue-300 text-white cursor-not-allowed"
-                  }`}
+                  onClick={() => handleNewAllocation(resource.resource)}
+                  className={`px-2 py-1 rounded ${resource.quantity > 0
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "bg-blue-300 text-white cursor-not-allowed"
+                    }`}
                   disabled={resource.quantity <= 0}
                 >
                   Allocate
@@ -135,23 +155,25 @@ const ResourceAllocation = () => {
       <table className="min-w-full bg-white border border-gray-200">
         <thead>
           <tr>
+            <th className="border-b px-4 py-2">Allocated Employee</th>
             <th className="border-b px-4 py-2">Resource Name</th>
-            <th className="border-b px-4 py-2">Project</th>
-            <th className="border-b px-4 py-2">Date Allocated</th>
+            <th className="border-b px-4 py-2">Allocated Date</th>
+            <th className="border-b px-4 py-2">Due Return Date</th>
           </tr>
         </thead>
         <tbody>
           {allocationHistory.map((history, index) => (
-            <tr key={index}>
-              <td className="border-b px-4 py-2">{history.name}</td>
-              <td className="border-b px-4 py-2">{history.project}</td>
-              <td className="border-b px-4 py-2">{history.date}</td>
+            <tr key={index} className="text-center">
+              <td className="border-b px-4 py-2">{history.NAME}</td>
+              <td className="border-b px-4 py-2">{history.resource}</td>
+              <td className="border-b px-4 py-2">{formatDate(history.allocatedate)}</td>
+              <td className="border-b px-4 py-2">{formatDate(history.returneddate)}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {isEmployeeModalOpen && <NewResourceAllocation onClose={handleModalClose} />}
+      {isEmployeeModalOpen && <NewResourceAllocation selectedResource={selectedResource} onClose={handleModalClose} />}
       {isResourseModalOpen && <AddNewResource onClose={handleModalClose} />}
     </div>
   );

@@ -685,4 +685,58 @@ router.put("/updateResource/:id/:quantity", async (req, res) => {
     }
 });
 
+//allocate resource to employee
+router.post("/allocateResource/:empId", async (req, res) => {
+    const empId = req.params.empId;
+    const { resource, quantity, allocatedate, returneddate } = req.body;
+
+    if (!empId) {
+        return res.status(400).json({ error: "No employee found" });
+    }
+
+    try {
+        await pool.query(
+            "INSERT INTO allocatedresources (empId, resource, quantity, allocatedate, returneddate) VALUES (?, ?, ?, ?, ?)",
+            [empId, resource, quantity, allocatedate, returneddate]
+        );
+
+        res.status(201).json({ message: "Resource allocated successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Error allocating resource" });
+        console.error("Error allocating resource:", error);
+    }
+});
+
+//get allocated resources by empId
+router.get("/getAllocatedResources/:empId", async (req, res) => {
+    const { empId } = req.params;
+
+    try {
+        const [rows] = await pool.query(`
+            SELECT * 
+            FROM allocatedresources
+            WHERE empId = ? 
+        `, [empId]);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching allocated resources:", error);
+        res.status(500).json({ error: "Error fetching allocated resources" });
+    }
+});
+
+//get all allocated resources
+router.get("/getAllAllocatedResources", async (req, res) => {
+
+    try {
+        const [rows] = await pool.query(`
+            SELECT p.NAME, a.resource, a.quantity, a.allocatedate, a.returneddate 
+            FROM allocatedresources a JOIN personaldetails p ON a.empId = p.empId
+        `);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching allocated resources:", error);
+        res.status(500).json({ error: "Error fetching allocated resources" });
+    }
+});
+
 module.exports = router;

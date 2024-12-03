@@ -2,14 +2,16 @@ import React, { useEffect, useState } from "react";
 import { FaUserCheck, FaUserTimes } from "react-icons/fa";
 import axios from "axios";
 
-const NewResourceAllocation = ({ onClose }) => {
+const NewResourceAllocation = ({ selectedResource, onClose }) => {
     const [employeeList, setEmployeeList] = useState([]);
     const [filteredEmployeeList, setFilteredEmployeeList] = useState([]);
     const [departmentFilter, setDepartmentFilter] = useState("");
     const [designationFilter, setDesignationFilter] = useState("");
-    const [selectedMembers, setSelectedMembers] = useState([]);
-    const [teamName, setTeamName] = useState("");
-    const creatorEmpId = localStorage.getItem('empId');
+    const [nameSearch, setNameSearch] = useState("");
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [allocatedDate, setAllocatedDate] = useState("");
+    const [returnedDate, setReturnedDate] = useState("");
+    const [quantity, setQuantity] = useState(1);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -26,6 +28,9 @@ const NewResourceAllocation = ({ onClose }) => {
 
     const handleFilterChange = () => {
         const filteredList = employeeList.filter((employee) => {
+            const matchesName = nameSearch
+                ? employee.name.toLowerCase().includes(nameSearch.toLowerCase())
+                : true;
             const matchesDepartment = departmentFilter
                 ? employee.department.toLowerCase() === departmentFilter.toLowerCase()
                 : true;
@@ -33,58 +38,58 @@ const NewResourceAllocation = ({ onClose }) => {
                 ? employee.designation.toLowerCase() === designationFilter.toLowerCase()
                 : true;
 
-            return matchesDepartment && matchesDesignation;
+            return matchesName && matchesDepartment && matchesDesignation;
         });
         setFilteredEmployeeList(filteredList);
     };
 
     useEffect(() => {
         handleFilterChange();
-    }, [departmentFilter, designationFilter, employeeList]);
+    }, [nameSearch, departmentFilter, designationFilter, employeeList]);
 
-    const handleToggleMember = (employeeId) => {
-        setSelectedMembers((prevMembers) =>
-            prevMembers.includes(employeeId)
-                ? prevMembers.filter((id) => id !== employeeId)
-                : [...prevMembers, employeeId]
-        );
+    const handleSelectEmployee = (employee) => {
+        setSelectedEmployee(employee);
     };
 
     const handleSave = async () => {
+        if (!selectedEmployee || !allocatedDate || !returnedDate || !selectedResource) {
+            alert("Please fill all the required fields.");
+            return;
+        }
+
+        const allocationData = {
+            empId: selectedEmployee.empId,
+            resource: selectedResource,
+            quantity,
+            allocatedate: allocatedDate,
+            returneddate: returnedDate,
+        };
+
         try {
-            const membersWithDetails = selectedMembers.map((empId) => {
-                const employee = employeeList.find(emp => emp.empId === empId);
-                return {
-                    empId,
-                    name: employee?.name,
-                    role: employee?.role,
-                    department: employee?.department
-                };
-            });
-
-            const newTeamData = {
-                teamName,
-                creator: creatorEmpId,
-                members: membersWithDetails,
-            };
-
-            await axios.post(`http://localhost:4000/admin/createTeam/${creatorEmpId}`, newTeamData);
-            alert("Team created and members added successfully!");
+            await axios.post(`http://localhost:4000/admin/allocateResource/${selectedEmployee.empId}`, allocationData);
+            alert("Resource allocated successfully!");
+            onClose();
         } catch (error) {
-            if (error.response && error.response.status === 409) {
-                alert(error.response.data.error);
-            } else {
-                console.error("Error creating team:", error);
-                alert("An error occurred while creating the team.");
-            }
+            console.error("Error allocating resource:", error);
+            alert("Failed to allocate resource.");
         }
     };
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white rounded-lg p-8 w-2/3 shadow-lg">
-                <h2 className="text-2xl font-semibold mb-4">Allocate resourse</h2>
+            <div className="bg-white rounded-lg p-8 w-2/3 shadow-lg max-h-[95vh] overflow-y-auto">
+                <h2 className="text-2xl font-semibold mb-4">Allocate Resource</h2>
                 <div className="flex space-x-4 mt-5">
+                    <div>
+                        <label className="block text-gray-700">Search by Name</label>
+                        <input
+                            type="text"
+                            value={nameSearch}
+                            onChange={(e) => setNameSearch(e.target.value)}
+                            className="border-gray-300 rounded-md p-2 w-full"
+                            placeholder="Enter employee's name"
+                        />
+                    </div>
                     <div>
                         <label className="block text-gray-700">Filter by Department</label>
                         <select
@@ -118,7 +123,7 @@ const NewResourceAllocation = ({ onClose }) => {
                 </div>
                 <div className="mt-10">
                     <h3 className="text-lg mb-4">Employee Details</h3>
-                    <div className="overflow-y-auto" style={{ maxHeight: '300px' }}>
+                    <div className="overflow-y-auto" style={{ maxHeight: "300px" }}>
                         <table className="min-w-full bg-white border text-gray-600 rounded-lg">
                             <thead className="text-center">
                                 <tr>
@@ -139,13 +144,13 @@ const NewResourceAllocation = ({ onClose }) => {
                                             <td className="py-2 px-4 border-b">{employee.designation}</td>
                                             <td className="py-2 px-4 border-b">
                                                 <button
-                                                    onClick={() => handleToggleMember(employee.empId)}
-                                                    className={`flex justify-center items-center ${selectedMembers.includes(employee.empId)
+                                                    onClick={() => handleSelectEmployee(employee)}
+                                                    className={`flex justify-center items-center ${selectedEmployee?.empId === employee.empId
                                                         ? "text-red-500 hover:text-red-700"
                                                         : "text-green-500 hover:text-green-700"
                                                         }`}
                                                 >
-                                                    {selectedMembers.includes(employee.empId) ? (
+                                                    {selectedEmployee?.empId === employee.empId ? (
                                                         <FaUserTimes size={20} />
                                                     ) : (
                                                         <FaUserCheck size={20} />
@@ -165,7 +170,33 @@ const NewResourceAllocation = ({ onClose }) => {
                         </table>
                     </div>
                 </div>
-                <div className="flex justify-start mt-4 space-x-4">
+                <div className="mt-6">
+                    <label className="block text-gray-700 mb-2">Allocate Date</label>
+                    <input
+                        type="date"
+                        value={allocatedDate}
+                        onChange={(e) => setAllocatedDate(e.target.value)}
+                        className="border-gray-300 rounded-md p-2 w-full"
+                    />
+                    <label className="block text-gray-700 mt-4 mb-2">Return Date</label>
+                    <input
+                        type="date"
+                        value={returnedDate}
+                        onChange={(e) => setReturnedDate(e.target.value)}
+                        className="border-gray-300 rounded-md p-2 w-full"
+                    />
+                </div>
+                <div className="mt-6">
+                    <label className="block text-gray-700 mb-2">Quantity</label>
+                    <input
+                        type="number"
+                        min="1"
+                        value={quantity}
+                        onChange={(e) => setQuantity(Math.max(1, e.target.value))}
+                        className="border-gray-300 rounded-md p-2 w-full"
+                    />
+                </div>
+                <div className="flex justify-start mt-6 space-x-4">
                     <button onClick={handleSave} className="px-4 py-2 bg-orange-500 text-white rounded-lg">
                         Save
                     </button>
