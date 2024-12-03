@@ -11,6 +11,7 @@ const ResourceAllocation = () => {
   const [selectedResource, setSelectedResource] = useState(null);
   const [selectedResourceId, setSelectedResourceId] = useState(null);
   const [editedQuantities, setEditedQuantities] = useState({});
+  const today = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -83,6 +84,20 @@ const ResourceAllocation = () => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-CA');
   };
+
+  const handleResourceReturning = async (resource, quantity, empId) => {
+    try {
+      await axios.put(`http://localhost:4000/admin/updateQuantity/${resource}/${quantity}/${empId}`);
+      setResources((prevResources) =>
+        prevResources.map((resource) =>
+          resource.resource === resource ? { ...resource, quantity: parseInt(quantity, 10) } : resource
+        )
+      );
+      alert("Resource quantity updated successfully");
+    } catch (error) {
+      alert("Error updating resource quantity!");
+    }
+  }
 
   return (
     <div className="container mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
@@ -162,6 +177,7 @@ const ResourceAllocation = () => {
             <th className="border-b px-4 py-2">Quantity</th>
             <th className="border-b px-4 py-2">Allocated Date</th>
             <th className="border-b px-4 py-2">Due Return Date</th>
+            <th className="border-b px-4 py-2">Status</th>
             <th className="border-b px-4 py-2">Actions</th>
           </tr>
         </thead>
@@ -173,6 +189,34 @@ const ResourceAllocation = () => {
               <td className="border-b px-4 py-2">{history.quantity}</td>
               <td className="border-b px-4 py-2">{formatDate(history.allocatedate)}</td>
               <td className="border-b px-4 py-2">{formatDate(history.returneddate)}</td>
+              <td className={`border-b px-4 py-2 font-medium ${formatDate(history.returneddate) < today
+                ? "text-red-600"
+                : history.status === "Not returned"
+                  ? "text-orange-500"
+                  : "text-green-500"
+                }`}>
+                {formatDate(history.returneddate) < today ? "Delayed" : history.status}
+              </td>
+              <td className="border-b px-4 py-2 text-center">
+                {formatDate(history.returneddate) < today ? (
+                  <button
+                    // onClick={}
+                    className="px-2 py-1 rounded text-white bg-red-500 hover:bg-red-600"
+                  >
+                    Send an Alert
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleResourceReturning(history.resource, history.quantity, history.empId)}
+                    className={`px-2 py-1 rounded text-white ${history.status == "Not returned"
+                      ? "bg-blue-500 hover:bg-blue-600"
+                      : "bg-blue-300 cursor-not-allowed"
+                      }`}
+                    disabled={history.status == "Returned"}                >
+                    Mark as Returned
+                  </button>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>

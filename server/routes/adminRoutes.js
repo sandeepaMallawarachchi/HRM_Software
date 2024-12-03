@@ -744,13 +744,49 @@ router.get("/getAllAllocatedResources", async (req, res) => {
 
     try {
         const [rows] = await pool.query(`
-            SELECT p.NAME, a.resource, a.quantity, a.allocatedate, a.returneddate 
+            SELECT a.empId, p.NAME, a.resource, a.quantity, a.allocatedate, a.returneddate, a.status
             FROM allocatedresources a JOIN personaldetails p ON a.empId = p.empId
+            ORDER By a.created_at DESC
         `);
         res.status(200).json(rows);
     } catch (error) {
         console.error("Error fetching allocated resources:", error);
         res.status(500).json({ error: "Error fetching allocated resources" });
+    }
+});
+
+//update quantity after returned
+router.put("/updateQuantity/:resource/:quantity/:empId", async (req, res) => {
+    const { resource, empId } = req.params;
+    const quantity = parseInt(req.params.quantity, 10);
+
+    try {
+
+        const [currentQuantityResult] = await pool.query(
+            "select quantity from resource where resource = ?",
+            [resource]
+        );
+
+        const currentQuantity = currentQuantityResult[0].quantity;
+
+        const newQuantity = currentQuantity + quantity;
+
+        await pool.query(`
+            UPDATE resource
+            SET quantity = ? 
+            WHERE resource = ?
+        `, [newQuantity, resource]);
+
+        await pool.query(`
+            UPDATE allocatedresources
+            SET status = "Returned" 
+            WHERE resource = ? AND empId = ?
+        `, [resource, empId]);
+
+        res.status(200).json({ message: "Updated successfully" });
+    } catch (error) {
+        console.error("Error updating resources:", error);
+        res.status(500).json({ error: "Error updating resources" });
     }
 });
 
