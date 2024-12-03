@@ -640,4 +640,49 @@ router.get("/getTeamAndPerformance", async (req, res) => {
     }
 });
 
+//add new resourse
+router.post("/addNewResource", async (req, res) => {
+    const { resource, type, quantity } = req.body;
+
+    try {
+        await pool.query(
+            "INSERT INTO resource (resource, type, quantity) VALUES (?, ?, ?)",
+            [resource, type, quantity]
+        );
+        res.status(201).json({ message: "resource added successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Error adding resource" });
+    }
+});
+
+//get all resources
+router.get("/getAllResources", async (req, res) => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT * 
+            FROM resource 
+        `);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching resources:", error);
+        res.status(500).json({ error: "Error fetching resources" });
+    }
+});
+
+//update resource
+router.put("/updateResource/:id/:quantity", async (req, res) => {
+    const { id, quantity } = req.params;
+    try {
+        await pool.query(`
+            UPDATE resource
+            SET quantity = ? 
+            WHERE id = ?
+        `, [quantity, id]);
+        res.status(200).json({ message: "Updated successfully" });
+    } catch (error) {
+        console.error("Error updating resources:", error);
+        res.status(500).json({ error: "Error updating resources" });
+    }
+});
+
 module.exports = router;

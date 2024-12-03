@@ -2,9 +2,8 @@ import axios from "axios";
 import React, { useState } from "react";
 
 const AddNewResource = ({ onClose }) => {
-    const empId = localStorage.getItem('empId');
-    const [resourseData, setResourseData] = useState({
-        resourse: '',
+    const [resourceData, setResourceData] = useState({
+        resource: '',
         type: '',
         quantity: '',
     });
@@ -12,7 +11,7 @@ const AddNewResource = ({ onClose }) => {
     const handleChange = (e) => {
         const { name, value } = e.target;
 
-        setResourseData(prevState => ({
+        setResourceData(prevState => ({
             ...prevState,
             [name]: value,
         }));
@@ -21,62 +20,58 @@ const AddNewResource = ({ onClose }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const newResourse = {
-            empId,
-            resourse: resourseData.resourse,
-            type: resourseData.type,
-            quantity: resourseData.quantity,
+        const newResource = {
+            resource: resourceData.resource,
+            type: resourceData.type,
+            quantity: resourceData.quantity,
         };
 
         try {
-            await axios.post(`http://localhost:4000/admin/addNewResourse/${empId}`, newResourse);
-            setResourseData({
-                resourse: '',
+            await axios.post(`http://localhost:4000/admin/addNewResource`, newResource);
+            setResourceData({
+                resource: '',
                 type: '',
                 quantity: '',
             });
-            alert('New resourse added successfully!');
+            alert('New resource added successfully!');
         } catch (error) {
-            console.error('Error adding resourse:', error);
-            alert('Failed to add resourse.');
+            console.error('Error adding resource:', error);
+            alert('Failed to add resource.');
         }
     };
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white rounded-lg p-8 w-2/3 shadow-lg">
-                <h3 className="text-xl font-semibold mb-4">Add New Resourse</h3>
-
+                <h3 className="text-xl font-semibold mb-4">Add New Resource</h3>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label htmlFor="Resourse" className="block text-sm font-semibold text-gray-700 mb-2">
-                            Resourse
+                        <label htmlFor="resource" className="block text-sm font-semibold text-gray-700 mb-2">
+                            Resource
                         </label>
                         <input
-                            id="Resourse"
+                            id="resource"
                             type="text"
-                            placeholder="Enter resourse name"
-                            value={resourseData.resourse}
+                            placeholder="Enter resource name"
+                            value={resourceData.resource}
                             onChange={handleChange}
-                            name="Resourse"
+                            name="resource"
                             className="border border-gray-300 rounded-lg p-3 mb-3 w-full"
                         />
                     </div>
-
                     <div>
                         <label htmlFor="type" className="block text-sm font-semibold text-gray-700 mb-2">
-                            Resourse Type
+                            Resource Type
                         </label>
                         <input
                             id="type"
-                            placeholder="Enter type of resousre"
-                            value={resourseData.type}
+                            placeholder="Enter type of resource"
+                            value={resourceData.type}
                             onChange={handleChange}
                             name="type"
                             className="border border-gray-300 rounded-lg p-3 mb-3 w-full"
                         />
                     </div>
-
                     <div>
                         <label htmlFor="quantity" className="block text-sm font-semibold text-gray-700 mb-2">
                             Quantity
@@ -84,10 +79,10 @@ const AddNewResource = ({ onClose }) => {
                         <input
                             id="quantity"
                             type="number"
-                            value={resourseData.quantity}
+                            value={resourceData.quantity}
                             onChange={handleChange}
                             name="quantity"
-                            placeholder="Enter quantity of resourse"
+                            placeholder="Enter quantity of resource"
                             className="border border-gray-300 rounded-lg p-3 mb-3 w-full"
                         />
                     </div>
@@ -95,7 +90,7 @@ const AddNewResource = ({ onClose }) => {
                         <button className="px-4 py-2 bg-orange-500 text-white rounded-lg">
                             Save
                         </button>
-                        <button onClick={onClose} className="px-4 py-2 text-gray-500 hover:underline">
+                        <button type="button" onClick={onClose} className="px-4 py-2 text-gray-500 hover:underline">
                             Cancel
                         </button>
                     </div>
