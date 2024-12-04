@@ -1,32 +1,18 @@
-import React, { useState } from "react";
-
-// Sample data for training sessions
-const initialTrainings = [
-  {
-    id: 1,
-    trainingName: "Project Management Basics",
-    trainer: "John Doe",
-    date: "2024-10-30",
-    duration: "3 hours",
-    status: "Ongoing",
-  },
-  {
-    id: 2,
-    trainingName: "Effective Communication Skills",
-    trainer: "Jane Smith",
-    date: "2024-11-05",
-    duration: "2 hours",
-    status: "Upcoming",
-  },
-];
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import NewResourceAllocation from "./NewResourceAllocation";
+import AddNewTraining from './AddNewTraining'
 
 const TrainingOversite = () => {
-  const [trainings, setTrainings] = useState(initialTrainings);
-  const [trainingName, setTrainingName] = useState("");
-  const [trainer, setTrainer] = useState("");
-  const [date, setDate] = useState("");
-  const [duration, setDuration] = useState("");
-  const [status, setStatus] = useState("Upcoming");
+  const [trainings, setTrainings] = useState([]);
+  const [allocationHistory, setAllocationHistory] = useState([]);
+  const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
+  const [isResourseModalOpen, setIsResourseModalOpen] = useState(false);
+  const [selectedResource, setSelectedResource] = useState(null);
+  const [selectedResourceId, setSelectedResourceId] = useState(null);
+  const [selectedResourceQuantity, setSelectedResourceQuantity] = useState(null);
+  const [editedQuantities, setEditedQuantities] = useState({});
+  const today = new Date().toISOString().split('T')[0];
 
   const handleAddTraining = () => {
     const newTraining = {

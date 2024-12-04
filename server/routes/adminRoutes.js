@@ -746,6 +746,7 @@ router.get("/getAllAllocatedResources", async (req, res) => {
         const [rows] = await pool.query(`
             SELECT a.empId, p.NAME, a.resource, a.quantity, a.allocatedate, a.returneddate, a.status
             FROM allocatedresources a JOIN personaldetails p ON a.empId = p.empId
+            WHERE a.status = "Not returned"
             ORDER By a.created_at DESC
         `);
         res.status(200).json(rows);
@@ -807,6 +808,87 @@ router.put("/saveAlert/:resource/:empId", async (req, res) => {
     } catch (error) {
         console.error("Error updating alert status:", error);
         res.status(500).json({ error: "Error updating alert status" });
+    }
+});
+
+//add new training
+router.post("/addNewTraining", async (req, res) => {
+    const { training, weight, duration } = req.body;
+
+    try {
+        await pool.query(
+            "INSERT INTO training (training, weight, duration) VALUES (?, ?, ?)",
+            [training, weight, duration]
+        );
+        res.status(201).json({ message: "training added successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Error adding training" });
+    }
+});
+
+//get all training
+router.get("/getAllTrainings", async (req, res) => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT * 
+            FROM training 
+        `);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching trainings:", error);
+        res.status(500).json({ error: "Error fetching trainings" });
+    }
+});
+
+//allocate training to employee
+router.post("/allocateTraining/:empId", async (req, res) => {
+    const empId = req.params.empId;
+    const { training, weight, allocatedate, finisheddate } = req.body;
+
+    try {
+        await pool.query(
+            "INSERT INTO allocatedtraining (empId, training, weight, allocatedate, finisheddate) VALUES (?, ?, ?, ?, ?)",
+            [empId, training, weight, allocatedate, finisheddate]
+        );
+
+        res.status(201).json({ message: "training allocated successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Error allocating training" });
+        console.error("Error allocating training:", error);
+    }
+});
+
+//get allocated training by empId
+router.get("/getAllocatedTraining/:empId", async (req, res) => {
+    const { empId } = req.params;
+
+    try {
+        const [rows] = await pool.query(`
+            SELECT * 
+            FROM allocatedtraining
+            WHERE empId = ? 
+        `, [empId]);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching allocated training:", error);
+        res.status(500).json({ error: "Error fetching allocated training" });
+    }
+});
+
+//get all allocated training
+router.get("/getAllAllocatedTraining", async (req, res) => {
+
+    try {
+        const [rows] = await pool.query(`
+            SELECT a.empId, p.NAME, a.training, a.weight, a.allocatedate, a.finisheddate, a.status
+            FROM allocatedtraining a JOIN personaldetails p ON a.empId = p.empId
+            WHERE a.status = "Ongoing"
+            ORDER By a.created_at DESC
+        `);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching allocated training:", error);
+        res.status(500).json({ error: "Error fetching allocated training" });
     }
 });
 

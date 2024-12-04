@@ -208,16 +208,14 @@ const ResourceAllocation = () => {
               <td className="border-b px-4 py-2">{history.quantity}</td>
               <td className="border-b px-4 py-2">{formatDate(history.allocatedate)}</td>
               <td className="border-b px-4 py-2">{formatDate(history.returneddate)}</td>
-              <td className={`border-b px-4 py-2 font-medium ${formatDate(history.returneddate) < today && history.status === "Not returned"
+              <td className={`border-b px-4 py-2 font-medium ${formatDate(history.returneddate) < today
                 ? "text-red-600"
-                : history.status === "Not returned"
-                  ? "text-orange-500"
-                  : "text-green-500"
+                : "text-orange-600"
                 }`}>
-                {formatDate(history.returneddate) < today && history.status === "Not returned" ? "Delayed" : history.status}
+                {formatDate(history.returneddate) < today ? "Delayed" : history.status}
               </td>
               <td className="border-b px-4 py-2 text-center">
-                {formatDate(history.returneddate) < today && history.status === "Not returned" ? (
+                {formatDate(history.returneddate) < today ? (
                   <div className="flex justify-between gap-1">
                     <button
                       onClick={() => handleResourceReturning(history.resource, history.quantity, history.empId)}
@@ -239,11 +237,8 @@ const ResourceAllocation = () => {
                 ) : (
                   <button
                     onClick={() => handleResourceReturning(history.resource, history.quantity, history.empId)}
-                    className={`px-2 py-1 rounded text-white ${history.status == "Not returned"
-                      ? "bg-blue-500 hover:bg-blue-600"
-                      : "bg-blue-300 cursor-not-allowed"
-                      }`}
-                    disabled={history.status == "Returned"}                >
+                    className="px-2 py-1 rounded text-white bg-blue-500 hover:bg-blue-600"
+                  >
                     Mark as Returned
                   </button>
                 )}
