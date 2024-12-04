@@ -790,4 +790,23 @@ router.put("/updateQuantity/:resource/:quantity/:empId", async (req, res) => {
     }
 });
 
+//save alert
+router.put("/saveAlert/:resource/:empId", async (req, res) => {
+    const { resource, empId } = req.params;
+
+    try {
+        await pool.query(
+            `UPDATE allocatedresources 
+             SET alert = true 
+             WHERE resource = ? AND empId = ?`,
+            [resource, empId]
+        );
+
+        res.status(200).json({ message: "Alert sent and updated successfully" });
+    } catch (error) {
+        console.error("Error updating alert status:", error);
+        res.status(500).json({ error: "Error updating alert status" });
+    }
+});
+
 module.exports = router;
