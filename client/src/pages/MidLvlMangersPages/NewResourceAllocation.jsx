@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FaUserCheck, FaUserTimes } from "react-icons/fa";
 import axios from "axios";
 
-const NewResourceAllocation = ({ selectedResourceId, selectedResource, onClose }) => {
+const NewResourceAllocation = ({ selectedResourceId, selectedResource, selectedResourceQuantity, onClose }) => {
     const [employeeList, setEmployeeList] = useState([]);
     const [filteredEmployeeList, setFilteredEmployeeList] = useState([]);
     const [departmentFilter, setDepartmentFilter] = useState("");
@@ -12,6 +12,7 @@ const NewResourceAllocation = ({ selectedResourceId, selectedResource, onClose }
     const [allocatedDate, setAllocatedDate] = useState("");
     const [returnedDate, setReturnedDate] = useState("");
     const [quantity, setQuantity] = useState(1);
+    const today = new Date().toISOString().split('T')[0];
 
     useEffect(() => {
         const fetchData = async () => {
@@ -47,8 +48,16 @@ const NewResourceAllocation = ({ selectedResourceId, selectedResource, onClose }
         handleFilterChange();
     }, [nameSearch, departmentFilter, designationFilter, employeeList]);
 
+    // const handleSelectEmployee = (employee) => {
+    //     setSelectedEmployee(employee);
+    // };
+
     const handleSelectEmployee = (employee) => {
-        setSelectedEmployee(employee);
+        if (selectedEmployee?.empId === employee.empId) {
+            setSelectedEmployee(null);
+        } else if (!selectedEmployee) {
+            setSelectedEmployee(employee);
+        }
     };
 
     const handleSave = async () => {
@@ -123,7 +132,7 @@ const NewResourceAllocation = ({ selectedResourceId, selectedResource, onClose }
                     </div>
                 </div>
                 <div className="mt-10">
-                    <h3 className="text-lg mb-4">Employee Details</h3>
+                    <h3 className="text-lg mb-4">Employee Details <span className="text-sm text-red-600">* select only one employee at once</span></h3>
                     <div className="overflow-y-auto" style={{ maxHeight: "300px" }}>
                         <table className="min-w-full bg-white border text-gray-600 rounded-lg">
                             <thead className="text-center">
@@ -176,6 +185,7 @@ const NewResourceAllocation = ({ selectedResourceId, selectedResource, onClose }
                     <input
                         type="date"
                         value={allocatedDate}
+                        min={today}
                         onChange={(e) => setAllocatedDate(e.target.value)}
                         className="border-gray-300 rounded-md p-2 w-full"
                     />
@@ -183,6 +193,7 @@ const NewResourceAllocation = ({ selectedResourceId, selectedResource, onClose }
                     <input
                         type="date"
                         value={returnedDate}
+                        min={today}
                         onChange={(e) => setReturnedDate(e.target.value)}
                         className="border-gray-300 rounded-md p-2 w-full"
                     />
@@ -192,6 +203,7 @@ const NewResourceAllocation = ({ selectedResourceId, selectedResource, onClose }
                     <input
                         type="number"
                         min="1"
+                        max={selectedResourceQuantity}
                         value={quantity}
                         onChange={(e) => setQuantity(e.target.value)}
                         className="border-gray-300 rounded-md p-2 w-full"

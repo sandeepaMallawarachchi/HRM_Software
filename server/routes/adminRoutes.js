@@ -793,13 +793,14 @@ router.put("/updateQuantity/:resource/:quantity/:empId", async (req, res) => {
 //save alert
 router.put("/saveAlert/:resource/:empId", async (req, res) => {
     const { resource, empId } = req.params;
+    const {alertResponse} = req.body;
 
     try {
         await pool.query(
             `UPDATE allocatedresources 
-             SET alert = true 
+             SET alert = ? 
              WHERE resource = ? AND empId = ?`,
-            [resource, empId]
+            [alertResponse, resource, empId]
         );
 
         res.status(200).json({ message: "Alert sent and updated successfully" });

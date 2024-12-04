@@ -27,7 +27,8 @@ const ReminderIcon = () => {
     const fetchAlertsCount = async () => {
         try {
             const response = await axios.get(`http://localhost:4000/admin/getAllocatedResources/${empId}`);
-            setAlertsCount(response.data.length);
+            const filteredAlerts = response.data.filter((item) => item.alert === 1);
+            setAlertsCount(filteredAlerts.length);
         } catch (error) {
             console.log("Error fetching reminder count:", error);
         }

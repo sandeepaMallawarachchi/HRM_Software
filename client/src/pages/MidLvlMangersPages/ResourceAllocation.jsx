@@ -10,6 +10,7 @@ const ResourceAllocation = () => {
   const [isResourseModalOpen, setIsResourseModalOpen] = useState(false);
   const [selectedResource, setSelectedResource] = useState(null);
   const [selectedResourceId, setSelectedResourceId] = useState(null);
+  const [selectedResourceQuantity, setSelectedResourceQuantity] = useState(null);
   const [editedQuantities, setEditedQuantities] = useState({});
   const today = new Date().toISOString().split('T')[0];
 
@@ -37,9 +38,10 @@ const ResourceAllocation = () => {
     fetchAllocatedResources();
   }, []);
 
-  const handleNewAllocation = (resource, id) => {
+  const handleNewAllocation = (resource, id, quantity) => {
     setSelectedResource(resource);
     setSelectedResourceId(id);
+    setSelectedResourceQuantity(quantity);
     setIsEmployeeModalOpen(true);
   };
 
@@ -93,15 +95,23 @@ const ResourceAllocation = () => {
           resource.resource === resource ? { ...resource, quantity: parseInt(quantity, 10) } : resource
         )
       );
-      alert("Resource quantity updated successfully");
+
+      await axios.put(`http://localhost:4000/admin/saveAlert/${resource}/${empId}`, {
+        alertResponse: 0,
+      });
+
+      alert("Resource marked as returned successfully");
     } catch (error) {
-      alert("Error updating resource quantity!");
+      alert("Error updating resource returning!");
     }
   }
 
   const handleAlert = async (resource, empId) => {
     try {
-      await axios.put(`http://localhost:4000/admin/saveAlert/${resource}/${empId}`);
+      await axios.put(`http://localhost:4000/admin/saveAlert/${resource}/${empId}`, {
+        alertResponse: 1,
+      });
+
       alert("Alert send successfully");
     } catch (error) {
       alert("Error sending alert!");
@@ -153,7 +163,7 @@ const ResourceAllocation = () => {
               )}
               <td className="border-b px-4 py-2 text-center">
                 <button
-                  onClick={() => handleNewAllocation(resource.resource, resource.id)}
+                  onClick={() => handleNewAllocation(resource.resource, resource.id, resource.quantity)}
                   className={`px-2 py-1 rounded ${resource.quantity > 0
                     ? "bg-blue-500 text-white hover:bg-blue-600"
                     : "bg-blue-300 text-white cursor-not-allowed"
@@ -207,13 +217,25 @@ const ResourceAllocation = () => {
                 {formatDate(history.returneddate) < today && history.status === "Not returned" ? "Delayed" : history.status}
               </td>
               <td className="border-b px-4 py-2 text-center">
-                {formatDate(history.returneddate) < today && history.status === "Not returned"? (
-                  <button
-                    onClick={() => handleAlert(history.resource, history.empId)}
-                    className="px-2 py-1 rounded text-white bg-red-500 hover:bg-red-600"
-                  >
-                    Send an Alert
-                  </button>
+                {formatDate(history.returneddate) < today && history.status === "Not returned" ? (
+                  <div className="flex justify-between gap-1">
+                    <button
+                      onClick={() => handleResourceReturning(history.resource, history.quantity, history.empId)}
+                      className={`px-2 py-1 rounded text-white ${history.status == "Not returned"
+                        ? "bg-blue-500 hover:bg-blue-600"
+                        : "bg-blue-300 cursor-not-allowed"
+                        }`}
+                      disabled={history.status == "Returned"}                >
+                      Mark as Returned
+                    </button>
+
+                    <button
+                      onClick={() => handleAlert(history.resource, history.empId)}
+                      className="px-2 py-1 rounded text-white bg-red-500 hover:bg-red-600"
+                    >
+                      Send an Alert
+                    </button>
+                  </div>
                 ) : (
                   <button
                     onClick={() => handleResourceReturning(history.resource, history.quantity, history.empId)}
@@ -231,7 +253,7 @@ const ResourceAllocation = () => {
         </tbody>
       </table>
 
-      {isEmployeeModalOpen && <NewResourceAllocation selectedResource={selectedResource} selectedResourceId={selectedResourceId} onClose={handleModalClose} />}
+      {isEmployeeModalOpen && <NewResourceAllocation selectedResource={selectedResource} selectedResourceId={selectedResourceId} selectedResourceQuantity={selectedResourceQuantity} onClose={handleModalClose} />}
       {isResourseModalOpen && <AddNewResource onClose={handleModalClose} />}
     </div>
   );
