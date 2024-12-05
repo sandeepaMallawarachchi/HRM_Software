@@ -6,21 +6,36 @@ import {
   FaTools,
   FaComments,
   FaUserGraduate,
+  FaEnvelope
 } from "react-icons/fa";
 
 const MidLvlManagerSidebar = ({ isCollapsed }) => {
   return (
     <div className="flex flex-col items-center justify-end  mb-8 w-full gap-2">
       {" "}
-      {/* Adjust the gap as needed */}
+      {/* Communication Tools Link */}
+      <NavLink
+        to="/communication"
+        className={({ isActive }) =>
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
+            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+            : ""
+          }`
+        }
+      >
+        <FaEnvelope
+          size={20}
+          className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+        />
+        {!isCollapsed && <span>Communication Tools</span>}
+      </NavLink>
       {/* Performance Management Link */}
       <NavLink
         to="/performance-management"
         className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
-            isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
+            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+            : ""
           }`
         }
       >
@@ -34,10 +49,9 @@ const MidLvlManagerSidebar = ({ isCollapsed }) => {
       <NavLink
         to="/resource-allocation"
         className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
-            isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
+            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+            : ""
           }`
         }
       >
@@ -48,10 +62,9 @@ const MidLvlManagerSidebar = ({ isCollapsed }) => {
       <NavLink
         to="/reporting-analytics"
         className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
-            isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
+            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+            : ""
           }`
         }
       >
@@ -65,10 +78,9 @@ const MidLvlManagerSidebar = ({ isCollapsed }) => {
       <NavLink
         to="/conflict-resolution"
         className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
-            isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
+            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+            : ""
           }`
         }
       >
@@ -82,10 +94,9 @@ const MidLvlManagerSidebar = ({ isCollapsed }) => {
       <NavLink
         to="/training-oversight"
         className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
-            isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
+            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+            : ""
           }`
         }
       >

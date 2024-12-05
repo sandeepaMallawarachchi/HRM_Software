@@ -4,6 +4,7 @@ const pool = require("../database");
 const nodemailer = require("nodemailer");
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const { initializeApp } = require("firebase/app");
 const {
   getStorage,
