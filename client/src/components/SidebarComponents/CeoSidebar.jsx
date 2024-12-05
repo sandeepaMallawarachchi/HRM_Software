@@ -48,24 +48,6 @@ const CeoSidebar = ({ isCollapsed }) => {
         {!isCollapsed && <span>Talent Management</span>}
       </NavLink>
 
-      {/* Culture and Engagement Tools */}
-      <NavLink
-        to="/culture-engagement"
-        className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
-            isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
-          }`
-        }
-      >
-        <FaUsersCog
-          size={20}
-          className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-        />
-        {!isCollapsed && <span>Culture & Engagement</span>}
-      </NavLink>
-
       {/* Decision-Making Support */}
       <NavLink
         to="/decision-support"

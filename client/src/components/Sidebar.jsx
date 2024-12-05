@@ -1,5 +1,15 @@
 import React, { useState } from "react";
-import { FaHome, FaWallet, FaCalendarCheck, FaListAlt, FaAngleLeft, FaBookReader, FaCheckDouble, FaAngleRight, FaTachometerAlt, FaBook, FaFire } from "react-icons/fa";
+import {
+  FaHome,
+  FaWallet,
+  FaCalendarCheck,
+  FaListAlt,
+  FaAngleLeft,
+  FaAngleRight,
+  FaTachometerAlt,
+  FaBook,
+  FaFire,
+} from "react-icons/fa";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import logo from "../images/hrm withoutbackground.png";
 import TeamLeaderSidebar from "../components/SidebarComponents/TeamLdrSidebar";
@@ -12,7 +22,7 @@ import AccountantSidebar from "./SidebarComponents/AccountantSidebar";
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isRecruitmentOpen, setIsRecruitmentOpen] = useState(false);
-  const role = localStorage.getItem("role");
+  const role = localStorage.getItem("role"); // Get user role from localStorage
 
   const handleToggle = () => {
     setIsCollapsed(!isCollapsed);
@@ -22,10 +32,12 @@ const Sidebar = () => {
   const isRecruitmentActive =
     location.pathname.includes("/offers") ||
     location.pathname.includes("/onboarding");
+
   return (
     <div
-      className={`z-50 flex flex-col ${isCollapsed ? "w-16" : "w-64"
-        } pr-3 h-screen bg-white text-black shadow-xl transition-all duration-300 rounded-r-[40px] border-r relative`}
+      className={`z-50 flex flex-col ${
+        isCollapsed ? "w-16" : "w-64"
+      } pr-3 h-screen bg-white text-black shadow-xl transition-all duration-300 rounded-r-[40px] border-r relative`}
     >
       <button
         onClick={handleToggle}
@@ -39,8 +51,9 @@ const Sidebar = () => {
           <img
             src={logo}
             alt="Logo"
-            className={`transition-all duration-300 ${isCollapsed ? "w-8 h-8" : "w-16 h-16"
-              }`}
+            className={`transition-all duration-300 ${
+              isCollapsed ? "w-8 h-8" : "w-16 h-16"
+            }`}
           />
           {!isCollapsed && (
             <span className="mt-2 text-lg transition-all duration-300 font-serif text-center">
@@ -51,16 +64,18 @@ const Sidebar = () => {
       </div>
 
       <div
-        className={`flex flex-col items-center mt-4 mb-8 w-full gap-2 h-[80vh] ${isCollapsed ? "" : "overflow-y-auto"
-          } justify-start`}
+        className={`flex flex-col items-center mt-4 mb-8 w-full gap-2 h-[80vh] ${
+          isCollapsed ? "" : "overflow-y-auto"
+        } justify-start`}
       >
         {role === "Ceo" ? (
           <NavLink
             to="/executive-dashboard"
             className={({ isActive }) =>
-              `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-                : ""
+              `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+                isActive
+                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                  : ""
               }`
             }
           >
@@ -74,9 +89,10 @@ const Sidebar = () => {
           <NavLink
             to="/dashboard"
             className={({ isActive }) =>
-              `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-                : ""
+              `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+                isActive
+                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                  : ""
               }`
             }
           >
@@ -91,9 +107,10 @@ const Sidebar = () => {
         <NavLink
           to="/payroll"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+              isActive
+                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                : ""
             }`
           }
         >
@@ -107,9 +124,10 @@ const Sidebar = () => {
         <NavLink
           to="/attendance"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+              isActive
+                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                : ""
             }`
           }
         >
@@ -123,9 +141,10 @@ const Sidebar = () => {
         <NavLink
           to="/leave"
           className={({ isActive }) =>
-            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+              isActive
+                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                : ""
             }`
           }
         >
@@ -140,13 +159,14 @@ const Sidebar = () => {
           <NavLink
             to="/learn"
             className={({ isActive }) =>
-              `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-                : ""
+              `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+                isActive
+                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                  : ""
               }`
             }
           >
-            <FaBookReader
+            <FaBook
               size={20}
               className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
             />
@@ -154,30 +174,35 @@ const Sidebar = () => {
           </NavLink>
         )}
 
-        <NavLink
-          to="#"
-          onClick={() => setIsRecruitmentOpen(!isRecruitmentOpen)}
-          className={`flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isRecruitmentActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
+        {/* Check if user is HR before showing recruitment submenu */}
+        {role === "HR" && (
+          <NavLink
+            to="#"
+            onClick={() => setIsRecruitmentOpen(!isRecruitmentOpen)}
+            className={`flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+              isRecruitmentActive
+                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                : ""
             }`}
-        >
-          <FaCheckDouble
-            size={20}
-            className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-          />
-          {!isCollapsed && <span>Recruitment</span>}
-        </NavLink>
+          >
+            <FaFire
+              size={20}
+              className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+            />
+            {!isCollapsed && <span>Recruitment</span>}
+          </NavLink>
+        )}
 
-        {/* Offers and Onboarding Submenu */}
-        {isRecruitmentOpen && !isCollapsed && (
+        {/* Offers and Onboarding Submenu (only visible to HR) */}
+        {role === "HR" && isRecruitmentOpen && !isCollapsed && (
           <div className="w-full pl-10 space-y-2">
             <NavLink
               to="/offers"
               className={({ isActive }) =>
-                `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-                  : ""
+                `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+                  isActive
+                    ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                    : ""
                 }`
               }
             >
@@ -191,9 +216,10 @@ const Sidebar = () => {
             <NavLink
               to="/onboarding"
               className={({ isActive }) =>
-                `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-                  ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-                  : ""
+                `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+                  isActive
+                    ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                    : ""
                 }`
               }
             >
