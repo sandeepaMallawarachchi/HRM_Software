@@ -56,13 +56,22 @@ const CertificationsAchievements = () => {
 
     return (
         <div className="card bg-gradient-to-r text-black rounded-lg p-5 transition-shadow duration-300 hover:shadow-lg">
-            <h2 className="text-lg font-semibold mb-2">Certifications and Achievements</h2>
+
+            <div className='flex justify-between'>
+                <h2 className="text-lg font-semibold mb-2">Certifications</h2>
+                <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition duration-300"
+                >
+                    View All
+                </button>
+            </div>
 
             {/* Ongoing Certifications */}
-            <h3 className="font-semibold">Ongoing Certifications</h3>
+            <h3 className="font-semibold my-2">Ongoing Certifications</h3>
             <ul className="list-disc list-inside ml-5 mb-4 bg-orange-100 p-2 rounded">
                 {certificatesList
                     .filter((certificate) => certificate.status !== 'Completed')
+                    .slice(0, 3)
                     .map((certificate) => (
                         <li key={certificate.id}>
                             <a
@@ -78,10 +87,11 @@ const CertificationsAchievements = () => {
             </ul>
 
             {/* Completed Certifications */}
-            <h3 className="font-semibold">Completed Certifications</h3>
+            <h3 className="font-semibold mb-2">Completed Certifications</h3>
             <ul className="list-disc list-inside ml-5 mb-4 bg-green-100 p-2 rounded">
                 {certificatesList
                     .filter((certificate) => certificate.status === 'Completed')
+                    .slice(0, 3)
                     .map((certificate) => (
                         <li key={certificate.id}>
                             <a

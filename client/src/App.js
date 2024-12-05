@@ -54,6 +54,9 @@ import Login from "./pages/auth/Login";
 import Offers from "./pages/subPages/Offers";
 import Onboarding from "./pages/subPages/Onboarding";
 
+//not found page
+import NotFound from "./components/NotFound.jsx";
+
 const App = () => {
   const location = useLocation();
   const isLoginPage = location.pathname === "/";
@@ -196,6 +199,8 @@ const App = () => {
               path="/reminders"
               element={<ProtectedRoute element={<ReminderPage />} />}
             />
+            {/* Catch-all 404 route */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </div>
