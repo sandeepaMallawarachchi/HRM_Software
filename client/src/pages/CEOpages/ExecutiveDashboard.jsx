@@ -1,6 +1,41 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const ExecutiveDashboard = () => {
+  const [totalRevenue, setTotalRevenue] = useState(null);
+  const [avgProfitMargin, setAvgProfitMargin] = useState(null); // State for avg profit margin
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch total revenue for the last quarter
+        const revenueResponse = await axios.get(
+          "http://localhost:4000/employees/total-revenue/last-quarter"
+        );
+
+        // Fetch average profit margin
+        const profitMarginResponse = await axios.get(
+          "http://localhost:4000/employees/avg-profit-margin"
+        );
+
+        // Set the responses to state
+        setTotalRevenue(revenueResponse.data.totalRevenue || 0);
+        setAvgProfitMargin(profitMarginResponse.data.avgProfitMargin || 0); // Update with correct response key
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError("Unable to fetch data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Dashboard Header */}
@@ -20,15 +55,41 @@ const ExecutiveDashboard = () => {
           <h2 className="text-lg font-semibold text-gray-700">
             Revenue Growth
           </h2>
-          <p className="text-2xl font-bold text-green-600">$4.2M</p>
-          <span className="text-sm text-gray-500">+15% since last quarter</span>
+          {loading ? (
+            <p className="text-gray-500">Loading...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : (
+            <>
+              <p className="text-2xl font-bold text-green-600">
+                ${totalRevenue.toLocaleString()}
+              </p>
+              <span className="text-sm text-gray-500">
+                Total from last quarter
+              </span>
+            </>
+          )}
         </div>
 
         {/* Profit Margin */}
         <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-700">Profit Margin</h2>
-          <p className="text-2xl font-bold text-blue-600">22%</p>
-          <span className="text-sm text-gray-500">Sustainable growth</span>
+          <h2 className="text-lg font-semibold text-gray-700">
+            Average Profit Margin
+          </h2>
+          {loading ? (
+            <p className="text-gray-500">Loading...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : (
+            <>
+              <p className="text-2xl font-bold text-blue-600">
+                {isNaN(avgProfitMargin) ? "N/A" : avgProfitMargin.toFixed(2)}%
+              </p>
+              <span className="text-sm text-gray-500">
+                Average for last month
+              </span>
+            </>
+          )}
         </div>
 
         {/* Customer Satisfaction */}

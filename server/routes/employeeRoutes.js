@@ -4,6 +4,7 @@ const pool = require("../database");
 const nodemailer = require("nodemailer");
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const { initializeApp } = require("firebase/app");
 const {
   getStorage,
@@ -177,6 +178,62 @@ router.post("/workDetails/:empId", async (req, res) => {
   } catch (error) {
     console.error("Error saving employee work data:", error);
     res.status(500).json({ error: "Error saving employee work data" });
+  }
+});
+
+// Update work details
+router.put("/workDetails/:empId", async (req, res) => {
+  const empId = req.params.empId;
+  const {
+    workEmail,
+    workPhone,
+    department,
+    location,
+    designation,
+    supervisor,
+  } = req.body;
+
+  try {
+    const updateWorkDetails = {
+      workEmail,
+      workPhone,
+      department,
+      location,
+      designation,
+      supervisor,
+    };
+
+    // Build the SET part of the query dynamically
+    let query = "UPDATE workdetails SET ";
+    let values = [];
+    for (let key in updateWorkDetails) {
+      if (updateWorkDetails[key]) {
+        query += `${key} = ?, `;
+        values.push(updateWorkDetails[key]);
+      }
+    }
+
+    // Remove the trailing comma and space
+    query = query.slice(0, -2);
+    query += " WHERE empId = ?";
+
+    // Add the empId as the last value for the WHERE condition
+    values.push(empId);
+
+    const [results] = await pool.query(query, values);
+
+    if (results.affectedRows > 0) {
+      res.status(200).json({
+        message: "Employee work details updated successfully",
+      });
+    } else {
+      res.status(404).json({
+        message: "Employee not found or no changes made",
+      });
+    }
+  } catch (error) {
+    console.error("Error updating employee work data:", error);
+    res.status(500).json({ error: "Error updating employee work data" });
   }
 });
 
@@ -1565,6 +1622,92 @@ router.put("/expenses/:department/:date", async (req, res) => {
     res
       .status(500)
       .json({ error: "Error updating expenses data", details: error.message });
+  }
+});
+
+//get total revenue
+router.get("/total-revenue/last-quarter", async (req, res) => {
+  try {
+    // Query to fetch the total revenue sum (last 3 months or all data if none in 3 months)
+    const query = `
+      SELECT 
+        SUM(\`Product Sales\` + \`Service Income\` - Discounts) AS totalRevenue
+      FROM 
+        revenue_with_targets
+      WHERE 
+        Date >= (
+          CASE 
+            WHEN EXISTS (
+              SELECT 1 
+              FROM revenue_with_targets 
+              WHERE Date >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+            ) 
+            THEN DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+            ELSE '0000-01-01' -- Include all data if no recent data exists
+          END
+        )
+    `;
+
+    // Execute the query
+    const [results] = await pool.query(query);
+
+    // Extract total revenue from the result
+    const totalRevenue = results[0]?.totalRevenue || 0;
+
+    // Response
+    res.status(200).json({
+      message: "Total revenue fetched successfully.",
+      totalRevenue,
+    });
+  } catch (error) {
+    console.error("Error fetching total revenue:", error.message);
+    res.status(500).json({
+      message: "Error fetching total revenue.",
+      error: error.message,
+    });
+  }
+});
+
+// Route to get the average profit margin
+router.get("/avg-profit-margin", async (req, res) => {
+  try {
+    const query = `
+      SELECT Department, \`Profit Margin\`
+      FROM profit_table 
+      WHERE Date = (
+        SELECT MAX(Date) 
+        FROM profit_table AS sub
+        WHERE sub.Department = profit_table.Department
+      )
+    `;
+
+    // Execute the query and get the results
+    const [results] = await pool.query(query);
+
+    if (results.length === 0) {
+      return res.status(404).json({
+        message: "No profit margin data available.",
+      });
+    }
+
+    // Sum up all the profit margins
+    const totalProfitMargin = results.reduce((sum, row) => {
+      return sum + parseFloat(row["Profit Margin"]); // Access the column with a space using bracket notation
+    }, 0);
+
+    // Calculate the average profit margin
+    const avgProfitMargin = totalProfitMargin / results.length;
+
+    res.status(200).json({
+      message: "Average profit margin fetched successfully.",
+      avgProfitMargin,
+    });
+  } catch (error) {
+    console.error("Error fetching average profit margin:", error.message);
+    res.status(500).json({
+      message: "Error fetching average profit margin.",
+      error: error.message,
+    });
   }
 });
 

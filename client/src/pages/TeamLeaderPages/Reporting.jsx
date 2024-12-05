@@ -1,6 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { FaDownload, FaChartLine, FaEnvelope, FaUserTie, FaBuilding } from "react-icons/fa";
+import React, { useEffect, useRef, useState } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import logo from '../../images/hrm withoutbackground.png';
+import { FaDownload, FaEnvelope, FaSave } from "react-icons/fa";
+import 'jspdf-autotable';
 import axios from "axios";
+import { Line } from "react-chartjs-2";
+import { useNavigate } from "react-router-dom";
+import { getDatabase, ref, update } from "firebase/database";
+import { initializeApp } from "firebase/app";
+import { firebaseConfig } from "../../firebase";
+
+// Initialize Firebase app
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
 const Reporting = () => {
   const [teamData, setTeamData] = useState([]);
@@ -9,6 +22,11 @@ const Reporting = () => {
   const [filter, setFilter] = useState("");
   const empId = localStorage.getItem("empId");
   const [filteredTeamName, setFilteredTeamName] = useState("");
+  const reportRef = useRef(null);
+  const chartRef = useRef(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const navigate = useNavigate();
 
   const handleTeamNameChange = async (e) => {
     const selectedTeamName = e.target.value;
@@ -42,13 +60,17 @@ const Reporting = () => {
 
   const handlePerformanceChange = (id, value) => {
     setFilteredData((prevData) =>
-      prevData.map((item) => (item.id === id ? { ...item, performance: value } : item))
+      prevData.map((item) =>
+        item.id === id ? { ...item, performance: value } : item
+      )
     );
   };
 
   const handleTasksCompletedChange = (id, value) => {
     setFilteredData((prevData) =>
-      prevData.map((item) => (item.id === id ? { ...item, tasksCompleted: value } : item))
+      prevData.map((item) =>
+        item.id === id ? { ...item, taskcompleted: value } : item
+      )
     );
   };
 
@@ -65,13 +87,129 @@ const Reporting = () => {
     }
   };
 
+  const handleSaveChanges = async (empId, teamName, performance, taskcompleted) => {
+    try {
+      await axios.post(`http://localhost:4000/admin/addPerformance/${empId}/${teamName}`, {
+        performance,
+        taskcompleted,
+      });
+      alert("Performance updated successfully");
+    } catch (error) {
+      console.error("Error updating performance:", error);
+      alert("Failed to update performance");
+    }
+  };
+
+  const chartData = {
+    labels: filteredData.map((employee) => employee.name),
+    datasets: [
+      {
+        label: `${filteredTeamName} Performance`,
+        data: filteredData.map((employee) => employee.performance),
+        fill: false,
+        borderColor: "#ff7f50",
+        tension: 0.1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: `${filteredTeamName} Performance Over Time`,
+      },
+    },
+  };
+
+  const handleDownload = () => {
+    if (!filteredTeamName) return;
+
+    setIsDownloading(true);
+
+    setTimeout(() => {
+      const doc = new jsPDF('p', 'pt', 'a4');
+      doc.addImage(logo, 'PNG', 40, 40, 50, 50);
+      doc.setFontSize(14);
+      doc.text('GLOBAL HRM', 100, 60);
+      doc.text(`Issue Date: ${new Date().toLocaleDateString('en-CA')}`, 400, 60);
+
+      doc.setFontSize(18);
+      doc.text(`Performance Report - ${filteredTeamName}`, 40, 100);
+
+      doc.setFontSize(10);
+      doc.autoTable({
+        head: [['Team Member', 'Performance (%)', 'Tasks Completed']],
+        body: filteredData.map(item => [item.name, item.performance, item.taskcompleted]),
+        startY: 120,
+        theme: 'grid',
+      });
+
+      const chart = chartRef.current;
+      if (chart) {
+        html2canvas(chart).then((canvas) => {
+          const imgData = canvas.toDataURL('image/png');
+          doc.addImage(imgData, 'PNG', 40, doc.lastAutoTable.finalY + 20, 500, 200);
+          doc.save(`performance_report_${filteredTeamName}.pdf`);
+          setIsDownloading(false);
+        });
+      } else {
+        doc.save(`performance_report_${filteredTeamName}.pdf`);
+        setIsDownloading(false);
+      }
+    }, 2000);
+  };
+
+  const handleSave = async (item) => {
+    setIsFetching(true);
+    try {
+      const chatId = `${item.name}`;
+      const chatRef = ref(database, "chats/" + chatId);
+      const timestamp = Date.now();
+      const membersWithEmpId = [...new Set([empId, item.empId])];
+      await update(chatRef, {
+        members: membersWithEmpId,
+        timestamp: timestamp,
+      });
+
+      const newMember = {
+        members: membersWithEmpId,
+        chatId,
+      };
+
+      await axios.post(`http://localhost:4000/admin/addMember`, newMember);
+      navigate('/communication');
+    } catch (error) {
+      console.error("Error adding members to chat:", error);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
   return (
     <div className="p-6 bg-white shadow-lg rounded-xl">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-semibold">Team Performance Reports</h1>
-        <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
-          <FaDownload />
-          <span>Download Report</span>
+        <button
+          onClick={handleDownload}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2"
+          disabled={!filteredTeamName || isDownloading}
+        >
+          {isDownloading ? (
+            <>
+              <FaDownload />
+              <span>Downloading...</span>
+            </>
+          ) : (
+            <>
+              <FaDownload />
+              <span>Download Report</span>
+            </>
+          )}
         </button>
       </div>
       <div className="flex justify-between mb-4">
@@ -95,12 +233,12 @@ const Reporting = () => {
           onChange={handleFilterChange}
         />
       </div>
-      <div className="overflow-x-auto">
+      <div ref={reportRef} className="overflow-x-auto">
         <table className="table-auto w-full border-collapse">
           <thead>
             <tr className="bg-gray-100 text-left">
               <th className="p-4 border-b">Team Member</th>
-              <th className="p-4 border-b">Performance</th>
+              <th className="p-4 border-b">Performance (%)</th>
               <th className="p-4 border-b">Tasks Completed</th>
               <th className="p-4 border-b">Actions</th>
             </tr>
@@ -114,31 +252,53 @@ const Reporting = () => {
               </tr>
             ) : (
               filteredData.map((item) => (
-                <tr key={item.id} className="border-b hover:bg-gray-50">
+                <tr key={item.id} className="border-b">
                   <td className="p-4">{item.name}</td>
                   <td className="p-4">
                     <input
-                      type="text"
+                      type="number"
                       value={item.performance}
+                      min={0}
+                      max={100}
                       onChange={(e) => handlePerformanceChange(item.id, e.target.value)}
                       className="border rounded px-2 py-1 w-20"
                     />
                   </td>
                   <td className="p-4">
                     <input
-                      type="text"
-                      value={item.tasksCompleted}
+                      type="number"
+                      value={item.taskcompleted}
+                      min={0}
+                      max={100}
                       onChange={(e) => handleTasksCompletedChange(item.id, e.target.value)}
                       className="border rounded px-2 py-1 w-20"
                     />
                   </td>
-                  <td className="p-4">
+                  <td className="p-4 flex gap-2">
                     <button
-                      onClick={() => alert(`Message sent to ${item.teamMember}`)}
+                      onClick={() =>
+                        handleSaveChanges(item.empId, filteredTeamName, item.performance, item.taskcompleted)
+                      }
+                      className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center gap-2"
+                    >
+                      <FaSave />
+                      <span>Save</span>
+                    </button>
+                    <button
+                      onClick={() => handleSave(item)}
                       className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 flex items-center gap-2"
                     >
-                      <FaEnvelope />
-                      <span>Message</span>
+                      {isFetching ? (
+                        <>
+                          <FaEnvelope />
+                          <span>Opening...</span>
+                        </>
+                      ) : (
+                        <>
+                          <FaEnvelope />
+                          <span>Message</span>
+                        </>
+                      )}
                     </button>
                   </td>
                 </tr>
@@ -147,28 +307,8 @@ const Reporting = () => {
           </tbody>
         </table>
       </div>
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">Team Performance Over Time</h2>
-        <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-          <FaChartLine size={50} className="text-gray-400" />
-          <span className="text-gray-400 ml-4">Graph Placeholder</span>
-        </div>
-      </div>
-      <div className="mt-8 flex justify-between">
-        <button
-          onClick={() => alert("Report sent to HR")}
-          className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 flex items-center gap-2"
-        >
-          <FaUserTie />
-          <span>Send Report to HR</span>
-        </button>
-        <button
-          onClick={() => alert("Report sent to Department Manager")}
-          className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 flex items-center gap-2"
-        >
-          <FaBuilding />
-          <span>Send Report to Department Manager</span>
-        </button>
+      <div ref={chartRef} className='mt-10'>
+        <Line data={chartData} options={chartOptions} />
       </div>
     </div>
   );

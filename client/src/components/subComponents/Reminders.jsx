@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FaBookReader, FaBell } from 'react-icons/fa';
+import { FaBookReader, FaBell, FaExclamationTriangle } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 const Reminders = () => {
     const empId = localStorage.getItem('empId');
     const [learningReminders, setLearningReminders] = useState([]);
     const [otherReminders, setOtherReminders] = useState([]);
+    const [alerts, setAlerts] = useState([]);
 
     const fetchReminders = async () => {
         const today = new Date();
@@ -22,6 +23,9 @@ const Reminders = () => {
                 params: { date: formattedDate, subject: 'Others' },
             });
             setOtherReminders(otherResponse.data);
+
+            const response = await axios.get(`http://localhost:4000/admin/getAllocatedResources/${empId}`);
+            setAlerts(response.data.filter((alert) => alert.alert === 1));
         } catch (error) {
             console.log("Error fetching reminders:", error);
         }
@@ -30,6 +34,11 @@ const Reminders = () => {
     useEffect(() => {
         fetchReminders();
     }, []);
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-CA');
+    };
 
     return (
         <div>
@@ -55,7 +64,24 @@ const Reminders = () => {
                 </div></Link>
             )}
 
-            {learningReminders.length === 0 && otherReminders.length === 0 && (
+            {alerts.length > 0 && (
+                <div>
+                    {alerts.map((alert) => (
+                        <div
+                            key={alert.id}
+                            className="flex gap-4 my-2 p-4 rounded-xl bg-red-200"
+                        >
+                            <FaExclamationTriangle size={20} color="red" className="self-center" />
+                            <span className='text-left'>
+                                {alert.resource} allocated to you is delayed. <br />
+                                Return date: {formatDate(alert.returneddate)}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {learningReminders.length === 0 && otherReminders.length === 0 && alerts.length === 0 && (
                 <div className="text-sm text-gray-500 mt-4">
                     No reminders available for today.
                 </div>

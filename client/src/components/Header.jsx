@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { FaBell, FaEnvelope, FaAngleDown } from "react-icons/fa";
-import defaultAvatar from "../images/avatar.png";
+import React, { useEffect, useState, useRef } from "react";
+import { FaAngleDown } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import Support from "../pages/profileComponents/Support";
 import axios from "axios";
@@ -12,7 +11,8 @@ const Header = () => {
   const location = useLocation();
   const [showSupportModal, setShowSupportModal] = useState(false);
   const [empName, setEmpName] = useState("");
-  const [avatar, setAvatar] = useState(defaultAvatar);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const fetchName = async () => {
@@ -28,10 +28,6 @@ const Header = () => {
           `http://localhost:4000/employees/getPersonalDetails/${empId}`
         );
         setEmpName(response.data);
-
-        if (response.data.profilepic) {
-          setAvatar(`http://localhost:4000${response.data.profilepic}`);
-        }
       } catch (err) {
         console.log("Error fetching employee name:", err);
       }
@@ -42,24 +38,68 @@ const Header = () => {
 
   const getPageTitle = () => {
     switch (location.pathname) {
+      case "/dashboard":
+        return "Dashboard";
       case "/profile":
         return "Profile";
-      case "/support":
-        return "Support";
-      case "/leave":
-        return "Leave & Attendance";
       case "/payroll":
         return "Payroll";
       case "/registration":
         return "Registration";
+      case "/leave":
+        return "Leave & Attendance";
       case "/attendance":
         return "Attendance & Time";
       case "/learn":
         return "Learning & Development";
       case "/offers":
         return "Offers";
+      case "/onboarding":
+        return "Onboarding";
+      case "/team-management":
+        return "Team Management";
+      case "/reporting":
+        return "Reporting";
       case "/communication":
         return "Communication Tool";
+      case "/performance-management":
+        return "Performance Management";
+      case "/resource-allocation":
+        return "Resource Allocation";
+      case "/reporting-analytics":
+        return "Reports & Analytics";
+      case "/conflict-resolution":
+        return "Conflict Resolution";
+      case "/training-oversight":
+        return "Training Oversight";
+      case "/strategic-planning":
+        return "Strategic Planning";
+      case "/performance-dashboards":
+        return "Performance Dashboards";
+      case "/succession-planning":
+        return "Succession Planning";
+      case "/budgeting":
+        return "Budgeting";
+      case "/compliance-tracking":
+        return "Compliance Tracking";
+      case "/expences":
+        return "Expenses";
+      case "/profits":
+        return "Profits";
+      case "/Revenue":
+        return "Revenue";
+      case "/executive-dashboard":
+        return "Executive Dashboard";
+      case "/strategic-insights":
+        return "Strategic Insights";
+      case "/talent-management":
+        return "Talent Management";
+      case "/culture-engagement":
+        return "Culture & Engagement";
+      case "/decision-support":
+        return "Decision Support";
+      case "/reminders":
+        return "Reminders";
       default:
         return "Dashboard";
     }
@@ -77,6 +117,27 @@ const Header = () => {
     }
   };
 
+  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
+
+  // Close dropdown if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDropdownOpen]);
+
   return (
     <div className="z-0 header w-full h-auto px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 flex items-center justify-between">
       <div className="text-white ml-16">{getPageTitle()}</div>
@@ -86,7 +147,11 @@ const Header = () => {
         <MessageIcon />
       </div>
 
-      <div className="relative flex items-center border border-white rounded-full p-2 px-3 space-x-3 backdrop-blur-lg group">
+      <div
+        ref={dropdownRef}
+        className="relative flex items-center border border-white rounded-full p-2 px-3 space-x-3 backdrop-blur-lg group"
+        onClick={toggleDropdown}
+      >
         <div className="w-10 justify-center rounded-full">
           <ProfilePicture />
         </div>
@@ -96,27 +161,29 @@ const Header = () => {
           size={20}
         />
 
-        <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-md">
-          <ul className="py-2">
-            <Link to="/profile">
-              <li className="px-4 py-2 hover:bg-orange-100 cursor-pointer">
-                Profile
+        {isDropdownOpen && (
+          <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg backdrop-blur-md">
+            <ul className="py-2">
+              <Link to="/profile">
+                <li className="px-4 py-2 hover:bg-orange-100 cursor-pointer">
+                  Profile
+                </li>
+              </Link>
+              <li
+                onClick={handleLogout}
+                className="px-4 py-2 hover:bg-orange-100 cursor-pointer"
+              >
+                Logout
               </li>
-            </Link>
-            <li
-              onClick={handleLogout}
-              className="px-4 py-2 hover:bg-orange-100 cursor-pointer"
-            >
-              Logout
-            </li>
-            <li
-              onClick={() => setShowSupportModal(true)}
-              className="px-4 py-2 hover:bg-orange-100 cursor-pointer"
-            >
-              Support
-            </li>
-          </ul>
-        </div>
+              <li
+                onClick={() => setShowSupportModal(true)}
+                className="px-4 py-2 hover:bg-orange-100 cursor-pointer"
+              >
+                Support
+              </li>
+            </ul>
+          </div>
+        )}
       </div>
 
       {showSupportModal && <Support onClose={closeModal} />}
