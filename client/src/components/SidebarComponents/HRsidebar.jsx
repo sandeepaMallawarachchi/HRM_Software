@@ -6,6 +6,7 @@ import {
   FaHandshake,
   FaMoneyCheckAlt,
   FaFileAlt,
+  FaUserFriends,
 } from "react-icons/fa";
 
 const HRsidebar = ({ isCollapsed }) => {
@@ -45,6 +46,23 @@ const HRsidebar = ({ isCollapsed }) => {
           className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
         />
         {!isCollapsed && <span>Payroll Management</span>}
+      </NavLink>
+
+      <NavLink
+        to="/pre-approvals"
+        className={({ isActive }) =>
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+            isActive
+              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+              : ""
+          }`
+        }
+      >
+        <FaUserFriends
+          size={20}
+          className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+        />
+        {!isCollapsed && <span>Pre-Approvals</span>}
       </NavLink>
 
       {/* Policy Management */}

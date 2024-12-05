@@ -58,6 +58,7 @@ import ProtectedRoute from "./pages/auth/ProtectedRoute";
 import Login from "./pages/auth/Login";
 import Offers from "./pages/subPages/Offers";
 import Onboarding from "./pages/subPages/Onboarding";
+import PreApprovals from "./pages/HRpages/PreApprovals";
 
 const App = () => {
   const location = useLocation();
@@ -112,6 +113,11 @@ const App = () => {
               path="/onboarding"
               element={<ProtectedRoute element={<Onboarding />} />}
             />
+            <Route
+              path="/pre-approvals"
+              element={<ProtectedRoute element={<PreApprovals />} />}
+            />
+
             <Route
               path="/team-management"
               element={<ProtectedRoute element={<TeamManage />} />}

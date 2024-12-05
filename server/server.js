@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const authRoutes = require("./routes/authRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const cvRoutes = require("./routes/cvRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -20,6 +21,9 @@ app.use("/employees", employeeRoutes);
 
 // Use the admin routes
 app.use("/admin", adminRoutes);
+
+// Use the admin routes
+app.use("/cv", cvRoutes);
 
 // Start the server
 app.listen(PORT, () => {
