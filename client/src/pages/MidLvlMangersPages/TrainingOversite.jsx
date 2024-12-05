@@ -2,119 +2,153 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import NewResourceAllocation from "./NewResourceAllocation";
 import AddNewTraining from './AddNewTraining'
+import NewTrainingAllocation from "./NewTrainingAllocation";
 
 const TrainingOversite = () => {
   const [trainings, setTrainings] = useState([]);
   const [allocationHistory, setAllocationHistory] = useState([]);
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
-  const [isResourseModalOpen, setIsResourseModalOpen] = useState(false);
-  const [selectedResource, setSelectedResource] = useState(null);
-  const [selectedResourceId, setSelectedResourceId] = useState(null);
-  const [selectedResourceQuantity, setSelectedResourceQuantity] = useState(null);
-  const [editedQuantities, setEditedQuantities] = useState({});
+  const [isTrainingModalOpen, setIsTrainingModalOpen] = useState(false);
+  const [selectedTraining, setSelectedTraining] = useState(null);
+  const [selectedTrainingWeight, setSelectedTrainingWeight] = useState(null);
   const today = new Date().toISOString().split('T')[0];
 
-  const handleAddTraining = () => {
-    const newTraining = {
-      id: trainings.length + 1,
-      trainingName,
-      trainer,
-      date,
-      duration,
-      status,
+  useEffect(() => {
+    const fetchTraining = async () => {
+      try {
+        const response = await axios.get(`http://localhost:4000/admin/getAllTrainings`);
+        setTrainings(response.data);
+      } catch (error) {
+        console.log(error)
+      }
     };
-    setTrainings([...trainings, newTraining]);
-    // Reset form fields
-    setTrainingName("");
-    setTrainer("");
-    setDate("");
-    setDuration("");
-    setStatus("Upcoming");
+    fetchTraining();
+  }, []);
+
+  useEffect(() => {
+    const fetchAllocatedTrainings = async () => {
+      try {
+        const response = await axios.get(`http://localhost:4000/admin/getAllAllocatedTraining`);
+        setAllocationHistory(response.data);
+      } catch (error) {
+        console.log(error)
+      }
+    };
+    fetchAllocatedTrainings();
+  }, []);
+
+  const handleNewAllocation = (training, weight) => {
+    setSelectedTraining(training);
+    setSelectedTrainingWeight(weight);
+    setIsEmployeeModalOpen(true);
+  };
+
+  const handleNewTraining = () => {
+    setIsTrainingModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsEmployeeModalOpen(false);
+    setIsTrainingModalOpen(false);
+    setSelectedTraining(null);
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-CA');
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Training Oversight</h2>
+    <div className="container mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-4">Training Allocation</h2>
 
-      <div className="mb-6">
-        <h3 className="text-xl font-semibold">Add New Training</h3>
-        <input
-          type="text"
-          placeholder="Training Name"
-          value={trainingName}
-          onChange={(e) => setTrainingName(e.target.value)}
-          className="border p-2 w-full mb-2"
-        />
-        <input
-          type="text"
-          placeholder="Trainer Name"
-          value={trainer}
-          onChange={(e) => setTrainer(e.target.value)}
-          className="border p-2 w-full mb-2"
-        />
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="border p-2 w-full mb-2"
-        />
-        <input
-          type="text"
-          placeholder="Duration"
-          value={duration}
-          onChange={(e) => setDuration(e.target.value)}
-          className="border p-2 w-full mb-2"
-        />
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="border p-2 w-full mb-2"
-        >
-          <option value="Upcoming">Upcoming</option>
-          <option value="Ongoing">Ongoing</option>
-          <option value="Completed">Completed</option>
-        </select>
+      <div className="mb-4 flex justify-between">
         <button
-          onClick={handleAddTraining}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
+          onClick={handleNewTraining}
+          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition duration-300"
         >
-          Add Training
+          Add New Training
         </button>
       </div>
 
-      <h3 className="text-xl font-semibold mb-2">Current Training Sessions</h3>
-      <table className="min-w-full border-collapse border border-gray-300">
+      <h3 className="text-xl font-semibold mb-2">Available Trainings</h3>
+      <table className="min-w-full bg-white border border-gray-200 mb-4">
         <thead>
           <tr>
-            <th className="border border-gray-300 px-4 py-2">Training Name</th>
-            <th className="border border-gray-300 px-4 py-2">Trainer</th>
-            <th className="border border-gray-300 px-4 py-2">Date</th>
-            <th className="border border-gray-300 px-4 py-2">Duration</th>
-            <th className="border border-gray-300 px-4 py-2">Status</th>
+            <th className="border-b px-4 py-2">Training Name</th>
+            <th className="border-b px-4 py-2">Weight</th>
+            <th className="border-b px-4 py-2">Duration (Hours)</th>
+            <th className="border-b px-4 py-2">Action</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="text-center">
           {trainings.map((training) => (
             <tr key={training.id}>
-              <td className="border border-gray-300 px-4 py-2">
-                {training.trainingName}
-              </td>
-              <td className="border border-gray-300 px-4 py-2">
-                {training.trainer}
-              </td>
-              <td className="border border-gray-300 px-4 py-2">
-                {training.date}
-              </td>
-              <td className="border border-gray-300 px-4 py-2">
-                {training.duration}
-              </td>
-              <td className="border border-gray-300 px-4 py-2">
-                {training.status}
+              <td className="border-b px-4 py-2">{training.training}</td>
+              <td className="border-b px-4 py-2">{training.weight}</td>
+              <td className="border-b px-4 py-2">{training.duration}</td>
+              <td className="border-b px-4 py-2 text-center">
+                {/* <button
+                  onClick={() => handleNewAllocation(training.training, training.weight)}
+                  className={`px-2 py-1 rounded ${training.status == 'Ongoing'
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "bg-blue-300 text-white cursor-not-allowed"
+                    }`}
+                  disabled={training.status != 'Ongoing'}
+                >
+                  Allocate
+                </button> */}
+
+                <button
+                  onClick={() => handleNewAllocation(training.training, training.weight)}
+                  className="px-2 py-1 rounded bg-blue-500 text-white hover:bg-blue-600"
+                >
+                  Allocate
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      <h3 className="text-xl font-semibold mt-8 mb-2">Allocation History</h3>
+      <table className="min-w-full bg-white border border-gray-200">
+        <thead>
+          <tr>
+            <th className="border-b px-4 py-2">Allocated Employee</th>
+            <th className="border-b px-4 py-2">Training Name</th>
+            <th className="border-b px-4 py-2">Weight</th>
+            <th className="border-b px-4 py-2">Allocated Date</th>
+            <th className="border-b px-4 py-2">Finished Date</th>
+            <th className="border-b px-4 py-2">Status</th>
+            {/* <th className="border-b px-4 py-2">Actions</th> */}
+          </tr>
+        </thead>
+        <tbody>
+          {allocationHistory.map((history, index) => (
+            <tr key={index} className="text-center">
+              <td className="border-b px-4 py-2">{history.NAME}</td>
+              <td className="border-b px-4 py-2">{history.training}</td>
+              <td className="border-b px-4 py-2">{history.weight}</td>
+              <td className="border-b px-4 py-2">{formatDate(history.allocatedate)}</td>
+              {history.status == 'Ongoing' ?
+                <td className="border-b px-4 py-2">Not Finished Yet</td>
+                :
+                <td className="border-b px-4 py-2">{formatDate(history.finisheddate)}</td>
+              }
+              <td className={`border-b px-4 py-2 font-medium ${history.status == 'Ongoing' ?
+                'text-orange-500'
+                : 'text-green-500'
+                }`}>
+                {history.status}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {isEmployeeModalOpen && <NewTrainingAllocation selectedTraining={selectedTraining} selectedTrainingWeight={selectedTrainingWeight} onClose={handleModalClose} />}
+      {isTrainingModalOpen && <AddNewTraining onClose={handleModalClose} />}
     </div>
   );
 };

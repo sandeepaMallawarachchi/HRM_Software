@@ -75,11 +75,11 @@ const AddNewTraining = ({ onClose }) => {
                     </div>
                     <div>
                         <label htmlFor="duration" className="block text-sm font-semibold text-gray-700 mb-2">
-                            Duration
+                            Duration (Hours)
                         </label>
                         <input
                             id="duration"
-                            type="text"
+                            type="number"
                             placeholder="Enter duration of training"
                             value={trainingData.duration}
                             onChange={handleChange}
