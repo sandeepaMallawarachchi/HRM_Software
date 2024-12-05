@@ -756,7 +756,8 @@ router.get("/getTeamAndPerformance", async (req, res) => {
                 t.teamName, 
                 t.creator AS creatorEmpId,
                 p.NAME AS creatorName, 
-                FORMAT(AVG(t.performance), 2) AS avgPerformance
+                FORMAT(AVG(t.performance), 2) AS avgPerformance,
+                t.created_at
             FROM teammembers t
             JOIN personaldetails p ON p.empId = t.creator
             GROUP BY t.teamName, p.NAME`

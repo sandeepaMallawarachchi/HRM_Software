@@ -55,17 +55,45 @@ const CertificationsAchievements = () => {
     }, [empId]);
 
     return (
-        <div className="card bg-gradient-to-r from-orange-400 to-orange-300 text-white rounded-lg p-5 transition-shadow duration-300 hover:shadow-lg">
+        <div className="card bg-gradient-to-r text-black rounded-lg p-5 transition-shadow duration-300 hover:shadow-lg">
             <h2 className="text-lg font-semibold mb-2">Certifications and Achievements</h2>
-            <ul className="list-disc list-inside ml-5 mb-4">
-                {certificatesList.map((certificate) => (
-                    <li key={certificate.id}>
-                        <a href={certificate.link} target="_blank" rel="noopener noreferrer" className="underline mr-2">
-                            {certificate.certificate_name}
-                        </a>
-                        - {certificate.status}
-                    </li>
-                ))}
+
+            {/* Ongoing Certifications */}
+            <h3 className="font-semibold">Ongoing Certifications</h3>
+            <ul className="list-disc list-inside ml-5 mb-4 bg-orange-100 p-2 rounded">
+                {certificatesList
+                    .filter((certificate) => certificate.status !== 'Completed')
+                    .map((certificate) => (
+                        <li key={certificate.id}>
+                            <a
+                                href={certificate.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline mr-2 text-blue-500"
+                            >
+                                {certificate.certificate_name}
+                            </a>
+                        </li>
+                    ))}
+            </ul>
+
+            {/* Completed Certifications */}
+            <h3 className="font-semibold">Completed Certifications</h3>
+            <ul className="list-disc list-inside ml-5 mb-4 bg-green-100 p-2 rounded">
+                {certificatesList
+                    .filter((certificate) => certificate.status === 'Completed')
+                    .map((certificate) => (
+                        <li key={certificate.id}>
+                            <a
+                                href={certificate.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline mr-2 text-blue-500"
+                            >
+                                {certificate.certificate_name}
+                            </a>
+                        </li>
+                    ))}
             </ul>
 
             <div className="mt-4">
@@ -99,7 +127,7 @@ const CertificationsAchievements = () => {
                     </select>
                     <button
                         type="submit"
-                        className="bg-white text-blue-500 rounded py-2 hover:bg-gray-200 transition duration-300"
+                        className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition duration-300"
                     >
                         Add Certification
                     </button>

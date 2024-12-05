@@ -16,11 +16,11 @@ import LeaveAndAttendance from "./pages/LeaveAndAttendance";
 import LearningDevelopment from "./pages/LearningDevelopment";
 import AttendanceAndTime from "./pages/AttendanceAndTime";
 import ReminderPage from "./pages/subPages/ReminderPage.jsx";
+import Communication from "./components/Communication.jsx";
 
 //team leader routes
 import TeamManage from "./pages/TeamLeaderPages/TeamManage";
 import Reporting from "./pages/TeamLeaderPages/Reporting";
-import Communication from "./pages/TeamLeaderPages/Communication";
 
 //Mid Lvl Managers routes
 import PerformanceManage from "./pages/MidLvlMangersPages/PerformanceManage";

@@ -43,7 +43,7 @@ const MidLvlManagerSidebar = ({ isCollapsed }) => {
           size={20}
           className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
         />
-        {!isCollapsed && <span>Performance Management</span>}
+        {!isCollapsed && <span>Performance Manage...</span>}
       </NavLink>
       {/* Resource Allocation Link */}
       <NavLink
@@ -59,7 +59,7 @@ const MidLvlManagerSidebar = ({ isCollapsed }) => {
         {!isCollapsed && <span>Resource Allocation</span>}
       </NavLink>
       {/* Reporting and Analytics Link */}
-      <NavLink
+      {/* <NavLink
         to="/reporting-analytics"
         className={({ isActive }) =>
           `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
@@ -73,7 +73,7 @@ const MidLvlManagerSidebar = ({ isCollapsed }) => {
           className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
         />
         {!isCollapsed && <span>Reporting & Analytics</span>}
-      </NavLink>
+      </NavLink> */}
       {/* Conflict Resolution Link */}
       <NavLink
         to="/conflict-resolution"
