@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import "../components/CSS/LearningDevelopment.css";
 import CertificationsAchievements from "../components/leaningComponents/CertificationsAchievements";
 import LearningCalander from "../components/leaningComponents/LearningCalander";
+import TrainingAndTasks from "../components/leaningComponents/TrainingAndTasks";
 
 const LearningDevelopment = () => {
 
@@ -9,34 +10,7 @@ const LearningDevelopment = () => {
     <div className="p-5">
       <div className="grid grid-cols-3 gap-6 p-6">
         {/* Training and Courses Overview */}
-        <div className="card bg-gray-100 border border-gray-300 rounded-lg p-5 ">
-          <h2 className="text-lg font-semibold">
-            Training and Courses Overview
-          </h2>
-          <div className="mt-4">
-            <h3 className="font-semibold">Ongoing Tasks</h3>
-            <ul className="list-disc list-inside ml-5">
-              <li className="text-orange-600 bg-orange-100 p-2 rounded">
-                Full-Stack Development (60% complete)
-              </li>
-            </ul>
-            <h3 className="font-semibold mt-4">Completed Tasks</h3>
-            <ul className="list-disc list-inside ml-5">
-              <li className="text-yellow-600 bg-yellow-100 p-2 rounded">
-                Intro to JavaScript
-              </li>
-              <li className="text-yellow-600 bg-yellow-100 p-2 rounded">
-                Git & GitHub Basics
-              </li>
-            </ul>
-            <h3 className="font-semibold mt-4">Upcoming Tasks</h3>
-            <ul className="list-disc list-inside ml-5">
-              <li className="text-blue-600 bg-blue-100 p-2 rounded">
-                Advanced React.js Workshop on November 5, 2024
-              </li>
-            </ul>
-          </div>
-        </div>
+        <TrainingAndTasks />
 
         {/* Learning Progress */}
         <div className="card bg-gray-100 border border-gray-300 rounded-lg p-5 ">
@@ -71,7 +45,7 @@ const LearningDevelopment = () => {
         <CertificationsAchievements />
 
         {/* Skills and Competencies */}
-        <div className="card bg-gradient-to-r from-indigo-500 to-indigo-300 text-white rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
+        <div className="card bg-gradient-to-r from-indigo-500 to-indigo-300 text-white rounded-lg p-5 transition-shadow duration-300 hover:shadow-lg">
           <h2 className="text-lg font-semibold mb-4">
             Skills and Competencies
           </h2>

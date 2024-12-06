@@ -3,6 +3,7 @@ import axios from 'axios';
 import "../CSS/LearningDevelopment.css";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import { Link } from 'react-router-dom'
 
 const LearningCalendar = () => {
     const empId = localStorage.getItem('empId');
@@ -56,9 +57,16 @@ const LearningCalendar = () => {
 
     return (
         <div className="card bg-gray-100 border border-gray-300 rounded-lg p-5">
-            <h2 className="text-lg font-semibold">Learning Calendar</h2>
+            <div className="flex justify-between mb-2">
+                <h2 className="text-lg font-semibold mb-2">Learning Calendar</h2>
+                <Link
+                    to={'/reminders'}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition duration-300"
+                >
+                    View All
+                </Link>
+            </div>
             <Calendar onChange={handleDateChange} value={date} />
-            <p className="mt-2">Selected Date: {date.toDateString()}</p>
             <div className="mt-4 flex gap-2">
                 <input
                     type="text"
@@ -78,11 +86,13 @@ const LearningCalendar = () => {
                 <h3 className="text-md font-semibold">Reminders</h3>
                 <ul className="list-disc list-inside ml-5">
                     {reminders.length > 0 ? (
-                        reminders.map((remind) => (
-                            <li key={remind.id} className="text-sm">
-                                {remind.reminder}
-                            </li>
-                        ))
+                        reminders
+                            .slice(0, 1)
+                            .map((remind) => (
+                                <li key={remind.id} className="text-sm">
+                                    {remind.reminder}
+                                </li>
+                            ))
                     ) : (
                         <p className="text-sm text-gray-500">No reminders available</p>
                     )}

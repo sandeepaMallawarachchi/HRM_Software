@@ -22,7 +22,7 @@ import AccountantSidebar from "./SidebarComponents/AccountantSidebar";
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isRecruitmentOpen, setIsRecruitmentOpen] = useState(false);
-  const role = localStorage.getItem("role"); // Get user role from localStorage
+  const role = localStorage.getItem("role");
 
   const handleToggle = () => {
     setIsCollapsed(!isCollapsed);

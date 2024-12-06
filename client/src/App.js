@@ -15,13 +15,13 @@ import EmployeeRegistration from "./pages/auth/EmployeeRegistration";
 import LeaveAndAttendance from "./pages/LeaveAndAttendance";
 import LearningDevelopment from "./pages/LearningDevelopment";
 import AttendanceAndTime from "./pages/AttendanceAndTime";
-import ReminderPage from "./pages/subPages/ReminderPage";
+import ReminderPage from "./pages/subPages/ReminderPage.jsx";
+import Communication from "./components/Communication.jsx";
 import PostList from "./pages/Newspaper";
 
 //team leader routes
 import TeamManage from "./pages/TeamLeaderPages/TeamManage";
 import Reporting from "./pages/TeamLeaderPages/Reporting";
-import Communication from "./pages/TeamLeaderPages/Communication";
 
 //Mid Lvl Managers routes
 import PerformanceManage from "./pages/MidLvlMangersPages/PerformanceManage";
@@ -63,6 +63,9 @@ import Offers from "./pages/subPages/Offers";
 import Onboarding from "./pages/subPages/Onboarding";
 import PreApprovals from "./pages/HRpages/PreApprovals";
 
+//not found page
+import NotFound from "./components/NotFound.jsx";
+
 const App = () => {
   const location = useLocation();
   const isLoginPage = location.pathname === "/";
@@ -76,6 +79,9 @@ const App = () => {
         {!isLoginPage && <Header />}
         <div className="flex-1 p-4 pl-10 overflow-auto bg-[#f6f5fb]">
           <Routes>
+            {/* Catch-all 404 route */}
+            <Route path="*" element={<NotFound />} />
+            
             {/* Public Route */}
             <Route path="/" element={<Login />} />
 

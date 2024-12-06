@@ -6,8 +6,8 @@ import {
   FaUserCircle,
   FaTrash,
 } from "react-icons/fa";
-import ProfilePicture from "../../components/subComponents/ProfilePicture";
-import { db } from "../../firebase";
+import ProfilePicture from "./subComponents/ProfilePicture";
+import { db } from "../firebase";
 import { ref, set, push, onValue, remove } from "firebase/database";
 import {
   getStorage,
@@ -15,7 +15,7 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "firebase/storage";
-import ChatMembersModel from "./ChatMembersModel";
+import ChatMembersModel from "../pages/TeamLeaderPages/ChatMembersModel";
 import axios from "axios";
 
 const Communication = () => {
