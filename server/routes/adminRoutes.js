@@ -1097,7 +1097,7 @@ router.get("/getAllAllocatedResources", async (req, res) => {
 
   try {
     const [rows] = await pool.query(`
-            SELECT a.empId, p.NAME, a.resource, a.quantity, a.allocatedate, a.returneddate, a.status
+            SELECT a.id, a.empId, p.NAME, a.resource, a.quantity, a.allocatedate, a.returneddate, a.status
             FROM allocatedresources a JOIN personaldetails p ON a.empId = p.empId
             WHERE a.status = "Not returned"
             ORDER By a.created_at DESC
@@ -1110,8 +1110,8 @@ router.get("/getAllAllocatedResources", async (req, res) => {
 });
 
 //update quantity after returned
-router.put("/updateQuantity/:resource/:quantity/:empId", async (req, res) => {
-  const { resource, empId } = req.params;
+router.put("/updateQuantity/:id/:resource/:quantity/:empId", async (req, res) => {
+  const { resource, empId, id } = req.params;
   const quantity = parseInt(req.params.quantity, 10);
 
   try {
@@ -1134,10 +1134,10 @@ router.put("/updateQuantity/:resource/:quantity/:empId", async (req, res) => {
     await pool.query(`
             UPDATE allocatedresources
             SET status = "Returned" 
-            WHERE resource = ? AND empId = ?
-        `, [resource, empId]);
+            WHERE resource = ? AND empId = ? AND id = ?
+        `, [resource, empId, id]);
 
-    res.status(200).json({ message: "Updated successfully" });
+    res.status(200).json({ message: "Updated successfully", currentQuantity, newQuantity});
   } catch (error) {
     console.error("Error updating resources:", error);
     res.status(500).json({ error: "Error updating resources" });
@@ -1145,16 +1145,16 @@ router.put("/updateQuantity/:resource/:quantity/:empId", async (req, res) => {
 });
 
 //save alert
-router.put("/saveAlert/:resource/:empId", async (req, res) => {
-  const { resource, empId } = req.params;
+router.put("/saveAlert/:id/:resource/:empId", async (req, res) => {
+  const { resource, empId, id } = req.params;
   const { alertResponse } = req.body;
 
   try {
     await pool.query(
       `UPDATE allocatedresources 
-             SET alert = ? 
-             WHERE resource = ? AND empId = ?`,
-      [alertResponse, resource, empId]
+      SET alert = ? 
+      WHERE resource = ? AND empId = ? AND id = ?`,
+      [alertResponse, resource, empId, id]
     );
 
     res.status(200).json({ message: "Alert sent and updated successfully" });
