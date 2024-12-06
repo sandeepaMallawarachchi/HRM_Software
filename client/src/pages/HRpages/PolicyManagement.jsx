@@ -1,244 +1,343 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const PolicyManagement = () => {
-  // State to hold policies and selected policy for editing
-  const [policies, setPolicies] = useState([
-    {
-      id: 1,
-      name: "Data Security Policy",
-      status: "Active",
-      lastReviewed: "2023-06-01",
-      nextReview: "2024-06-01",
-      compliance: 85,
-    },
-    {
-      id: 2,
-      name: "Employee Conduct Policy",
-      status: "Expired",
-      lastReviewed: "2022-06-01",
-      nextReview: "2023-06-01",
-      compliance: 70,
-    },
-    {
-      id: 3,
-      name: "Privacy Policy",
-      status: "Active",
-      lastReviewed: "2023-03-01",
-      nextReview: "2024-03-01",
-      compliance: 95,
-    },
-  ]);
-
-  const [selectedPolicy, setSelectedPolicy] = useState(null);
+  const [policies, setPolicies] = useState([]);
   const [newPolicy, setNewPolicy] = useState({
-    name: "",
-    status: "Active",
-    lastReviewed: "",
-    nextReview: "",
-    compliance: 0,
+    policy_title: "",
+    policy_description: "",
+    policy_type: "HR",
+    department: "HR",
+    policy_level: "Company-wide",
+    effective_date: "",
+    created_by: "",
+    approval_status: "Pending",
+    attachments: "",
+    is_active: 1,
   });
+  const [selectedPolicy, setSelectedPolicy] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false); // To control the modal visibility
+  const [modalPolicyDescription, setModalPolicyDescription] = useState("");
+  const navigate = useNavigate(); // React Router hook for navigation
 
-  const [alerts, setAlerts] = useState([
-    { policyId: 1, message: "Review due in 6 months." },
-    { policyId: 2, message: "Policy expired - needs review." },
-    { policyId: 3, message: "Review due in 3 months." },
-  ]);
-
-  // Handle creating a new policy
-  const handleCreatePolicy = () => {
-    const newPolicyData = {
-      ...newPolicy,
-      id: policies.length + 1,
-      compliance: Math.max(0, Math.min(100, newPolicy.compliance)), // Ensure compliance is within 0-100
-    };
-    setPolicies([...policies, newPolicyData]);
-    setNewPolicy({
-      name: "",
-      status: "Active",
-      lastReviewed: "",
-      nextReview: "",
-      compliance: 0,
-    });
-    alert("Policy created successfully");
+  // Function to navigate back to the PolicyTable
+  const handleGoBack = () => {
+    navigate(-1); // Go back to the previous page (PolicyTable in this case)
   };
-
-  // Handle updating a policy
-  const handleUpdatePolicy = () => {
-    const updatedPolicies = policies.map((policy) =>
-      policy.id === selectedPolicy.id ? { ...selectedPolicy } : policy
-    );
-    setPolicies(updatedPolicies);
-    setSelectedPolicy(null);
-    alert("Policy updated successfully");
-  };
-
-  // Handle deleting a policy
-  const handleDeletePolicy = (id) => {
-    const updatedPolicies = policies.filter((policy) => policy.id !== id);
-    setPolicies(updatedPolicies);
-    alert("Policy deleted successfully");
-  };
-
-  // Handle input changes for creating or editing a policy
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    if (selectedPolicy) {
-      setSelectedPolicy({
-        ...selectedPolicy,
-        [name]: value,
-      });
-    } else {
-      setNewPolicy({
-        ...newPolicy,
-        [name]: value,
-      });
+  // Fetch all policies from the backend
+  const fetchPolicies = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        "http://localhost:4000/admin/getPolicies"
+      );
+      setPolicies(response.data);
+    } catch (error) {
+      console.error("Error fetching policies", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handlePolicyClick = (policy) => {
-    setSelectedPolicy({ ...policy });
+  useEffect(() => {
+    fetchPolicies();
+  }, []);
+
+  // Handle form inputs
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (selectedPolicy) {
+      setSelectedPolicy({ ...selectedPolicy, [name]: value });
+    } else {
+      setNewPolicy({ ...newPolicy, [name]: value });
+    }
+  };
+
+  // Show policy description in modal
+  const handlePolicyTitleClick = (policyDescription) => {
+    setModalPolicyDescription(policyDescription);
+    setIsModalOpen(true);
+  };
+
+  // Close the modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalPolicyDescription("");
+  };
+
+  // Create a new policy
+  const handleCreatePolicy = async () => {
+    try {
+      await axios.post("http://localhost:4000/admin/addPolicy", newPolicy);
+      fetchPolicies();
+      setNewPolicy({
+        policy_title: "",
+        policy_description: "",
+        policy_type: "HR",
+        department: "HR",
+        policy_level: "Company-wide",
+        effective_date: "",
+        created_by: "",
+        approval_status: "Pending",
+        attachments: "",
+        is_active: 1,
+      });
+      alert("Policy created successfully");
+    } catch (error) {
+      console.error("Error creating policy", error);
+      alert("Failed to create policy");
+    }
+  };
+
+  // Update an existing policy
+  const handleUpdatePolicy = async () => {
+    try {
+      await axios.put(
+        `http://localhost:4000/admin/updatePolicy/${selectedPolicy.policy_id}`,
+        selectedPolicy
+      );
+      fetchPolicies();
+      setSelectedPolicy(null);
+      alert("Policy updated successfully");
+    } catch (error) {
+      console.error("Error updating policy", error);
+      alert("Failed to update policy");
+    }
+  };
+
+  // Delete a policy
+  const handleDeletePolicy = async (id) => {
+    try {
+      await axios.delete(`http://localhost:4000/admin/deletePolicy/${id}`);
+      fetchPolicies();
+      alert("Policy deleted successfully");
+    } catch (error) {
+      console.error("Error deleting policy", error);
+      alert("Failed to delete policy");
+    }
+  };
+
+  // Handle selecting a policy for editing
+  const handleSelectPolicy = (policy) => {
+    setSelectedPolicy(policy);
+    setNewPolicy({ ...policy });
   };
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-3xl font-semibold mb-4">
-        Policy Management Dashboard
-      </h1>
+      <h1 className="text-3xl font-semibold">Policy Management Dashboard</h1>
+      <button
+        onClick={handleGoBack}
+        className="bg-gray-500 text-white px-4 py-2 rounded mb-4"
+      >
+        Back to Policy Table
+      </button>
+      {/* Display List of Policies */}
+      <div>
+        <h2 className="text-2xl font-semibold mb-4">Policies</h2>
+        {loading ? (
+          <p>Loading policies...</p>
+        ) : (
+          <table className="min-w-full table-auto border-collapse">
+            <thead>
+              <tr>
+                <th className="border px-4 py-2">Title</th>
+                <th className="border px-4 py-2">Department</th>
+                <th className="border px-4 py-2">Level</th>
+                <th className="border px-4 py-2">Status</th>
+                <th className="border px-4 py-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {policies.map((policy) => (
+                <tr key={policy.policy_id}>
+                  <td className="border px-4 py-2">
+                    <button
+                      className="text-blue-500"
+                      onClick={() =>
+                        handlePolicyTitleClick(policy.policy_description)
+                      }
+                    >
+                      {policy.policy_title}
+                    </button>
+                  </td>
+                  <td className="border px-4 py-2">{policy.department}</td>
+                  <td className="border px-4 py-2">{policy.policy_level}</td>
+                  <td className="border px-4 py-2">{policy.approval_status}</td>
+                  <td className="border px-4 py-2">
+                    <button
+                      className="text-blue-500"
+                      onClick={() => handleSelectPolicy(policy)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="text-red-500 ml-2"
+                      onClick={() => handleDeletePolicy(policy.policy_id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
 
-      {/* Create Policy Form */}
+      {/* Create or Update Policy Form */}
       <div className="bg-gray-50 p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-semibold mb-4">Create a New Policy</h2>
+        <h2 className="text-2xl font-semibold mb-4">
+          {selectedPolicy ? "Update Policy" : "Create New Policy"}
+        </h2>
         <input
           type="text"
-          name="name"
-          value={newPolicy.name}
+          name="policy_title"
+          value={
+            selectedPolicy
+              ? selectedPolicy.policy_title
+              : newPolicy.policy_title
+          }
           onChange={handleInputChange}
-          placeholder="Policy Name"
+          placeholder="Policy Title"
           className="p-2 mb-4 border rounded w-full"
         />
+        <textarea
+          name="policy_description"
+          value={
+            selectedPolicy
+              ? selectedPolicy.policy_description
+              : newPolicy.policy_description
+          }
+          onChange={handleInputChange}
+          placeholder="Policy Description"
+          className="p-2 mb-4 border rounded w-full"
+        ></textarea>
+        <select
+          name="policy_type"
+          value={
+            selectedPolicy ? selectedPolicy.policy_type : newPolicy.policy_type
+          }
+          onChange={handleInputChange}
+          className="p-2 mb-4 border rounded w-full"
+        >
+          <option value="HR">HR</option>
+          <option value="IT">IT</option>
+          <option value="Finance">Finance</option>
+          <option value="General">General</option>
+        </select>
+        <select
+          name="department"
+          value={
+            selectedPolicy ? selectedPolicy.department : newPolicy.department
+          }
+          onChange={handleInputChange}
+          className="p-2 mb-4 border rounded w-full"
+        >
+          <option value="HR">HR</option>
+          <option value="IT">IT</option>
+          <option value="Finance">Finance</option>
+          <option value="Sales">Sales</option>
+          <option value="Operations">Operations</option>
+          <option value="Marketing">Marketing</option>
+          <option value="R&D">R&D</option>
+        </select>
+        <select
+          name="policy_level"
+          value={
+            selectedPolicy
+              ? selectedPolicy.policy_level
+              : newPolicy.policy_level
+          }
+          onChange={handleInputChange}
+          className="p-2 mb-4 border rounded w-full"
+        >
+          <option value="Company-wide">Company-wide</option>
+          <option value="Managerial">Managerial</option>
+          <option value="Employee">Employee</option>
+        </select>
         <input
           type="date"
-          name="lastReviewed"
-          value={newPolicy.lastReviewed}
+          name="effective_date"
+          value={
+            selectedPolicy
+              ? selectedPolicy.effective_date
+              : newPolicy.effective_date
+          }
           onChange={handleInputChange}
           className="p-2 mb-4 border rounded w-full"
         />
         <input
-          type="date"
-          name="nextReview"
-          value={newPolicy.nextReview}
+          type="text"
+          name="created_by"
+          value={
+            selectedPolicy ? selectedPolicy.created_by : newPolicy.created_by
+          }
           onChange={handleInputChange}
-          className="p-2 mb-4 border rounded w-full"
-        />
-        <input
-          type="number"
-          name="compliance"
-          value={newPolicy.compliance}
-          onChange={handleInputChange}
-          placeholder="Compliance Rate"
+          placeholder="Created By"
           className="p-2 mb-4 border rounded w-full"
         />
         <select
-          name="status"
-          value={newPolicy.status}
+          name="approval_status"
+          value={
+            selectedPolicy
+              ? selectedPolicy.approval_status
+              : newPolicy.approval_status
+          }
           onChange={handleInputChange}
           className="p-2 mb-4 border rounded w-full"
         >
-          <option value="Active">Active</option>
-          <option value="Expired">Expired</option>
+          <option value="Pending">Pending</option>
+          <option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+        <input
+          type="file"
+          name="attachments"
+          onChange={handleInputChange}
+          className="p-2 mb-4 border rounded w-full"
+        />
+        <select
+          name="is_active"
+          value={
+            selectedPolicy ? selectedPolicy.is_active : newPolicy.is_active
+          }
+          onChange={handleInputChange}
+          className="p-2 mb-4 border rounded w-full"
+        >
+          <option value={1}>Active</option>
+          <option value={0}>Inactive</option>
         </select>
         <button
-          onClick={handleCreatePolicy}
-          className="p-2 bg-blue-500 text-white rounded w-full"
+          type="button"
+          onClick={selectedPolicy ? handleUpdatePolicy : handleCreatePolicy}
+          className="w-full bg-blue-500 text-white py-2 rounded"
         >
-          Create Policy
+          {selectedPolicy ? "Update Policy" : "Create Policy"}
         </button>
       </div>
 
-      {/* Policy Overview */}
-      <div className="space-y-4 mt-6">
-        <h2 className="text-2xl font-semibold">Policy Overview</h2>
-        {policies.map((policy) => (
+      {/* Policy Description Modal */}
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center"
+          onClick={closeModal}
+        >
           <div
-            key={policy.id}
-            className={`p-4 border rounded-lg cursor-pointer ${
-              policy.status === "Active" ? "bg-green-100" : "bg-red-100"
-            }`}
-            onClick={() => handlePolicyClick(policy)}
+            className="bg-white p-6 rounded-lg shadow-lg"
+            onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-xl font-semibold">{policy.name}</h2>
-            <p>
-              Status:{" "}
-              <span
-                className={`font-bold ${
-                  policy.status === "Active" ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {policy.status}
-              </span>
-            </p>
-            <p>Last Reviewed: {policy.lastReviewed}</p>
-            <p>Next Review: {policy.nextReview}</p>
-            <p>Compliance: {policy.compliance}%</p>
+            <h3 className="text-xl font-semibold mb-4">Policy Description</h3>
+            <p>{modalPolicyDescription}</p>
             <button
-              onClick={() => handleDeletePolicy(policy.id)}
-              className="mt-2 p-2 bg-red-500 text-white rounded"
+              className="mt-4 bg-red-500 text-white py-2 px-4 rounded"
+              onClick={closeModal}
             >
-              Delete
+              Close
             </button>
           </div>
-        ))}
-      </div>
-
-      {/* Policy Details */}
-      {selectedPolicy && (
-        <div className="mt-8 p-6 border rounded-lg bg-gray-50">
-          <h2 className="text-2xl font-semibold mb-4">
-            {selectedPolicy.name} Details
-          </h2>
-          <input
-            type="text"
-            name="name"
-            value={selectedPolicy.name}
-            onChange={handleInputChange}
-            className="p-2 mb-4 border rounded w-full"
-          />
-          <input
-            type="date"
-            name="lastReviewed"
-            value={selectedPolicy.lastReviewed}
-            onChange={handleInputChange}
-            className="p-2 mb-4 border rounded w-full"
-          />
-          <input
-            type="date"
-            name="nextReview"
-            value={selectedPolicy.nextReview}
-            onChange={handleInputChange}
-            className="p-2 mb-4 border rounded w-full"
-          />
-          <input
-            type="number"
-            name="compliance"
-            value={selectedPolicy.compliance}
-            onChange={handleInputChange}
-            className="p-2 mb-4 border rounded w-full"
-          />
-          <select
-            name="status"
-            value={selectedPolicy.status}
-            onChange={handleInputChange}
-            className="p-2 mb-4 border rounded w-full"
-          >
-            <option value="Active">Active</option>
-            <option value="Expired">Expired</option>
-          </select>
-          <button
-            onClick={handleUpdatePolicy}
-            className="p-2 bg-blue-500 text-white rounded w-full"
-          >
-            Update Policy
-          </button>
         </div>
       )}
     </div>

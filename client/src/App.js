@@ -15,7 +15,8 @@ import EmployeeRegistration from "./pages/auth/EmployeeRegistration";
 import LeaveAndAttendance from "./pages/LeaveAndAttendance";
 import LearningDevelopment from "./pages/LearningDevelopment";
 import AttendanceAndTime from "./pages/AttendanceAndTime";
-import ReminderPage from "./pages/subPages/ReminderPage.jsx";
+import ReminderPage from "./pages/subPages/ReminderPage";
+import PostList from "./pages/Newspaper";
 
 //team leader routes
 import TeamManage from "./pages/TeamLeaderPages/TeamManage";
@@ -35,6 +36,7 @@ import PerformanceDashboard from "./pages/TopLvlManagerPages/PerformanceDashboar
 import SuccessPlaning from "./pages/TopLvlManagerPages/SuccessPlaning";
 import Budgeting from "./pages/TopLvlManagerPages/Budgeting";
 import CompilenceTrack from "./pages/TopLvlManagerPages/CompilenceTrack";
+import PostForm from "./pages/TopLvlManagerPages/PostToFeed";
 
 //Accountant routes
 import Expenses from "./pages/AccountantPages/Expenses";
@@ -44,6 +46,7 @@ import Revenue from "./pages/AccountantPages/Revenue";
 //HR routes
 import EmployeeRelationships from "./pages/HRpages/EmployeeRelationships";
 import PayrollManagement from "./pages/HRpages/PayrollManagement";
+import Policies from "./pages/HRpages/Policies";
 import PolicyManagement from "./pages/HRpages/PolicyManagement";
 
 //Ceo routes
@@ -217,7 +220,20 @@ const App = () => {
             />
             <Route
               path="/policy-management"
+              element={<ProtectedRoute element={<Policies />} />}
+            />
+            <Route
+              path="/manage-policies"
               element={<ProtectedRoute element={<PolicyManagement />} />}
+            />
+
+            <Route
+              path="/newspaper"
+              element={<ProtectedRoute element={<PostList />} />}
+            />
+            <Route
+              path="/posttofeed"
+              element={<ProtectedRoute element={<PostForm />} />}
             />
           </Routes>
         </div>

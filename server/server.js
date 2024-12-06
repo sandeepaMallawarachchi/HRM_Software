@@ -5,6 +5,7 @@ const authRoutes = require("./routes/authRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const cvRoutes = require("./routes/cvRoutes");
+const newsroutes = require("./routes/newsroutes");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -24,6 +25,9 @@ app.use("/admin", adminRoutes);
 
 // Use the admin routes
 app.use("/cv", cvRoutes);
+
+// Use the news routes
+app.use("/news", newsroutes);
 
 // Start the server
 app.listen(PORT, () => {
