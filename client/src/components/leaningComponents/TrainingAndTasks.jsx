@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import AllCertificatesAndTrainings from "../leaningComponents/AllCerificatesAndTrainings";
 
 const TrainingAndTasks = () => {
     const empId = localStorage.getItem('empId');
     const [training, setTraining] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
 
@@ -19,11 +21,15 @@ const TrainingAndTasks = () => {
         fetchTraining();
     }, [empId]);
 
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
+
     return (
         <div className="card bg-gray-100 border border-gray-300 rounded-lg p-5 ">
             <div className='flex justify-between'>
                 <h2 className="text-lg font-semibold mb-2">Training Overview</h2>
                 <button
+                    onClick={openModal}
                     className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition duration-300"
                 >
                     View All
@@ -50,6 +56,12 @@ const TrainingAndTasks = () => {
                     </li>
                 </ul>
             </div>
+            {/* Modal */}
+            <AllCertificatesAndTrainings
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                trainings={training}
+            />
         </div>
     )
 }
