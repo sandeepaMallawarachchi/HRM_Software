@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const ReminderIcon = () => {
     const [showPopUp, setShowPopUp] = useState(false);
     const [reminderCount, setReminderCount] = useState(0);
+    const [alertsCount, setAlertsCount] = useState(0);
     const navigate = useNavigate('');
     const empId = localStorage.getItem('empId');
     const popUpRef = useRef(null);
@@ -23,6 +24,16 @@ const ReminderIcon = () => {
         }
     };
 
+    const fetchAlertsCount = async () => {
+        try {
+            const response = await axios.get(`http://localhost:4000/admin/getAllocatedResources/${empId}`);
+            const filteredAlerts = response.data.filter((item) => item.alert === 1);
+            setAlertsCount(filteredAlerts.length);
+        } catch (error) {
+            console.log("Error fetching reminder count:", error);
+        }
+    };
+
     const togglePopUp = () => {
         setShowPopUp(!showPopUp);
     };
@@ -33,6 +44,7 @@ const ReminderIcon = () => {
 
     useEffect(() => {
         fetchReminderCount();
+        fetchAlertsCount();
     }, []);
 
     const handleAddingReminder = () => {
@@ -57,6 +69,8 @@ const ReminderIcon = () => {
         };
     }, [showPopUp]);
 
+    const totalCount = reminderCount + alertsCount;
+
     return (
         <div className="relative">
             <FaBell
@@ -64,9 +78,9 @@ const ReminderIcon = () => {
                 size={20}
                 onClick={togglePopUp}
             />
-            {reminderCount > 0 && (
+            {totalCount > 0 && (
                 <div className="absolute -top-2 left-2 bg-red-600 text-white text-xs rounded-full w-5 px-1 py-0.5 text-center">
-                    {reminderCount}
+                    {totalCount}
                 </div>
             )}
             {showPopUp && (

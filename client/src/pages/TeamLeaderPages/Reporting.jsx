@@ -6,6 +6,14 @@ import { FaDownload, FaEnvelope, FaSave } from "react-icons/fa";
 import 'jspdf-autotable';
 import axios from "axios";
 import { Line } from "react-chartjs-2";
+import { useNavigate } from "react-router-dom";
+import { getDatabase, ref, update } from "firebase/database";
+import { initializeApp } from "firebase/app";
+import { firebaseConfig } from "../../firebase";
+
+// Initialize Firebase app
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
 const Reporting = () => {
   const [teamData, setTeamData] = useState([]);
@@ -17,8 +25,8 @@ const Reporting = () => {
   const reportRef = useRef(null);
   const chartRef = useRef(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [email, setEmail] = useState("");
   const [isFetching, setIsFetching] = useState(false);
+  const navigate = useNavigate();
 
   const handleTeamNameChange = async (e) => {
     const selectedTeamName = e.target.value;
@@ -49,23 +57,6 @@ const Reporting = () => {
     };
     fetchTeamsAndData();
   }, []);
-
-  const fetchEmployeeWorkEmail = async (id) => {
-    try {
-      setIsFetching(true);
-      const workResponse = await axios.get(`http://localhost:4000/employees/getWorkDetails/${id}`);
-      setEmail(workResponse.data.workEmail);
-      
-      if (workResponse.data.workEmail) {
-        window.location.href = `mailto:${workResponse.data.workEmail}`;
-      }
-  
-      setIsFetching(false);
-    } catch (err) {
-      console.error(err);
-      setIsFetching(false);
-    }
-  };  
 
   const handlePerformanceChange = (id, value) => {
     setFilteredData((prevData) =>
@@ -173,6 +164,32 @@ const Reporting = () => {
     }, 2000);
   };
 
+  const handleSave = async (item) => {
+    setIsFetching(true);
+    try {
+      const chatId = `${item.name}`;
+      const chatRef = ref(database, "chats/" + chatId);
+      const timestamp = Date.now();
+      const membersWithEmpId = [...new Set([empId, item.empId])];
+      await update(chatRef, {
+        members: membersWithEmpId,
+        timestamp: timestamp,
+      });
+
+      const newMember = {
+        members: membersWithEmpId,
+        chatId,
+      };
+
+      await axios.post(`http://localhost:4000/admin/addMember`, newMember);
+      navigate('/communication');
+    } catch (error) {
+      console.error("Error adding members to chat:", error);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
   return (
     <div className="p-6 bg-white shadow-lg rounded-xl">
       <div className="flex justify-between items-center mb-4">
@@ -268,7 +285,7 @@ const Reporting = () => {
                       <span>Save</span>
                     </button>
                     <button
-                      onClick={() => fetchEmployeeWorkEmail(item.empId)}
+                      onClick={() => handleSave(item)}
                       className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 flex items-center gap-2"
                     >
                       {isFetching ? (

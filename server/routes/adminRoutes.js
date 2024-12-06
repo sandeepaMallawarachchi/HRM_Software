@@ -671,6 +671,25 @@ router.delete("/deleteMeeting/:meetingId", async (req, res) => {
   }
 });
 
+//get allocated budgets by year and month
+router.get("/getAllocatedBudget/:department/:year/:month", async (req, res) => {
+    const { department, year, month } = req.params;
+
+    try {
+        const [rows] = await pool.query(
+            `
+            SELECT * 
+            FROM budgets 
+            WHERE department = ? AND DATE_FORMAT(date, '%Y-%m') = ?`,
+            [department, `${year}-${month}`]
+        );
+        res.status(200).json(rows[0]);
+    } catch (error) {
+        console.error("Error fetching budget:", error);
+        res.status(500).json({ error: "Error fetching budget" });
+    }
+});
+
 // Mark meeting as read for an employee
 router.put("/markAsRead/:empId/:meetingId", async (req, res) => {
   const empId = req.params.empId;
@@ -698,6 +717,30 @@ router.put("/markAsRead/:empId/:meetingId", async (req, res) => {
   }
 });
 
+//get spent budget
+router.get("/getSpentBudget/:department/:year/:month", async (req, res) => {
+    const { department, year, month } = req.params;
+
+    try {
+
+        const [totals] = await pool.query(
+            `SELECT 
+                SUM(\`operational costs\`) AS "OperationalCosts",
+                SUM(marketing) AS Marketing,
+                SUM(\`research & development\`) AS "ResearchDevelopment",
+                SUM(miscellaneous) AS Miscellaneous,
+                SUM(\`operational costs\` + marketing + \`research & development\` + miscellaneous) AS Total
+            FROM expenses_data
+            WHERE department = ? AND DATE_FORMAT(date, '%Y-%m') = ?`,
+            [department, `${year}-${month}`]
+        );
+        res.status(200).json(totals[0]);
+
+    } catch (error) {
+        res.status(500).json({ error: "Error retrieving expenses data" });
+    }
+});
+      
 //validate password
 const bcrypt = require("bcrypt");
 router.post("/validatePassword/:empId", async (req, res) => {
@@ -926,6 +969,279 @@ router.delete("/deletePolicy/:policyId", async (req, res) => {
     console.error("Error deleting policy:", error);
     res.status(500).json({ error: "Error deleting policy" });
   }
+});
+
+//get team and average performance
+router.get("/getTeamAndPerformance", async (req, res) => {
+    try {
+        const [teamsWithPerformance] = await pool.query(
+            `SELECT 
+                t.teamName, 
+                t.creator AS creatorEmpId,
+                p.NAME AS creatorName, 
+                FORMAT(AVG(t.performance), 2) AS avgPerformance
+            FROM teammembers t
+            JOIN personaldetails p ON p.empId = t.creator
+            GROUP BY t.teamName, p.NAME`
+        );
+
+        res.status(200).json(teamsWithPerformance);
+    } catch (error) {
+        console.error("Error fetching team and performance:", error);
+        res.status(500).json({ error: "Error fetching team and performance" });
+    }
+});
+
+//add new resourse
+router.post("/addNewResource", async (req, res) => {
+    const { resource, type, quantity } = req.body;
+
+    try {
+        await pool.query(
+            "INSERT INTO resource (resource, type, quantity) VALUES (?, ?, ?)",
+            [resource, type, quantity]
+        );
+        res.status(201).json({ message: "resource added successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Error adding resource" });
+    }
+});
+
+//get all resources
+router.get("/getAllResources", async (req, res) => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT * 
+            FROM resource 
+        `);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching resources:", error);
+        res.status(500).json({ error: "Error fetching resources" });
+    }
+});
+
+//update resource
+router.put("/updateResource/:id/:quantity", async (req, res) => {
+    const { id, quantity } = req.params;
+    try {
+        await pool.query(`
+            UPDATE resource
+            SET quantity = ? 
+            WHERE id = ?
+        `, [quantity, id]);
+        res.status(200).json({ message: "Updated successfully" });
+    } catch (error) {
+        console.error("Error updating resources:", error);
+        res.status(500).json({ error: "Error updating resources" });
+    }
+});
+
+//allocate resource to employee
+router.post("/allocateResource/:empId", async (req, res) => {
+    const empId = req.params.empId;
+    const { id, resource, quantity, allocatedate, returneddate } = req.body;
+
+    try {
+        await pool.query(
+            "INSERT INTO allocatedresources (empId, resource, quantity, allocatedate, returneddate) VALUES (?, ?, ?, ?, ?)",
+            [empId, resource, quantity, allocatedate, returneddate]
+        );
+
+        const [currentQuantityResult] = await pool.query(
+            "select quantity from resource where id = ?",
+            [id]
+        );
+
+        const currentQuantity = currentQuantityResult[0].quantity;
+
+        if (currentQuantity < quantity) {
+            return res.status(400).json({ error: "Not enough resource available" });
+        }
+
+        const newQuantity = currentQuantity - quantity;
+
+        await pool.query(`
+            UPDATE resource
+            SET quantity = ? 
+            WHERE id = ?
+        `, [newQuantity, id]);
+
+        res.status(201).json({ message: "Resource allocated successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Error allocating resource" });
+        console.error("Error allocating resource:", error);
+    }
+});
+
+//get allocated resources by empId
+router.get("/getAllocatedResources/:empId", async (req, res) => {
+    const { empId } = req.params;
+
+    try {
+        const [rows] = await pool.query(`
+            SELECT * 
+            FROM allocatedresources
+            WHERE empId = ? 
+        `, [empId]);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching allocated resources:", error);
+        res.status(500).json({ error: "Error fetching allocated resources" });
+    }
+});
+
+//get all allocated resources
+router.get("/getAllAllocatedResources", async (req, res) => {
+
+    try {
+        const [rows] = await pool.query(`
+            SELECT a.empId, p.NAME, a.resource, a.quantity, a.allocatedate, a.returneddate, a.status
+            FROM allocatedresources a JOIN personaldetails p ON a.empId = p.empId
+            WHERE a.status = "Not returned"
+            ORDER By a.created_at DESC
+        `);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching allocated resources:", error);
+        res.status(500).json({ error: "Error fetching allocated resources" });
+    }
+});
+
+//update quantity after returned
+router.put("/updateQuantity/:resource/:quantity/:empId", async (req, res) => {
+    const { resource, empId } = req.params;
+    const quantity = parseInt(req.params.quantity, 10);
+
+    try {
+
+        const [currentQuantityResult] = await pool.query(
+            "select quantity from resource where resource = ?",
+            [resource]
+        );
+
+        const currentQuantity = currentQuantityResult[0].quantity;
+
+        const newQuantity = currentQuantity + quantity;
+
+        await pool.query(`
+            UPDATE resource
+            SET quantity = ? 
+            WHERE resource = ?
+        `, [newQuantity, resource]);
+
+        await pool.query(`
+            UPDATE allocatedresources
+            SET status = "Returned" 
+            WHERE resource = ? AND empId = ?
+        `, [resource, empId]);
+
+        res.status(200).json({ message: "Updated successfully" });
+    } catch (error) {
+        console.error("Error updating resources:", error);
+        res.status(500).json({ error: "Error updating resources" });
+    }
+});
+
+//save alert
+router.put("/saveAlert/:resource/:empId", async (req, res) => {
+    const { resource, empId } = req.params;
+    const {alertResponse} = req.body;
+
+    try {
+        await pool.query(
+            `UPDATE allocatedresources 
+             SET alert = ? 
+             WHERE resource = ? AND empId = ?`,
+            [alertResponse, resource, empId]
+        );
+
+        res.status(200).json({ message: "Alert sent and updated successfully" });
+    } catch (error) {
+        console.error("Error updating alert status:", error);
+        res.status(500).json({ error: "Error updating alert status" });
+    }
+});
+
+//add new training
+router.post("/addNewTraining", async (req, res) => {
+    const { training, weight, duration } = req.body;
+
+    try {
+        await pool.query(
+            "INSERT INTO training (training, weight, duration) VALUES (?, ?, ?)",
+            [training, weight, duration]
+        );
+        res.status(201).json({ message: "training added successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Error adding training" });
+    }
+});
+
+//get all training
+router.get("/getAllTrainings", async (req, res) => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT * 
+            FROM training 
+        `);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching trainings:", error);
+        res.status(500).json({ error: "Error fetching trainings" });
+    }
+});
+
+//allocate training to employee
+router.post("/allocateTraining/:empId", async (req, res) => {
+    const empId = req.params.empId;
+    const { training, weight, allocatedate, finisheddate } = req.body;
+
+    try {
+        await pool.query(
+            "INSERT INTO allocatedtraining (empId, training, weight, allocatedate, finisheddate) VALUES (?, ?, ?, ?, ?)",
+            [empId, training, weight, allocatedate, finisheddate]
+        );
+
+        res.status(201).json({ message: "training allocated successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Error allocating training" });
+        console.error("Error allocating training:", error);
+    }
+});
+
+//get allocated training by empId
+router.get("/getAllocatedTraining/:empId", async (req, res) => {
+    const { empId } = req.params;
+
+    try {
+        const [rows] = await pool.query(`
+            SELECT * 
+            FROM allocatedtraining
+            WHERE empId = ? 
+        `, [empId]);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching allocated training:", error);
+        res.status(500).json({ error: "Error fetching allocated training" });
+    }
+});
+
+//get all allocated training
+router.get("/getAllAllocatedTraining", async (req, res) => {
+
+    try {
+        const [rows] = await pool.query(`
+            SELECT a.empId, p.NAME, a.training, a.weight, a.allocatedate, a.finisheddate, a.status
+            FROM allocatedtraining a JOIN personaldetails p ON a.empId = p.empId
+            WHERE a.status = "Ongoing"
+            ORDER By a.created_at DESC
+        `);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching allocated training:", error);
+        res.status(500).json({ error: "Error fetching allocated training" });
+    }
 });
 
 module.exports = router;
