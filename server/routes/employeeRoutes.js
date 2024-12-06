@@ -4,7 +4,11 @@ const pool = require("../database");
 const nodemailer = require("nodemailer");
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
+
+const multer = require("multer");
+
 const crypto = require("crypto");
+
 const { initializeApp } = require("firebase/app");
 const {
   getStorage,
@@ -12,8 +16,8 @@ const {
   getDownloadURL,
   uploadBytesResumable,
 } = require("firebase/storage");
-const multer = require("multer");
 const config = require("../config/firebase.config");
+
 const validRoles = [
   "Employee",
   "Team Leader",
@@ -1708,6 +1712,48 @@ router.get("/avg-profit-margin", async (req, res) => {
       message: "Error fetching average profit margin.",
       error: error.message,
     });
+  }
+});
+
+const uploadCvToFirebase = async (file) => {
+  if (!file) return null;
+
+  const dateTime = giveCurrentDateTime();
+  const storageRef = ref(storage, `resumes/${file.originalname} ${dateTime}`);
+  const metadata = { contentType: file.mimetype };
+
+  const snapshot = await uploadBytesResumable(
+    storageRef,
+    file.buffer,
+    metadata
+  );
+  return await getDownloadURL(snapshot.ref);
+};
+
+// Nodemailer Example - Send Notification Email
+router.post("/sendEmail", async (req, res) => {
+  const { email, subject, message } = req.body;
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject,
+      text: message,
+    });
+
+    res.status(200).json({ message: "Email sent successfully." });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).json({ error: "Failed to send email." });
   }
 });
 

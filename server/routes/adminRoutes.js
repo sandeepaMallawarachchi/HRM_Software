@@ -157,6 +157,59 @@ router.get("/getPayslip/:empId", async (req, res) => {
   }
 });
 
+// Get detailed earnings for an employee
+router.get("/getEarnings/:empId", async (req, res) => {
+  const empId = req.params.empId;
+
+  try {
+    const query = `
+      SELECT 
+        JSON_EXTRACT(earnings, '$.basic') AS basic,
+        JSON_EXTRACT(earnings, '$.bonus') AS bonus,
+        JSON_EXTRACT(earnings, '$.overtime') AS overtime,
+        JSON_EXTRACT(earnings, '$.allowance') AS allowance
+      FROM 
+        salary
+      WHERE 
+        empId = ?
+      ORDER BY date DESC
+      LIMIT 1; -- Fetch the latest earnings
+    `;
+    const [results] = await pool.query(query, [empId]);
+
+    if (results.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No earnings data found for this employee." });
+    }
+
+    res.status(200).json(results[0]);
+  } catch (error) {
+    console.error("Error fetching earnings details:", error);
+    res.status(500).json({ error: "Database query error" });
+  }
+});
+
+// Update bonus and allowance in the earnings table
+router.put("/updateEarnings/:empId", async (req, res) => {
+  const empId = req.params.empId;
+  const { bonus, allowance } = req.body;
+
+  try {
+    const query = `
+      UPDATE salary
+      SET earnings = JSON_SET(earnings, '$.bonus', ?, '$.allowance', ?)
+      WHERE empId = ?;
+    `;
+    await pool.query(query, [bonus, allowance, empId]);
+
+    res.status(200).json({ message: "Earnings updated successfully." });
+  } catch (error) {
+    console.error("Error updating earnings:", error);
+    res.status(500).json({ error: "Failed to update earnings." });
+  }
+});
+
 // Get all employee details
 router.get("/getAllEmployee", async (req, res) => {
   try {
@@ -745,6 +798,176 @@ router.get("/getAllDepartments", async (req, res) => {
   } catch (error) {
     console.error("Error fetching departments:", error);
     res.status(500).json({ error: "Error fetching departments" });
+  }
+});
+// Add a new company policy
+router.post("/addPolicy", async (req, res) => {
+  const {
+    policy_title,
+    policy_description,
+    policy_type,
+    department,
+    policy_level,
+    effective_date,
+    created_by,
+    approval_status,
+    attachments,
+    is_active,
+  } = req.body;
+
+  try {
+    const query = `
+      INSERT INTO company_policies 
+      (policy_title, policy_description, policy_type, department, policy_level, 
+      effective_date, last_updated_date, created_by, approval_status, attachments, is_active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const currentDate = new Date().toISOString().split("T")[0]; // Get today's date for `last_updated_date`
+
+    const [results] = await pool.query(query, [
+      policy_title,
+      policy_description,
+      policy_type,
+      department,
+      policy_level,
+      effective_date,
+      currentDate,
+      created_by,
+      approval_status,
+      attachments,
+      is_active,
+    ]);
+
+    res.status(201).json({
+      message: "Company policy created successfully",
+      policyId: results.insertId,
+    });
+  } catch (error) {
+    console.error("Error saving company policy:", error);
+    res.status(500).json({ error: "Error saving company policy" });
+  }
+});
+
+// Get all company policies with optional filters
+router.get("/getPolicies", async (req, res) => {
+  const { department, policy_type, approval_status, is_active } = req.query;
+
+  try {
+    let query = "SELECT * FROM company_policies WHERE 1 = 1"; // Default query to select all
+
+    // Add filters if parameters are passed
+    const filters = [];
+    if (department) {
+      query += " AND department = ?";
+      filters.push(department);
+    }
+    if (policy_type) {
+      query += " AND policy_type = ?";
+      filters.push(policy_type);
+    }
+    if (approval_status) {
+      query += " AND approval_status = ?";
+      filters.push(approval_status);
+    }
+    if (typeof is_active !== "undefined") {
+      query += " AND is_active = ?";
+      filters.push(is_active);
+    }
+
+    const [policies] = await pool.query(query, filters);
+
+    if (policies.length === 0) {
+      return res.status(404).json({ message: "No policies found" });
+    }
+
+    res.status(200).json(policies);
+  } catch (error) {
+    console.error("Error retrieving policies:", error);
+    res.status(500).json({ error: "Error retrieving policies" });
+  }
+});
+
+// Get a specific company policy by policy_id
+router.get("/getPolicy/:policyId", async (req, res) => {
+  const policyId = req.params.policyId;
+
+  try {
+    const [policy] = await pool.query(
+      "SELECT * FROM company_policies WHERE policy_id = ?",
+      [policyId]
+    );
+
+    if (policy.length === 0) {
+      return res.status(404).json({ message: "Policy not found" });
+    }
+
+    res.status(200).json(policy[0]);
+  } catch (error) {
+    console.error("Error retrieving policy:", error);
+    res.status(500).json({ error: "Error retrieving policy" });
+  }
+});
+
+// Update a company policy by policy_id
+router.put("/updatePolicy/:policyId", async (req, res) => {
+  const policyId = req.params.policyId;
+  const {
+    policy_title,
+    policy_description,
+    policy_type,
+    department,
+    policy_level,
+    effective_date,
+    approval_status,
+    attachments,
+    is_active,
+  } = req.body;
+
+  try {
+    const currentDate = new Date().toISOString().split("T")[0]; // Get today's date for `last_updated_date`
+
+    const query = `
+      UPDATE company_policies
+      SET policy_title = ?, policy_description = ?, policy_type = ?, department = ?, 
+          policy_level = ?, effective_date = ?, last_updated_date = ?, approval_status = ?, 
+          attachments = ?, is_active = ?
+      WHERE policy_id = ?
+    `;
+
+    await pool.query(query, [
+      policy_title,
+      policy_description,
+      policy_type,
+      department,
+      policy_level,
+      effective_date,
+      currentDate,
+      approval_status,
+      attachments,
+      is_active,
+      policyId,
+    ]);
+
+    res.status(200).json({ message: "Policy updated successfully" });
+  } catch (error) {
+    console.error("Error updating policy:", error);
+    res.status(500).json({ error: "Error updating policy" });
+  }
+});
+
+// Delete a company policy by policy_id
+router.delete("/deletePolicy/:policyId", async (req, res) => {
+  const policyId = req.params.policyId;
+
+  try {
+    const query = "DELETE FROM company_policies WHERE policy_id = ?";
+    await pool.query(query, [policyId]);
+
+    res.status(200).json({ message: "Policy deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting policy:", error);
+    res.status(500).json({ error: "Error deleting policy" });
   }
 });
 

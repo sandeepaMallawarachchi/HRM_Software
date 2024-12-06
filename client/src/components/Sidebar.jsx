@@ -246,6 +246,22 @@ const Sidebar = () => {
         {role === "Accountant" && (
           <AccountantSidebar isCollapsed={isCollapsed} />
         )}
+        <NavLink
+          to="/newspaper"
+          className={({ isActive }) =>
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+              isActive
+                ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+                : ""
+            }`
+          }
+        >
+          <FaListAlt
+            size={20}
+            className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+          />
+          {!isCollapsed && <span>Newspaper</span>}
+        </NavLink>
       </div>
     </div>
   );

@@ -17,6 +17,7 @@ import LearningDevelopment from "./pages/LearningDevelopment";
 import AttendanceAndTime from "./pages/AttendanceAndTime";
 import ReminderPage from "./pages/subPages/ReminderPage.jsx";
 import Communication from "./components/Communication.jsx";
+import PostList from "./pages/Newspaper";
 
 //team leader routes
 import TeamManage from "./pages/TeamLeaderPages/TeamManage";
@@ -35,11 +36,18 @@ import PerformanceDashboard from "./pages/TopLvlManagerPages/PerformanceDashboar
 import SuccessPlaning from "./pages/TopLvlManagerPages/SuccessPlaning";
 import Budgeting from "./pages/TopLvlManagerPages/Budgeting";
 import CompilenceTrack from "./pages/TopLvlManagerPages/CompilenceTrack";
+import PostForm from "./pages/TopLvlManagerPages/PostToFeed";
 
 //Accountant routes
 import Expenses from "./pages/AccountantPages/Expenses";
 import Profit from "./pages/AccountantPages/Profit";
 import Revenue from "./pages/AccountantPages/Revenue";
+
+//HR routes
+import EmployeeRelationships from "./pages/HRpages/EmployeeRelationships";
+import PayrollManagement from "./pages/HRpages/PayrollManagement";
+import Policies from "./pages/HRpages/Policies";
+import PolicyManagement from "./pages/HRpages/PolicyManagement";
 
 //Ceo routes
 import ExecutiveDashboard from "./pages/CEOpages/ExecutiveDashboard";
@@ -53,6 +61,7 @@ import ProtectedRoute from "./pages/auth/ProtectedRoute";
 import Login from "./pages/auth/Login";
 import Offers from "./pages/subPages/Offers";
 import Onboarding from "./pages/subPages/Onboarding";
+import PreApprovals from "./pages/HRpages/PreApprovals";
 
 //not found page
 import NotFound from "./components/NotFound.jsx";
@@ -70,6 +79,9 @@ const App = () => {
         {!isLoginPage && <Header />}
         <div className="flex-1 p-4 pl-10 overflow-auto bg-[#f6f5fb]">
           <Routes>
+            {/* Catch-all 404 route */}
+            <Route path="*" element={<NotFound />} />
+            
             {/* Public Route */}
             <Route path="/" element={<Login />} />
 
@@ -110,6 +122,11 @@ const App = () => {
               path="/onboarding"
               element={<ProtectedRoute element={<Onboarding />} />}
             />
+            <Route
+              path="/pre-approvals"
+              element={<ProtectedRoute element={<PreApprovals />} />}
+            />
+
             <Route
               path="/team-management"
               element={<ProtectedRoute element={<TeamManage />} />}
@@ -199,8 +216,31 @@ const App = () => {
               path="/reminders"
               element={<ProtectedRoute element={<ReminderPage />} />}
             />
-            {/* Catch-all 404 route */}
-            <Route path="*" element={<NotFound />} />
+            <Route
+              path="/employee-relations"
+              element={<ProtectedRoute element={<EmployeeRelationships />} />}
+            />
+            <Route
+              path="/payroll-management"
+              element={<ProtectedRoute element={<PayrollManagement />} />}
+            />
+            <Route
+              path="/policy-management"
+              element={<ProtectedRoute element={<Policies />} />}
+            />
+            <Route
+              path="/manage-policies"
+              element={<ProtectedRoute element={<PolicyManagement />} />}
+            />
+
+            <Route
+              path="/newspaper"
+              element={<ProtectedRoute element={<PostList />} />}
+            />
+            <Route
+              path="/posttofeed"
+              element={<ProtectedRoute element={<PostForm />} />}
+            />
           </Routes>
         </div>
       </div>
