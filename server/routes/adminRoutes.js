@@ -971,6 +971,67 @@ router.delete("/deletePolicy/:policyId", async (req, res) => {
   }
 });
 
+//get team member by id and performance
+router.get("/getTeamAndPerformance/:teamName/:empId", async (req, res) => {
+  const { teamName, empId } = req.params;
+  try {
+    const [memberPerformance] = await pool.query(
+      `SELECT performance, taskcompleted
+      FROM teammembers
+      WHERE teamName = ? AND empId = ?`,
+      [teamName, empId]);
+
+    if (memberPerformance.length === 0) {
+      return res.status(404).json({ error: "No matching team member found" });
+    }
+
+    res.status(200).json(memberPerformance);
+  } catch (error) {
+    console.error("Error fetching team and performance Of selected member:", error);
+    res.status(500).json({ error: "Error fetching team and performance Of selected member" });
+  }
+});
+
+//update team member performance by id
+router.put("/updatePerformance/:teamName/:empId", async (req, res) => {
+  const { teamName, empId } = req.params;
+  const { performance } = req.body;
+
+  try {
+
+    await pool.query(`
+            UPDATE teammembers
+            SET performance = ?
+            WHERE teamName = ? AND empId = ?
+        `, [performance, taskcompleted, teamName, empId]);
+
+    res.status(200).json({ message: "Updated successfully" });
+  } catch (error) {
+    console.error("Error updating performance:", error);
+    res.status(500).json({ error: "Error updating performance" });
+  }
+});
+
+//update team member task completed by id
+router.put("/updateTaskcompleted/:teamName/:empId", async (req, res) => {
+  const { teamName, empId } = req.params;
+  const { taskcompleted } = req.body;
+
+  try {
+
+    await pool.query(`
+            UPDATE teammembers
+            SET taskcompleted = ?
+            WHERE teamName = ? AND empId = ?
+        `, [taskcompleted, teamName, empId]);
+
+    res.status(200).json({ message: "Updated successfully" });
+  } catch (error) {
+    console.error("Error updating completed tasks:", error);
+    res.status(500).json({ error: "Error updating completed tasks" });
+  }
+});
+
 //get team and average performance
 router.get("/getTeamAndPerformance", async (req, res) => {
   try {
@@ -1137,7 +1198,7 @@ router.put("/updateQuantity/:id/:resource/:quantity/:empId", async (req, res) =>
             WHERE resource = ? AND empId = ? AND id = ?
         `, [resource, empId, id]);
 
-    res.status(200).json({ message: "Updated successfully", currentQuantity, newQuantity});
+    res.status(200).json({ message: "Updated successfully", currentQuantity, newQuantity });
   } catch (error) {
     console.error("Error updating resources:", error);
     res.status(500).json({ error: "Error updating resources" });
