@@ -79,41 +79,53 @@ const CertificationsAchievements = () => {
       {/* Ongoing Certifications */}
       <h3 className="font-semibold my-2">Ongoing Certifications</h3>
       <ul className="list-disc list-inside ml-5 mb-4 bg-orange-100 p-2 rounded">
-        {certificatesList
-          .filter((certificate) => certificate.status !== "Completed")
-          .slice(0, 3)
-          .map((certificate) => (
-            <li key={certificate.id}>
-              <a
-                href={certificate.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline mr-2 text-blue-500"
-              >
-                {certificate.certificate_name}
-              </a>
-            </li>
-          ))}
+        {certificatesList.filter((certificate) => certificate.status !== "Completed").length > 0 ? (
+          certificatesList
+            .filter((certificate) => certificate.status !== "Completed")
+            .slice(0, 3)
+            .map((certificate) => (
+              <li key={certificate.id}>
+                <a
+                  href={certificate.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline mr-2 text-blue-500"
+                >
+                  {certificate.certificate_name}
+                </a>
+              </li>
+            ))
+        ) : (
+          <span className="text-gray-600">
+            - No ongoing certifications -
+          </span>
+        )}
       </ul>
 
       {/* Completed Certifications */}
       <h3 className="font-semibold mb-2">Completed Certifications</h3>
       <ul className="list-disc list-inside ml-5 mb-4 bg-green-100 p-2 rounded">
-        {certificatesList
-          .filter((certificate) => certificate.status === "Completed")
-          .slice(0, 3)
-          .map((certificate) => (
-            <li key={certificate.id}>
-              <a
-                href={certificate.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline mr-2 text-blue-500"
-              >
-                {certificate.certificate_name}
-              </a>
-            </li>
-          ))}
+        {certificatesList.filter((certificate) => certificate.status === "Completed").length > 0 ? (
+          certificatesList
+            .filter((certificate) => certificate.status === "Completed")
+            .slice(0, 3)
+            .map((certificate) => (
+              <li key={certificate.id}>
+                <a
+                  href={certificate.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline mr-2 text-blue-500"
+                >
+                  {certificate.certificate_name}
+                </a>
+              </li>
+            ))
+        ) : (
+          <span className="text-gray-600">
+            - No completed certifications -
+          </span>
+        )}
       </ul>
 
       <div className="mt-4">

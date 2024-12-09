@@ -3,6 +3,7 @@ import "../components/CSS/LearningDevelopment.css";
 import CertificationsAchievements from "../components/leaningComponents/CertificationsAchievements";
 import LearningCalander from "../components/leaningComponents/LearningCalander";
 import TrainingAndTasks from "../components/leaningComponents/TrainingAndTasks";
+import SkillsAndCompetencies from "../components/leaningComponents/SkillsAndCompetencies";
 
 const LearningDevelopment = () => {
 
@@ -45,37 +46,7 @@ const LearningDevelopment = () => {
         <CertificationsAchievements />
 
         {/* Skills and Competencies */}
-        <div className="card bg-gradient-to-r from-indigo-500 to-indigo-300 text-white rounded-lg p-5 transition-shadow duration-300 hover:shadow-lg">
-          <h2 className="text-lg font-semibold mb-4">
-            Skills and Competencies
-          </h2>
-          <ul className="space-y-3">
-            <li className="flex justify-between items-center">
-              <span className="text-sm">JavaScript</span>
-              <span className="text-sm bg-white text-indigo-600 rounded-full px-3 py-1">
-                Intermediate
-              </span>
-            </li>
-            <li className="flex justify-between items-center">
-              <span className="text-sm">React.js</span>
-              <span className="text-sm bg-white text-indigo-600 rounded-full px-3 py-1">
-                Intermediate
-              </span>
-            </li>
-            <li className="flex justify-between items-center">
-              <span className="text-sm">Node.js</span>
-              <span className="text-sm bg-white text-indigo-600 rounded-full px-3 py-1">
-                Beginner
-              </span>
-            </li>
-            <li className="flex justify-between items-center">
-              <span className="text-sm">Git</span>
-              <span className="text-sm bg-white text-indigo-600 rounded-full px-3 py-1">
-                Intermediate
-              </span>
-            </li>
-          </ul>
-        </div>
+        <SkillsAndCompetencies />
 
         {/* Learning Calendar */}
         <LearningCalander />

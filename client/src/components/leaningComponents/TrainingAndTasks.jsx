@@ -38,22 +38,37 @@ const TrainingAndTasks = () => {
             <div className="mt-4">
                 <h3 className="font-semibold mb-2">Ongoing Tasks</h3>
                 <ul className="list-disc list-inside ml-5 bg-orange-100 p-2 rounded">
-                    {training
-                        .slice(0, 5)
-                        .map((records) => (
-                            <li key={records.id} className="text-orange-600">
-                                {records.training}
-                            </li>
-                        ))}
+                    {training.filter((trainings) => trainings.status === "Ongoing").length > 0 ? (
+                        training
+                            .filter((trainings) => trainings.status === "Ongoing")
+                            .slice(0, 4)
+                            .map((records) => (
+                                <li key={records.id} className="text-orange-600">
+                                    {records.training}
+                                </li>
+                            ))
+                    ) : (
+                        <span className="text-gray-600">
+                            - No ongoing trainings -
+                        </span>
+                    )}
                 </ul>
                 <h3 className="font-semibold mt-4 mb-2">Completed Tasks</h3>
-                <ul className="list-disc list-inside ml-5">
-                    <li className="text-yellow-600 bg-yellow-100 p-2 rounded">
-                        Intro to JavaScript
-                    </li>
-                    <li className="text-yellow-600 bg-yellow-100 p-2 rounded">
-                        Git & GitHub Basics
-                    </li>
+                <ul className="list-disc list-inside ml-5 bg-yellow-100 p-2 rounded">
+                    {training.filter((trainings) => trainings.status === "Completed").length > 0 ? (
+                        training
+                            .filter((trainings) => trainings.status === "Completed")
+                            .slice(0, 4)
+                            .map((records) => (
+                                <li key={records.id} className="text-orange-600">
+                                    {records.training}
+                                </li>
+                            ))
+                    ) : (
+                        <span className="text-gray-600">
+                            - No completed trainings -
+                        </span>
+                    )}
                 </ul>
             </div>
             {/* Modal */}
