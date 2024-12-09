@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require("../database");
 const nodemailer = require("nodemailer");
 const { validationResult } = require("express-validator");
+const bcrypt = require("bcrypt");
 
 //send emails
 const transporter = nodemailer.createTransport({
@@ -402,7 +403,7 @@ router.get("/getTeam/:empId/:filteredTeamName", async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      `SELECT t.teamName, tm.empId, tm.name, tm.role, tm.department
+      `SELECT tm.id, t.teamName, tm.empId, tm.name, tm.role, tm.department, tm.performance, tm.taskcompleted
              FROM teams t 
              JOIN teammembers tm 
              ON t.empId = tm.creator AND t.teamName = tm.teamName
@@ -414,9 +415,7 @@ router.get("/getTeam/:empId/:filteredTeamName", async (req, res) => {
     if (rows.length > 0) {
       res.status(200).json(rows);
     } else {
-      res
-        .status(404)
-        .json({ message: "No team records found for this creator" });
+      res.status(404).json({ message: "No team records found for this creator" });
     }
   } catch (error) {
     res.status(500).json({ error: "Error fetching team details" });
@@ -504,22 +503,6 @@ router.delete("/deleteTeamMember/:empId/:teamName", async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: "Server error." });
-  }
-});
-
-//add employee's performance
-router.post("/addPerformance/:empId/:teamName", async (req, res) => {
-  const { empId, teamName } = req.params;
-  const { performance, taskcompleted } = req.body;
-
-  try {
-    await pool.query(
-      "UPDATE teammembers SET performance = ?, taskcompleted = ?, updated_at = NOW() WHERE empId = ? AND teamName = ?",
-      [performance, taskcompleted, empId, teamName]
-    );
-    res.status(200).json({ message: "Performance updated successfully" });
-  } catch (error) {
-    res.status(500).json({ error: "Error updating performance" });
   }
 });
 
@@ -742,7 +725,6 @@ router.get("/getSpentBudget/:department/:year/:month", async (req, res) => {
 });
 
 //validate password
-const bcrypt = require("bcrypt");
 router.post("/validatePassword/:empId", async (req, res) => {
   const { password } = req.body;
   const currentUserId = req.params.empId;
@@ -971,6 +953,42 @@ router.delete("/deletePolicy/:policyId", async (req, res) => {
   }
 });
 
+router.put('/updatePerformanceOrTask/:id', async (req, res) => {
+  const { id } = req.params;
+  const { performance, taskcompleted } = req.body;
+
+  try {
+    const fields = [];
+    const values = [];
+
+    if (performance !== undefined) {
+      fields.push('performance = ?');
+      values.push(performance);
+    }
+    if (taskcompleted !== undefined) {
+      fields.push('taskcompleted = ?');
+      values.push(taskcompleted);
+    }
+
+    if (fields.length === 0) {
+      return res.status(400).json('No fields to update');
+    }
+
+    const query = `UPDATE teammembers SET ${fields.join(', ')} WHERE id = ?`;
+    values.push(id);
+
+    const result = await pool.query(query, values);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json('Employee not found');
+    }
+
+    res.status(200).json('Updated successfully');
+  } catch (error) {
+    res.status(500).json('Error updating data');
+  }
+});
+
 //get team member by id and performance
 router.get("/getTeamAndPerformance/:teamName/:empId", async (req, res) => {
   const { teamName, empId } = req.params;
@@ -989,46 +1007,6 @@ router.get("/getTeamAndPerformance/:teamName/:empId", async (req, res) => {
   } catch (error) {
     console.error("Error fetching team and performance Of selected member:", error);
     res.status(500).json({ error: "Error fetching team and performance Of selected member" });
-  }
-});
-
-//update team member performance by id
-router.put("/updatePerformance/:teamName/:empId", async (req, res) => {
-  const { teamName, empId } = req.params;
-  const { performance } = req.body;
-
-  try {
-
-    await pool.query(`
-            UPDATE teammembers
-            SET performance = ?
-            WHERE teamName = ? AND empId = ?
-        `, [performance, taskcompleted, teamName, empId]);
-
-    res.status(200).json({ message: "Updated successfully" });
-  } catch (error) {
-    console.error("Error updating performance:", error);
-    res.status(500).json({ error: "Error updating performance" });
-  }
-});
-
-//update team member task completed by id
-router.put("/updateTaskcompleted/:teamName/:empId", async (req, res) => {
-  const { teamName, empId } = req.params;
-  const { taskcompleted } = req.body;
-
-  try {
-
-    await pool.query(`
-            UPDATE teammembers
-            SET taskcompleted = ?
-            WHERE teamName = ? AND empId = ?
-        `, [taskcompleted, teamName, empId]);
-
-    res.status(200).json({ message: "Updated successfully" });
-  } catch (error) {
-    console.error("Error updating completed tasks:", error);
-    res.status(500).json({ error: "Error updating completed tasks" });
   }
 });
 
