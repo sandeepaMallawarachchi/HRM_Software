@@ -58,20 +58,28 @@ const Reporting = () => {
     fetchTeamsAndData();
   }, []);
 
-  const handlePerformanceChange = (id, value) => {
-    setFilteredData((prevData) =>
-      prevData.map((item) =>
-        item.id === id ? { ...item, performance: value } : item
-      )
-    );
+  //  
+
+  const handlePerformanceChange = async (teamName, id) => {
+    try {
+      await axios.put(`http://localhost:4000/admin/updatePerformance/${teamName}/${id}`);
+
+      const res = await axios.put(`http://localhost:4000/admin/getTeamAndPerformance/${teamName}/${id}`);
+      setFilteredData(res.data);
+    } catch (error) {
+      alert('Error updating performance and tasks')
+    }
   };
 
-  const handleTasksCompletedChange = (id, value) => {
-    setFilteredData((prevData) =>
-      prevData.map((item) =>
-        item.id === id ? { ...item, taskcompleted: value } : item
-      )
-    );
+  const handleTasksCompletedChange = async (teamName, id) => {
+    try {
+      await axios.put(`http://localhost:4000/admin/updatePerformance/${teamName}/${id}`);
+
+      const res = await axios.put(`http://localhost:4000/admin/getTeamAndPerformance/${teamName}/${id}`);
+      setFilteredData(res.data);
+    } catch (error) {
+      alert('Error updating performance and tasks')
+    }
   };
 
   const handleFilterChange = (e) => {
@@ -260,7 +268,7 @@ const Reporting = () => {
                       value={item.performance}
                       min={0}
                       max={100}
-                      onChange={(e) => handlePerformanceChange(item.id, e.target.value)}
+                      onChange={(e) => handlePerformanceChange(item.teamName, e.target.empId)}
                       className="border rounded px-2 py-1 w-20"
                     />
                   </td>
@@ -270,7 +278,7 @@ const Reporting = () => {
                       value={item.taskcompleted}
                       min={0}
                       max={100}
-                      onChange={(e) => handleTasksCompletedChange(item.id, e.target.value)}
+                      onChange={(e) => handleTasksCompletedChange(item.teamName, e.target.empId)}
                       className="border rounded px-2 py-1 w-20"
                     />
                   </td>

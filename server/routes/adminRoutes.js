@@ -971,6 +971,67 @@ router.delete("/deletePolicy/:policyId", async (req, res) => {
   }
 });
 
+//get team member by id and performance
+router.get("/getTeamAndPerformance/:teamName/:empId", async (req, res) => {
+  const { teamName, empId } = req.params;
+  try {
+    const [memberPerformance] = await pool.query(
+      `SELECT performance, taskcompleted
+      FROM teammembers
+      WHERE teamName = ? AND empId = ?`,
+      [teamName, empId]);
+
+    if (memberPerformance.length === 0) {
+      return res.status(404).json({ error: "No matching team member found" });
+    }
+
+    res.status(200).json(memberPerformance);
+  } catch (error) {
+    console.error("Error fetching team and performance Of selected member:", error);
+    res.status(500).json({ error: "Error fetching team and performance Of selected member" });
+  }
+});
+
+//update team member performance by id
+router.put("/updatePerformance/:teamName/:empId", async (req, res) => {
+  const { teamName, empId } = req.params;
+  const { performance } = req.body;
+
+  try {
+
+    await pool.query(`
+            UPDATE teammembers
+            SET performance = ?
+            WHERE teamName = ? AND empId = ?
+        `, [performance, taskcompleted, teamName, empId]);
+
+    res.status(200).json({ message: "Updated successfully" });
+  } catch (error) {
+    console.error("Error updating performance:", error);
+    res.status(500).json({ error: "Error updating performance" });
+  }
+});
+
+//update team member task completed by id
+router.put("/updateTaskcompleted/:teamName/:empId", async (req, res) => {
+  const { teamName, empId } = req.params;
+  const { taskcompleted } = req.body;
+
+  try {
+
+    await pool.query(`
+            UPDATE teammembers
+            SET taskcompleted = ?
+            WHERE teamName = ? AND empId = ?
+        `, [taskcompleted, teamName, empId]);
+
+    res.status(200).json({ message: "Updated successfully" });
+  } catch (error) {
+    console.error("Error updating completed tasks:", error);
+    res.status(500).json({ error: "Error updating completed tasks" });
+  }
+});
+
 //get team and average performance
 router.get("/getTeamAndPerformance", async (req, res) => {
   try {
@@ -1097,7 +1158,7 @@ router.get("/getAllAllocatedResources", async (req, res) => {
 
   try {
     const [rows] = await pool.query(`
-            SELECT a.empId, p.NAME, a.resource, a.quantity, a.allocatedate, a.returneddate, a.status
+            SELECT a.id, a.empId, p.NAME, a.resource, a.quantity, a.allocatedate, a.returneddate, a.status
             FROM allocatedresources a JOIN personaldetails p ON a.empId = p.empId
             WHERE a.status = "Not returned"
             ORDER By a.created_at DESC
@@ -1110,8 +1171,8 @@ router.get("/getAllAllocatedResources", async (req, res) => {
 });
 
 //update quantity after returned
-router.put("/updateQuantity/:resource/:quantity/:empId", async (req, res) => {
-  const { resource, empId } = req.params;
+router.put("/updateQuantity/:id/:resource/:quantity/:empId", async (req, res) => {
+  const { resource, empId, id } = req.params;
   const quantity = parseInt(req.params.quantity, 10);
 
   try {
@@ -1134,10 +1195,10 @@ router.put("/updateQuantity/:resource/:quantity/:empId", async (req, res) => {
     await pool.query(`
             UPDATE allocatedresources
             SET status = "Returned" 
-            WHERE resource = ? AND empId = ?
-        `, [resource, empId]);
+            WHERE resource = ? AND empId = ? AND id = ?
+        `, [resource, empId, id]);
 
-    res.status(200).json({ message: "Updated successfully" });
+    res.status(200).json({ message: "Updated successfully", currentQuantity, newQuantity });
   } catch (error) {
     console.error("Error updating resources:", error);
     res.status(500).json({ error: "Error updating resources" });
@@ -1145,16 +1206,16 @@ router.put("/updateQuantity/:resource/:quantity/:empId", async (req, res) => {
 });
 
 //save alert
-router.put("/saveAlert/:resource/:empId", async (req, res) => {
-  const { resource, empId } = req.params;
+router.put("/saveAlert/:id/:resource/:empId", async (req, res) => {
+  const { resource, empId, id } = req.params;
   const { alertResponse } = req.body;
 
   try {
     await pool.query(
       `UPDATE allocatedresources 
-             SET alert = ? 
-             WHERE resource = ? AND empId = ?`,
-      [alertResponse, resource, empId]
+      SET alert = ? 
+      WHERE resource = ? AND empId = ? AND id = ?`,
+      [alertResponse, resource, empId, id]
     );
 
     res.status(200).json({ message: "Alert sent and updated successfully" });
