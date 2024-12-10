@@ -1673,13 +1673,12 @@ router.get("/total-revenue/last-quarter", async (req, res) => {
 router.get("/avg-profit-margin", async (req, res) => {
   try {
     const query = `
-      SELECT Department, \`Profit Margin\`
+      SELECT Department, 
+             AVG(\`Profit Margin\`) AS avg_profit_margin
       FROM profit_table 
-      WHERE Date = (
-        SELECT MAX(Date) 
-        FROM profit_table AS sub
-        WHERE sub.Department = profit_table.Department
-      )
+      WHERE Date >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01') 
+            AND Date < DATE_FORMAT(CURDATE(), '%Y-%m-01')
+      GROUP BY Department
     `;
 
     // Execute the query and get the results
@@ -1687,26 +1686,22 @@ router.get("/avg-profit-margin", async (req, res) => {
 
     if (results.length === 0) {
       return res.status(404).json({
-        message: "No profit margin data available.",
+        message: "No profit margin data available for the last month.",
       });
     }
 
-    // Sum up all the profit margins
-    const totalProfitMargin = results.reduce((sum, row) => {
-      return sum + parseFloat(row["Profit Margin"]); // Access the column with a space using bracket notation
-    }, 0);
-
-    // Calculate the average profit margin
-    const avgProfitMargin = totalProfitMargin / results.length;
-
+    // Send the average profit margin for each department
     res.status(200).json({
-      message: "Average profit margin fetched successfully.",
-      avgProfitMargin,
+      message: "Average profit margin for the last month fetched successfully.",
+      data: results,
     });
   } catch (error) {
-    console.error("Error fetching average profit margin:", error.message);
+    console.error(
+      "Error fetching average profit margin for last month:",
+      error.message
+    );
     res.status(500).json({
-      message: "Error fetching average profit margin.",
+      message: "Error fetching average profit margin for last month.",
       error: error.message,
     });
   }

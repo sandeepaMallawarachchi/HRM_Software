@@ -1,146 +1,170 @@
-import React, { useState, useEffect } from "react";
 import axios from "axios";
+import React, { useEffect, useState } from "react";
 
-const DecisionSupport = () => {
-  const [decisions, setDecisions] = useState([]);
-  const [selectedDecision, setSelectedDecision] = useState(null);
-  const [responseReason, setResponseReason] = useState([]);
+const DecitionSupport = () => {
+  const empId = localStorage.getItem("empId");
+  const [planList, setPlanList] = useState([]);
+  const [filteredPlanList, setFilteredPlanList] = useState([]);
+  const [yearFilter, setYearFilter] = useState("");
+  const [monthFilter, setMonthFilter] = useState("");
 
+  // Fetch data function moved to useEffect
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:4000/admin/getDecisions"
+        const planResponse = await axios.get(
+          `http://localhost:4000/admin/getAllPlans`
         );
-        // Assuming response.data is an array of employee decisions
-        const filteredDecisions = response.data.filter(
-          (decision) => decision.role === "Top Lvl Manager"
-        );
-        setDecisions(filteredDecisions);
-      } catch (error) {
-        console.error("Error fetching decision data:", error);
+        setPlanList(planResponse.data);
+        setFilteredPlanList(planResponse.data);
+      } catch (err) {
+        console.log("Error fetching data:", err);
       }
     };
     fetchData();
-  }, []);
+  }, [empId]);
 
-  const handleDecisionSelect = (decision) => {
-    setSelectedDecision(decision);
-    setResponseReason(decision.reason); // Pre-fill the reason for editing
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-CA");
   };
 
-  const handleAcceptDecision = () => {
-    if (selectedDecision) {
-      const updatedDecision = {
-        ...selectedDecision,
-        status: "Accepted",
-        reason: responseReason,
-      };
-      setDecisions((prevDecisions) =>
-        prevDecisions.map((dec) =>
-          dec.id === updatedDecision.id ? updatedDecision : dec
-        )
+  const handleDeletePlan = async (planId) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:4000/admin/deletePlan/${planId}`
       );
-      alert(`Decision accepted: ${updatedDecision.decision}`);
-      setSelectedDecision(null);
-      setResponseReason("");
+      alert(response.data.message);
+      // Optionally, refresh the plan list after deletion
+      const updatedPlanList = planList.filter((plan) => plan.id !== planId);
+      setPlanList(updatedPlanList);
+      setFilteredPlanList(updatedPlanList);
+    } catch (err) {
+      console.error("Error deleting plan:", err);
     }
   };
 
-  const handleRejectDecision = () => {
-    if (selectedDecision) {
-      const updatedDecision = {
-        ...selectedDecision,
-        status: "Rejected",
-        reason: responseReason,
-      };
-      setDecisions((prevDecisions) =>
-        prevDecisions.map((dec) =>
-          dec.id === updatedDecision.id ? updatedDecision : dec
-        )
-      );
-      alert(`Decision rejected: ${updatedDecision.decision}`);
-      setSelectedDecision(null);
-      setResponseReason("");
-    }
+  // Handle filter changes
+  const handleFilterChange = () => {
+    const filteredList = planList.filter((plan) => {
+      const planDeadline = new Date(plan.deadline);
+      const planYear = planDeadline.getFullYear();
+      const planMonth = planDeadline.getMonth() + 1;
+
+      const matchesYear = yearFilter ? planYear === parseInt(yearFilter) : true;
+      const matchesMonth = monthFilter
+        ? planMonth === parseInt(monthFilter)
+        : true;
+
+      return matchesYear && matchesMonth;
+    });
+    setFilteredPlanList(filteredList);
   };
+
+  useEffect(() => {
+    handleFilterChange();
+  }, [yearFilter, monthFilter, planList]);
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
-        Decision Support Dashboard
-      </h1>
-
-      {/* Decision List */}
-      <div className="mb-6">
-        <h2 className="text-xl mb-4">Decisions Made by Top-Level Managers:</h2>
-        <ul className="space-y-2">
-          {decisions.map((decision) => (
-            <li
-              key={decision.id}
-              className={`cursor-pointer hover:bg-gray-200 p-2 rounded ${
-                decision.status === "Accepted"
-                  ? "bg-green-100"
-                  : decision.status === "Rejected"
-                  ? "bg-red-100"
-                  : ""
-              }`}
-              onClick={() => handleDecisionSelect(decision)}
+    <div className="p-6 px-20 bg-gray-100 rounded-lg shadow-md">
+      <h3 className="text-xl font-semibold mb-4">Current Strategic Goals</h3>
+      <div className="overflow-x-auto">
+        {/* Filters */}
+        <div className="flex space-x-4 mt-5">
+          <div>
+            <label className="block text-gray-700">Filter by Year</label>
+            <select
+              value={yearFilter}
+              onChange={(e) => setYearFilter(e.target.value)}
+              className="border-none rounded-md p-2 w-full"
             >
-              <strong>{decision.department}</strong> (Role: {decision.role}):{" "}
-              {decision.decision} (Status: {decision.status})
-              <br />
-              <span className="text-sm text-gray-600">
-                Date: {decision.date}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
+              <option value="">All Years</option>
+              {[
+                ...new Set(
+                  planList.map((plan) => new Date(plan.deadline).getFullYear())
+                ),
+              ]
+                .sort((a, b) => b - a)
+                .map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+            </select>
+          </div>
 
-      {/* Selected Decision Details */}
-      {selectedDecision && (
-        <div className="mt-4 bg-white shadow-lg rounded-lg p-4">
-          <h3 className="text-lg font-semibold">Selected Decision:</h3>
-          <p>
-            <strong>Department:</strong> {selectedDecision.department}
-          </p>
-          <p>
-            <strong>Role:</strong> {selectedDecision.role}
-          </p>
-          <p>
-            <strong>Decision:</strong> {selectedDecision.decision}
-          </p>
-          <p>
-            <strong>Status:</strong> {selectedDecision.status}
-          </p>
-
-          <textarea
-            className="mt-4 w-full p-2 border rounded"
-            rows="4"
-            value={responseReason}
-            onChange={(e) => setResponseReason(e.target.value)}
-            placeholder="Provide reason for your response..."
-          ></textarea>
-
-          <div className="mt-4">
-            <button
-              className="bg-blue-500 text-white px-4 py-2 mr-2 rounded hover:bg-blue-600 transition duration-200"
-              onClick={handleAcceptDecision}
+          <div>
+            <label className="block text-gray-700">Filter by Month</label>
+            <select
+              value={monthFilter}
+              onChange={(e) => setMonthFilter(e.target.value)}
+              className="border-none rounded-md p-2 w-full"
             >
-              Accept Decision
-            </button>
-            <button
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-200"
-              onClick={handleRejectDecision}
-            >
-              Reject Decision
-            </button>
+              <option value="">All Months</option>
+              {Array.from({ length: 12 }, (_, index) => (
+                <option key={index + 1} value={index + 1}>
+                  {new Date(0, index).toLocaleString("en-US", {
+                    month: "long",
+                  })}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
-      )}
+        <table className="mt-5 min-w-full bg-white rounded-lg shadow-lg border border-gray-300">
+          <thead className="bg-orange-500 text-white">
+            <tr>
+              <th className="border border-gray-300 px-4 py-2">Goal</th>
+              <th className="border border-gray-300 px-4 py-2">Description</th>
+              <th className="border border-gray-300 px-4 py-2">Deadline</th>
+              <th className="border border-gray-300 px-4 py-2">Progress</th>
+              <th className="border border-gray-300 px-4 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredPlanList.length > 0 ? (
+              filteredPlanList.map((plan) => (
+                <tr
+                  key={plan.id}
+                  className="hover:bg-gray-100 transition duration-200"
+                >
+                  <td className="border border-gray-300 px-4 py-2">
+                    {plan.goal}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {plan.description}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {formatDate(plan.deadline)}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {plan.progress}%
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <button
+                      onClick={() => handleDeletePlan(plan.id)}
+                      className="text-red-500"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="5"
+                  className="border border-gray-300 px-4 py-2 text-center"
+                >
+                  No strategic plans found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
 
-export default DecisionSupport;
+export default DecitionSupport;
