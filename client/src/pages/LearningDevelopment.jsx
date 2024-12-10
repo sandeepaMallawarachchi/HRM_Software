@@ -5,6 +5,7 @@ import LearningCalander from "../components/leaningComponents/LearningCalander";
 import TrainingAndTasks from "../components/leaningComponents/TrainingAndTasks";
 import SkillsAndCompetencies from "../components/leaningComponents/SkillsAndCompetencies";
 import CareerPlans from "../components/leaningComponents/CareePlans";
+import MentorFeedback from "../components/leaningComponents/MentorFeedback";
 
 const LearningDevelopment = () => {
 
@@ -56,27 +57,7 @@ const LearningDevelopment = () => {
         <CareerPlans />
 
         {/* Peer and Mentor Interaction */}
-        <div className="card bg-gradient-to-r from-blue-500 to-blue-300 text-black rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
-          <h2 className="text-lg  font-semibold mb-2">
-            Peer and Mentor Interaction
-          </h2>
-          <div className="flex items-center mb-4">
-            <div className="bg-white text-blue-500 rounded-full w-10 h-10 flex items-center justify-center mr-3">
-              <span className="font-bold">JD</span> {/* Mentor Initials */}
-            </div>
-            <div>
-              <p className="text-sm">
-                Current Mentor: John Doe (Senior Developer)
-              </p>
-              <p className="text-sm">
-                Next Mentorship Meeting: November 1, 2024
-              </p>
-            </div>
-          </div>
-          <p className="text-sm italic">
-            Recent Feedback: "Great progress on understanding backend concepts."
-          </p>
-        </div>
+        <MentorFeedback />
 
         {/* Personalized Recommendations */}
         <div className="card bg-gradient-to-r from-green-400 to-green-300 text-black rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">

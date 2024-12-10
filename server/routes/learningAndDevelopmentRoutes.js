@@ -124,16 +124,16 @@ router.post("/addFeedback/:mentorId/:empId", async (req, res) => {
 });
 
 //get feedback by empId
-router.get("/getFeedback/:empId", async (req, res) => {
+router.get("/getEmpFeedback/:empId", async (req, res) => {
     const { empId } = req.params;
 
     try {
         const [rows] = await pool.query(`
-              SELECT * 
-              FROM mentorfeedback
-              WHERE empId = ? 
+              SELECT m.empId, m.mentorId, p.Name AS mentor, m.feedback 
+              FROM mentorfeedback m JOIN personaldetails p ON m.mentorId = p.empId
+              WHERE m.empId = ? 
           `, [empId]);
-        res.status(200).json(rows);
+        res.status(200).json(rows[0]);
     } catch (error) {
         console.error("Error fetching feedback:", error);
         res.status(500).json({ error: "Error fetching feedback" });
@@ -141,16 +141,16 @@ router.get("/getFeedback/:empId", async (req, res) => {
 });
 
 //get feedback by mentorId
-router.get("/getFeedback/:mentorId", async (req, res) => {
+router.get("/getMentorFeedback/:mentorId", async (req, res) => {
     const { mentorId } = req.params;
 
     try {
         const [rows] = await pool.query(`
-              SELECT * 
-              FROM mentorfeedback
-              WHERE mentorId = ? 
-          `, [mentorId]);
-        res.status(200).json(rows);
+            SELECT m.mentorId, m.empId, p.Name AS employee, m.feedback 
+            FROM mentorfeedback m JOIN personaldetails p ON m.empId = p.empId
+            WHERE m.mentorId = ? 
+        `, [mentorId]);
+        res.status(200).json(rows[0]);
     } catch (error) {
         console.error("Error fetching feedback:", error);
         res.status(500).json({ error: "Error fetching feedback" });
