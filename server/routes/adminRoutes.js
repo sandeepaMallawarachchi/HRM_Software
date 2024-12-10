@@ -560,24 +560,66 @@ router.post("/addStrategicPlan/:empId", async (req, res) => {
   }
 });
 
-// Get all strategic plans by id
-router.get("/getPlans/:empId", async (req, res) => {
-  const employeeId = req.params.empId;
-
+// Get all strategic plans
+router.get("/getAllPlans", async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      "SELECT * FROM strategicplans WHERE empId = ?",
-      [employeeId]
-    );
+    const [rows] = await pool.query("SELECT * FROM strategicplans");
 
     if (rows.length > 0) {
       res.status(200).json(rows);
     } else {
-      res.status(404).json({ message: "No strategic plan records found" });
+      res.status(404).json({ message: "No strategic plans found" });
     }
   } catch (error) {
-    console.error("Error fetching strategic plan details:", error);
-    res.status(500).json({ error: "Error fetching strategic plan details" });
+    console.error("Error fetching all strategic plan details:", error);
+    res
+      .status(500)
+      .json({ error: "Error fetching all strategic plan details" });
+  }
+});
+
+// Delete a strategic plan by ID
+router.delete("/deletePlan/:id", async (req, res) => {
+  const planId = req.params.id;
+
+  try {
+    const [result] = await pool.query(
+      "DELETE FROM strategicplans WHERE id = ?",
+      [planId]
+    );
+
+    if (result.affectedRows > 0) {
+      res.status(200).json({ message: "Strategic plan deleted successfully" });
+    } else {
+      res.status(404).json({ message: "Strategic plan not found" });
+    }
+  } catch (error) {
+    console.error("Error deleting strategic plan:", error);
+    res.status(500).json({ error: "Error deleting strategic plan" });
+  }
+});
+
+// Update the progress of a strategic plan by ID
+router.put("/updateProgress/:id", async (req, res) => {
+  const planId = req.params.id;
+  const { progress } = req.body; // Assuming the progress is sent in the request body
+
+  try {
+    const [result] = await pool.query(
+      "UPDATE strategicplans SET progress = ? WHERE id = ?",
+      [progress, planId]
+    );
+
+    if (result.affectedRows > 0) {
+      res
+        .status(200)
+        .json({ message: "Strategic plan progress updated successfully" });
+    } else {
+      res.status(404).json({ message: "Strategic plan not found" });
+    }
+  } catch (error) {
+    console.error("Error updating strategic plan progress:", error);
+    res.status(500).json({ error: "Error updating strategic plan progress" });
   }
 });
 
@@ -722,7 +764,6 @@ router.get("/getSpentBudget/:department/:year/:month", async (req, res) => {
   const { department, year, month } = req.params;
 
   try {
-
     const [totals] = await pool.query(
       `SELECT 
                 SUM(\`operational costs\`) AS "OperationalCosts",
@@ -735,7 +776,6 @@ router.get("/getSpentBudget/:department/:year/:month", async (req, res) => {
       [department, `${year}-${month}`]
     );
     res.status(200).json(totals[0]);
-
   } catch (error) {
     res.status(500).json({ error: "Error retrieving expenses data" });
   }
@@ -979,7 +1019,8 @@ router.get("/getTeamAndPerformance/:teamName/:empId", async (req, res) => {
       `SELECT performance, taskcompleted
       FROM teammembers
       WHERE teamName = ? AND empId = ?`,
-      [teamName, empId]);
+      [teamName, empId]
+    );
 
     if (memberPerformance.length === 0) {
       return res.status(404).json({ error: "No matching team member found" });
@@ -987,8 +1028,13 @@ router.get("/getTeamAndPerformance/:teamName/:empId", async (req, res) => {
 
     res.status(200).json(memberPerformance);
   } catch (error) {
-    console.error("Error fetching team and performance Of selected member:", error);
-    res.status(500).json({ error: "Error fetching team and performance Of selected member" });
+    console.error(
+      "Error fetching team and performance Of selected member:",
+      error
+    );
+    res.status(500).json({
+      error: "Error fetching team and performance Of selected member",
+    });
   }
 });
 
@@ -998,12 +1044,14 @@ router.put("/updatePerformance/:teamName/:empId", async (req, res) => {
   const { performance } = req.body;
 
   try {
-
-    await pool.query(`
+    await pool.query(
+      `
             UPDATE teammembers
             SET performance = ?
             WHERE teamName = ? AND empId = ?
-        `, [performance, taskcompleted, teamName, empId]);
+        `,
+      [performance, taskcompleted, teamName, empId]
+    );
 
     res.status(200).json({ message: "Updated successfully" });
   } catch (error) {
@@ -1018,12 +1066,14 @@ router.put("/updateTaskcompleted/:teamName/:empId", async (req, res) => {
   const { taskcompleted } = req.body;
 
   try {
-
-    await pool.query(`
+    await pool.query(
+      `
             UPDATE teammembers
             SET taskcompleted = ?
             WHERE teamName = ? AND empId = ?
-        `, [taskcompleted, teamName, empId]);
+        `,
+      [taskcompleted, teamName, empId]
+    );
 
     res.status(200).json({ message: "Updated successfully" });
   } catch (error) {
@@ -1087,11 +1137,14 @@ router.get("/getAllResources", async (req, res) => {
 router.put("/updateResource/:id/:quantity", async (req, res) => {
   const { id, quantity } = req.params;
   try {
-    await pool.query(`
+    await pool.query(
+      `
             UPDATE resource
             SET quantity = ? 
             WHERE id = ?
-        `, [quantity, id]);
+        `,
+      [quantity, id]
+    );
     res.status(200).json({ message: "Updated successfully" });
   } catch (error) {
     console.error("Error updating resources:", error);
@@ -1123,11 +1176,14 @@ router.post("/allocateResource/:empId", async (req, res) => {
 
     const newQuantity = currentQuantity - quantity;
 
-    await pool.query(`
+    await pool.query(
+      `
             UPDATE resource
             SET quantity = ? 
             WHERE id = ?
-        `, [newQuantity, id]);
+        `,
+      [newQuantity, id]
+    );
 
     res.status(201).json({ message: "Resource allocated successfully" });
   } catch (error) {
@@ -1141,11 +1197,14 @@ router.get("/getAllocatedResources/:empId", async (req, res) => {
   const { empId } = req.params;
 
   try {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.query(
+      `
             SELECT * 
             FROM allocatedresources
             WHERE empId = ? 
-        `, [empId]);
+        `,
+      [empId]
+    );
     res.status(200).json(rows);
   } catch (error) {
     console.error("Error fetching allocated resources:", error);
@@ -1155,7 +1214,6 @@ router.get("/getAllocatedResources/:empId", async (req, res) => {
 
 //get all allocated resources
 router.get("/getAllAllocatedResources", async (req, res) => {
-
   try {
     const [rows] = await pool.query(`
             SELECT a.id, a.empId, p.NAME, a.resource, a.quantity, a.allocatedate, a.returneddate, a.status
@@ -1171,39 +1229,51 @@ router.get("/getAllAllocatedResources", async (req, res) => {
 });
 
 //update quantity after returned
-router.put("/updateQuantity/:id/:resource/:quantity/:empId", async (req, res) => {
-  const { resource, empId, id } = req.params;
-  const quantity = parseInt(req.params.quantity, 10);
+router.put(
+  "/updateQuantity/:id/:resource/:quantity/:empId",
+  async (req, res) => {
+    const { resource, empId, id } = req.params;
+    const quantity = parseInt(req.params.quantity, 10);
 
-  try {
+    try {
+      const [currentQuantityResult] = await pool.query(
+        "select quantity from resource where resource = ?",
+        [resource]
+      );
 
-    const [currentQuantityResult] = await pool.query(
-      "select quantity from resource where resource = ?",
-      [resource]
-    );
+      const currentQuantity = currentQuantityResult[0].quantity;
 
-    const currentQuantity = currentQuantityResult[0].quantity;
+      const newQuantity = currentQuantity + quantity;
 
-    const newQuantity = currentQuantity + quantity;
-
-    await pool.query(`
+      await pool.query(
+        `
             UPDATE resource
             SET quantity = ? 
             WHERE resource = ?
-        `, [newQuantity, resource]);
+        `,
+        [newQuantity, resource]
+      );
 
-    await pool.query(`
+      await pool.query(
+        `
             UPDATE allocatedresources
             SET status = "Returned" 
             WHERE resource = ? AND empId = ? AND id = ?
-        `, [resource, empId, id]);
+        `,
+        [resource, empId, id]
+      );
 
-    res.status(200).json({ message: "Updated successfully", currentQuantity, newQuantity });
-  } catch (error) {
-    console.error("Error updating resources:", error);
-    res.status(500).json({ error: "Error updating resources" });
+      res.status(200).json({
+        message: "Updated successfully",
+        currentQuantity,
+        newQuantity,
+      });
+    } catch (error) {
+      console.error("Error updating resources:", error);
+      res.status(500).json({ error: "Error updating resources" });
+    }
   }
-});
+);
 
 //save alert
 router.put("/saveAlert/:id/:resource/:empId", async (req, res) => {
@@ -1277,11 +1347,14 @@ router.get("/getAllocatedTraining/:empId", async (req, res) => {
   const { empId } = req.params;
 
   try {
-    const [rows] = await pool.query(`
+    const [rows] = await pool.query(
+      `
             SELECT * 
             FROM allocatedtraining
             WHERE empId = ? 
-        `, [empId]);
+        `,
+      [empId]
+    );
     res.status(200).json(rows);
   } catch (error) {
     console.error("Error fetching allocated training:", error);
@@ -1291,7 +1364,6 @@ router.get("/getAllocatedTraining/:empId", async (req, res) => {
 
 //get all allocated training
 router.get("/getAllAllocatedTraining", async (req, res) => {
-
   try {
     const [rows] = await pool.query(`
             SELECT a.id, a.empId, p.NAME, a.training, a.weight, a.allocatedate, a.finisheddate, a.status
@@ -1324,7 +1396,9 @@ router.put("/updateStatus/:id/:training/:empId", async (req, res) => {
     const [result] = await pool.query(query, [id, training, empId]);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "No matching record found to update" });
+      return res
+        .status(404)
+        .json({ error: "No matching record found to update" });
     }
 
     res.status(200).json({ message: "Status updated successfully" });
@@ -1354,10 +1428,17 @@ router.put("/saveReminder/:id/:training/:empId", async (req, res) => {
           empId = ?
     `;
 
-    const [result] = await pool.query(query, [reminderResponse, id, training, empId]);
+    const [result] = await pool.query(query, [
+      reminderResponse,
+      id,
+      training,
+      empId,
+    ]);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "No matching record found to update" });
+      return res
+        .status(404)
+        .json({ error: "No matching record found to update" });
     }
 
     res.status(200).json({ message: "Reminder sent and updated successfully" });

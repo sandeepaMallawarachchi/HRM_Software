@@ -18,6 +18,7 @@ import AttendanceAndTime from "./pages/AttendanceAndTime";
 import ReminderPage from "./pages/subPages/ReminderPage.jsx";
 import Communication from "./components/Communication.jsx";
 import PostList from "./pages/Newspaper";
+import StickyCard from "./pages/StickyCard";
 
 //team leader routes
 import TeamManage from "./pages/TeamLeaderPages/TeamManage";
@@ -52,7 +53,7 @@ import PolicyManagement from "./pages/HRpages/PolicyManagement";
 //Ceo routes
 import ExecutiveDashboard from "./pages/CEOpages/ExecutiveDashboard";
 import StrategicInsights from "./pages/CEOpages/StrategicInsights";
-import TalentManagement from "./pages/CEOpages/TalentManagement";
+
 import Meetings from "./pages/CEOpages/Meetings";
 import DecitionSupport from "./pages/CEOpages/DecitionSupport";
 
@@ -81,7 +82,7 @@ const App = () => {
           <Routes>
             {/* Catch-all 404 route */}
             <Route path="*" element={<NotFound />} />
-            
+
             {/* Public Route */}
             <Route path="/" element={<Login />} />
 
@@ -199,10 +200,6 @@ const App = () => {
               path="/strategic-insights"
               element={<ProtectedRoute element={<StrategicInsights />} />}
             />
-            <Route
-              path="/talent-management"
-              element={<ProtectedRoute element={<TalentManagement />} />}
-            />
 
             <Route
               path="/decision-support"
@@ -240,6 +237,10 @@ const App = () => {
             <Route
               path="/posttofeed"
               element={<ProtectedRoute element={<PostForm />} />}
+            />
+            <Route
+              path="/sticky-cards"
+              element={<ProtectedRoute element={<StickyCard />} />}
             />
           </Routes>
         </div>

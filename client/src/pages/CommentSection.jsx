@@ -5,6 +5,7 @@ const CommentSection = ({ postId }) => {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
   const [userName, setUserName] = useState(""); // State to store the current employee's name
+  const [showAllComments, setShowAllComments] = useState(false); // State to toggle between showing all or latest comment
 
   useEffect(() => {
     const empId = localStorage.getItem("empId"); // Get the current empId
@@ -56,27 +57,47 @@ const CommentSection = ({ postId }) => {
 
   return (
     <div className="mt-2">
-      <h3 className="font-bold">Comments</h3>
-      <div className="mb-2">
-        {comments.map((c, index) => (
-          <div key={index} className="text-gray-600">
-            {c.user}: {c.comment}
-          </div>
-        ))}
-      </div>
-      <input
-        type="text"
-        placeholder="Add a comment..."
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        className="w-full p-2 border rounded"
-      />
+      {/* Display latest comment if showAllComments is false */}
+      {comments.length > 0 && !showAllComments ? (
+        <div className="text-gray-600">
+          {comments[comments.length - 1].user}:{" "}
+          {comments[comments.length - 1].comment}
+        </div>
+      ) : (
+        // Display all comments if showAllComments is true
+        <div className="mb-2">
+          {comments.map((c, index) => (
+            <div key={index} className="text-gray-600">
+              {c.user}: {c.comment}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Button to toggle between showing latest comment and all comments */}
       <button
-        onClick={addComment}
-        className="bg-blue-500 text-white px-3 py-1 mt-1 rounded"
+        onClick={() => setShowAllComments(!showAllComments)}
+        className="text-blue-500 hover:text-blue-600 font-semibold mt-2"
       >
-        Comment
+        {showAllComments ? "Hide Comments" : "Show All Comments"}
       </button>
+
+      {/* Add a new comment */}
+      <div className="mt-4 flex gap-2">
+        <input
+          type="text"
+          placeholder="Add a comment..."
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          className="w-full p-1 border rounded"
+        />
+        <button
+          onClick={addComment}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Post
+        </button>
+      </div>
     </div>
   );
 };
