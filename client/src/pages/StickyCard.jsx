@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import noevents from "../images/images.png";
 
 const Stickycards = () => {
   const [cards, setCards] = useState([]);
@@ -103,7 +104,9 @@ const Stickycards = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">Next Occation</h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-4">
+          Upcoming Occation
+        </h1>
 
         {/* Conditional render of the Create button */}
         {["Top Lvl Manager", "Ceo"].includes(userRole) && (
@@ -138,36 +141,46 @@ const Stickycards = () => {
 
         {/* List of sticky cards */}
         <ul className="space-y-4">
-          {cards.map((card) => (
-            <li
-              key={card.id}
-              className="bg-gray-50 border border-gray-200 rounded-lg shadow p-4"
-            >
-              <h3 className="text-lg font-semibold text-gray-800">
-                {card.title}
-              </h3>
-              <p className="text-gray-600">{card.description}</p>
-              <div className="mt-4 flex gap-2">
-                {/* Conditional rendering of Edit and Delete buttons */}
-                {["Top Lvl Manager", "Ceo"].includes(userRole) && (
-                  <>
-                    <button
-                      onClick={() => handleEdit(card)}
-                      className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-all"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => deleteCard(card.id)}
-                      className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-all"
-                    >
-                      Delete
-                    </button>
-                  </>
-                )}
-              </div>
-            </li>
-          ))}
+          {cards.length > 0 ? (
+            cards.map((card) => (
+              <li
+                key={card.id}
+                className="bg-gray-50 border border-gray-200 rounded-lg shadow p-4"
+              >
+                <h3 className="text-lg font-semibold text-gray-800">
+                  {card.title}
+                </h3>
+                <p className="text-gray-600">{card.description}</p>
+                <div className="mt-4 flex gap-2">
+                  {/* Conditional rendering of Edit and Delete buttons */}
+                  {["Top Lvl Manager", "Ceo"].includes(userRole) && (
+                    <>
+                      <button
+                        onClick={() => handleEdit(card)}
+                        className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-all"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => deleteCard(card.id)}
+                        className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-all"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </div>
+              </li>
+            ))
+          ) : (
+            <div className="flex justify-center items-center mt-8">
+              <img
+                src={noevents}
+                alt="No cards available"
+                className="max-w-md"
+              />
+            </div>
+          )}
         </ul>
       </div>
     </div>
