@@ -28,15 +28,15 @@ import Reporting from "./pages/TeamLeaderPages/Reporting";
 import PerformanceManage from "./pages/MidLvlMangersPages/PerformanceManage";
 import ResourceAllocation from "./pages/MidLvlMangersPages/ResourceAllocation";
 import ReportsandAnalytics from "./pages/MidLvlMangersPages/ReportsandAnalytics";
-import ConflictResolutions from "./pages/MidLvlMangersPages/ConflictResolutions";
+
 import TrainingOversite from "./pages/MidLvlMangersPages/TrainingOversite";
 
 //Top Levl Managers routes
 import StrategicPlaning from "./pages/TopLvlManagerPages/StrategicPlaning";
 import PerformanceDashboard from "./pages/TopLvlManagerPages/PerformanceDashboard";
-import SuccessPlaning from "./pages/TopLvlManagerPages/SuccessPlaning";
+
 import Budgeting from "./pages/TopLvlManagerPages/Budgeting";
-import CompilenceTrack from "./pages/TopLvlManagerPages/CompilenceTrack";
+
 import PostForm from "./pages/TopLvlManagerPages/PostToFeed";
 
 //Accountant routes
@@ -152,10 +152,7 @@ const App = () => {
               path="/reporting-analytics"
               element={<ProtectedRoute element={<ReportsandAnalytics />} />}
             />
-            <Route
-              path="/conflict-resolution"
-              element={<ProtectedRoute element={<ConflictResolutions />} />}
-            />
+
             <Route
               path="/training-oversight"
               element={<ProtectedRoute element={<TrainingOversite />} />}
@@ -168,18 +165,12 @@ const App = () => {
               path="/performance-dashboards"
               element={<ProtectedRoute element={<PerformanceDashboard />} />}
             />
-            <Route
-              path="/succession-planning"
-              element={<ProtectedRoute element={<SuccessPlaning />} />}
-            />
+
             <Route
               path="/budgeting"
               element={<ProtectedRoute element={<Budgeting />} />}
             />
-            <Route
-              path="/compliance-tracking"
-              element={<ProtectedRoute element={<CompilenceTrack />} />}
-            />
+
             <Route
               path="/expences"
               element={<ProtectedRoute element={<Expenses />} />}
