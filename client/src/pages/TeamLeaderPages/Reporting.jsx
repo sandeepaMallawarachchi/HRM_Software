@@ -27,6 +27,7 @@ const Reporting = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const navigate = useNavigate();
+  const [editedData, setEditedData] = useState({});
 
   const handleTeamNameChange = async (e) => {
     const selectedTeamName = e.target.value;
@@ -58,27 +59,42 @@ const Reporting = () => {
     fetchTeamsAndData();
   }, []);
 
-  //  
-
-  const handlePerformanceChange = async (teamName, id) => {
-    try {
-      await axios.put(`http://localhost:4000/admin/updatePerformance/${teamName}/${id}`);
-
-      const res = await axios.put(`http://localhost:4000/admin/getTeamAndPerformance/${teamName}/${id}`);
-      setFilteredData(res.data);
-    } catch (error) {
-      alert('Error updating performance and tasks')
-    }
+  const handleDataChange = (id, key, value) => {
+    setEditedData((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        [key]: value,
+      },
+    }));
   };
 
-  const handleTasksCompletedChange = async (teamName, id) => {
-    try {
-      await axios.put(`http://localhost:4000/admin/updatePerformance/${teamName}/${id}`);
+  const handlePerformanceOrTaskChange = async (id) => {
+    const newData = editedData[id];
+    const updatedFields = {};
 
-      const res = await axios.put(`http://localhost:4000/admin/getTeamAndPerformance/${teamName}/${id}`);
-      setFilteredData(res.data);
+    if (newData.performance !== undefined) {
+      updatedFields.performance = parseInt(newData.performance, 10);
+    }
+    if (newData.taskcompleted !== undefined) {
+      updatedFields.taskcompleted = parseInt(newData.taskcompleted, 10);
+    }
+
+    try {
+      await axios.put(`http://localhost:4000/admin/updatePerformanceOrTask/${id}`, updatedFields);
+      setFilteredData((prevData) =>
+        prevData.map((data) =>
+          data.id === id ? { ...data, ...updatedFields } : data
+        )
+      );
+      setEditedData((prev) => {
+        const updated = { ...prev };
+        delete updated[id];
+        return updated;
+      });
+      alert("Updated successfully");
     } catch (error) {
-      alert('Error updating performance and tasks')
+      alert("Error updating!");
     }
   };
 
@@ -92,19 +108,6 @@ const Reporting = () => {
         item.name.toLowerCase().includes(value.toLowerCase())
       );
       setFilteredData(filtered);
-    }
-  };
-
-  const handleSaveChanges = async (empId, teamName, performance, taskcompleted) => {
-    try {
-      await axios.post(`http://localhost:4000/admin/addPerformance/${empId}/${teamName}`, {
-        performance,
-        taskcompleted,
-      });
-      alert("Performance updated successfully");
-    } catch (error) {
-      console.error("Error updating performance:", error);
-      alert("Failed to update performance");
     }
   };
 
@@ -265,33 +268,34 @@ const Reporting = () => {
                   <td className="p-4">
                     <input
                       type="number"
-                      value={item.performance}
+                      value={editedData[item.id]?.performance ?? item.performance}
                       min={0}
                       max={100}
-                      onChange={(e) => handlePerformanceChange(item.teamName, e.target.empId)}
+                      onChange={(e) => handleDataChange(item.id, "performance", parseInt(e.target.value, 10))}
                       className="border rounded px-2 py-1 w-20"
                     />
                   </td>
                   <td className="p-4">
                     <input
                       type="number"
-                      value={item.taskcompleted}
+                      value={editedData[item.id]?.taskcompleted ?? item.taskcompleted}
                       min={0}
                       max={100}
-                      onChange={(e) => handleTasksCompletedChange(item.teamName, e.target.empId)}
+                      onChange={(e) => handleDataChange(item.id, "taskcompleted", parseInt(e.target.value, 10))}
                       className="border rounded px-2 py-1 w-20"
                     />
                   </td>
                   <td className="p-4 flex gap-2">
-                    <button
-                      onClick={() =>
-                        handleSaveChanges(item.empId, filteredTeamName, item.performance, item.taskcompleted)
-                      }
-                      className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center gap-2"
-                    >
-                      <FaSave />
-                      <span>Save</span>
-                    </button>
+                    {(editedData[item.id]?.performance !== undefined ||
+                      editedData[item.id]?.taskcompleted !== undefined) && (
+                        <button
+                          onClick={() => handlePerformanceOrTaskChange(item.id)}
+                          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center gap-2"
+                        >
+                          <FaSave />
+                          <span>Save</span>
+                        </button>
+                      )}
                     <button
                       onClick={() => handleSave(item)}
                       className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 flex items-center gap-2"
