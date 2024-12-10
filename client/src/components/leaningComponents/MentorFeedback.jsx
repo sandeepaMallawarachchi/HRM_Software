@@ -14,6 +14,11 @@ const MentorFeedback = () => {
         }
     };
 
+    const getInitials = (name) => {
+        const nameParts = name.split(' ');
+        return nameParts.map(part => part[0].toUpperCase()).join('');
+    };
+
     useEffect(() => {
         fetchFeedback();
     }, []);
@@ -25,7 +30,7 @@ const MentorFeedback = () => {
             </h2>
             <div className="flex items-center mb-4">
                 <div className="bg-white text-blue-500 rounded-full w-10 h-10 flex items-center justify-center mr-3">
-                    <span className="font-bold">TD</span>
+                    <span className="font-bold">{feedback.mentor ? getInitials(feedback.mentor) : 'N/A'}</span>
                 </div>
                 <div>
                     <p className="text-sm">

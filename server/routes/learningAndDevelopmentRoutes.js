@@ -105,20 +105,41 @@ router.get("/getCareerPlan/:empId", async (req, res) => {
     }
 });
 
-//add feeedback from mentor
+//add feeedback and from mentor
 router.post("/addFeedback/:mentorId/:empId", async (req, res) => {
     const { mentorId, empId } = req.params;
-    const { feedback } = req.body;
+    const { feedback, recommendation, steps } = req.body;
 
     try {
-        await pool.query(
-            "INSERT INTO mentorfeedback (mentorId, empId, feedback) VALUES (?, ?, ?) " +
-            "ON DUPLICATE KEY UPDATE feedback = ?",
-            [mentorId, empId, feedback, feedback]
+        const [existingFeedback] = await pool.query(
+            "SELECT feedback, recommendation, steps FROM mentorfeedback WHERE mentorId = ? AND empId = ?",
+            [mentorId, empId]
         );
+
+        if (existingFeedback.length === 0) {
+            return res.status(404).json({ error: "No feedback found for this mentor and employee." });
+        }
+
+        const feedbackValue = feedback || existingFeedback[0].feedback;
+        const recommendationValue = recommendation || existingFeedback[0].recommendation;
+        const stepsValue = steps ? JSON.stringify(steps) : existingFeedback[0].steps;
+
+        const query = `
+            INSERT INTO mentorfeedback (mentorId, empId, feedback, recommendation, steps)
+            VALUES (?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+                feedback = ?, recommendation = ?, steps = ?`;
+
+        const params = [
+            mentorId, empId, feedbackValue, recommendationValue, stepsValue,
+            feedbackValue, recommendationValue, stepsValue
+        ];
+
+        await pool.query(query, params);
 
         res.status(201).json({ message: "Feedback added successfully" });
     } catch (error) {
+        console.error("Error adding feedback:", error);
         res.status(500).json({ error: "Error adding feedback" });
     }
 });
@@ -129,8 +150,9 @@ router.get("/getEmpFeedback/:empId", async (req, res) => {
 
     try {
         const [rows] = await pool.query(`
-              SELECT m.empId, m.mentorId, p.Name AS mentor, m.feedback 
-              FROM mentorfeedback m JOIN personaldetails p ON m.mentorId = p.empId
+              SELECT m.empId, m.mentorId, p.Name AS mentor, m.feedback, m.recommendation, m.steps 
+              FROM mentorfeedback m 
+              JOIN personaldetails p ON m.mentorId = p.empId
               WHERE m.empId = ? 
           `, [empId]);
         res.status(200).json(rows[0]);
@@ -146,14 +168,77 @@ router.get("/getMentorFeedback/:mentorId", async (req, res) => {
 
     try {
         const [rows] = await pool.query(`
-            SELECT m.mentorId, m.empId, p.Name AS employee, m.feedback 
-            FROM mentorfeedback m JOIN personaldetails p ON m.empId = p.empId
+            SELECT m.mentorId, m.empId, p.Name AS employee, m.feedback, m.recommendation, m.steps 
+            FROM mentorfeedback m 
+            JOIN personaldetails p ON m.empId = p.empId
             WHERE m.mentorId = ? 
         `, [mentorId]);
         res.status(200).json(rows[0]);
     } catch (error) {
         console.error("Error fetching feedback:", error);
         res.status(500).json({ error: "Error fetching feedback" });
+    }
+});
+
+//get recommendation
+router.get("/getRecommendation/:empId", async (req, res) => {
+    const { empId } = req.params;
+
+    try {
+        const [rows] = await pool.query(
+            `SELECT w.designation, c.empId, c.plan, JSON_UNQUOTE(c.steps) AS steps 
+             FROM careerplans c JOIN workdetails w ON c.empId = w.empId
+             WHERE c.empId = ?`,
+            [empId]
+        );
+
+        const formattedRows = rows.map((row) => ({
+            ...row,
+            steps: JSON.parse(row.steps || "[]"),
+        }));
+
+        res.status(200).json(formattedRows);
+    } catch (error) {
+        console.error("Error fetching career plans:", error);
+        res.status(500).json({ error: "Error fetching career plans" });
+    }
+});
+
+//update performance metrics
+router.put("/updateMetrics/:empId", async (req, res) => {
+    const empId = req.params.empId;
+    const { targettime, completedtime } = req.body;
+    const rate = (completedtime / targettime) * 100;
+
+    try {
+        await pool.query(
+            "INSERT INTO performancemetrics (empId, targettime, completedtime, rate) " +
+            "VALUES (?, ?, ?, ?) " +
+            "ON DUPLICATE KEY UPDATE targettime = ?, completedtime = ?, rate = ?",
+            [empId, targettime, completedtime, rate, targettime, completedtime, rate]
+        );
+
+        res.status(200).json({ message: "Performance metrics updated/added successfully" });
+    } catch (error) {
+        console.error("Error updating/adding performance metrics:", error);
+        res.status(500).json({ error: "Error updating/adding performance metrics" });
+    }
+});
+
+//get performance metrics
+router.get("/getPerformanceMetrics/:empId", async (req, res) => {
+    const { empId } = req.params;
+
+    try {
+        const [rows] = await pool.query(`
+              SELECT * 
+              FROM performancemetrics
+              WHERE empId = ? 
+          `, [empId]);
+        res.status(200).json(rows[0]);
+    } catch (error) {
+        console.error("Error fetching performance metrics:", error);
+        res.status(500).json({ error: "Error fetching performance metrics" });
     }
 });
 

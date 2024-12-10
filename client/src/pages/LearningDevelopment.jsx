@@ -6,6 +6,8 @@ import TrainingAndTasks from "../components/leaningComponents/TrainingAndTasks";
 import SkillsAndCompetencies from "../components/leaningComponents/SkillsAndCompetencies";
 import CareerPlans from "../components/leaningComponents/CareePlans";
 import MentorFeedback from "../components/leaningComponents/MentorFeedback";
+import PersonalizedRecommendations from '../components/leaningComponents/PersonalizedRecommendations';
+import PerformanceMetrics from "../components/leaningComponents/PerformanceMetrics";
 
 const LearningDevelopment = () => {
 
@@ -60,40 +62,11 @@ const LearningDevelopment = () => {
         <MentorFeedback />
 
         {/* Personalized Recommendations */}
-        <div className="card bg-gradient-to-r from-green-400 to-green-300 text-black rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
-          <h2 className="text-lg font-semibold mb-2">
-            Personalized Recommendations
-          </h2>
-          <p className="text-sm mb-2">Recommended Skill Focus:</p>
-          <p className="text-sm italic">
-            Learn TypeScript for better React code quality.
-          </p>
-
-          <p className="text-sm mb-2 mt-4">Suggested Training:</p>
-          <ul className="list-disc list-inside ml-5">
-            <li className="text-sm">TypeScript in Depth</li>
-            <li className="text-sm">Redux for State Management</li>
-          </ul>
-        </div>
+        <PersonalizedRecommendations />
 
         {/* Performance Metrics */}
-        <div className="card bg-gradient-to-r from-purple-500 to-purple-300 text-black rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
-          <h2 className="text-lg font-semibold mb-2">Performance Metrics</h2>
-          <ul className="list-disc list-inside ml-5">
-            <li className="text-sm">
-              Total Hours Spent on Learning:{" "}
-              <span className="font-semibold">45 hours</span>
-            </li>
-            <li className="text-sm">
-              Weekly Learning Time:{" "}
-              <span className="font-semibold">5 hours</span> on average
-            </li>
-            <li className="text-sm">
-              Completion Rate: <span className="font-semibold">80%</span> of
-              assigned courses
-            </li>
-          </ul>
-        </div>
+        <PerformanceMetrics />
+
       </div>
     </div>
   );
