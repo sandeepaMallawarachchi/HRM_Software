@@ -47,11 +47,10 @@ const SkillsAndCompetencies = () => {
 
     return (
         <div className="card bg-gradient-to-r from-indigo-500 to-indigo-300 text-white rounded-lg p-5 transition-shadow duration-300 hover:shadow-lg flex flex-col justify-between h-full">
-            <h2 className="text-lg font-semibold mb-4">Skills and Competencies</h2>
-            <ul className="space-y-3">
-                {skills
-                    .slice(0, 5)
-                    .map((skill) => (
+            <h2 className="text-lg font-semibold mb-2">Skills and Competencies</h2>
+            <div className="overflow-y-auto max-h-52 space-y-3">
+                <ul className="space-y-3">
+                    {skills.map((skill) => (
                         <li key={skill.id} className="flex justify-between items-center">
                             <span className="font-medium">{skill.skill}</span>
                             <select
@@ -65,7 +64,8 @@ const SkillsAndCompetencies = () => {
                             </select>
                         </li>
                     ))}
-            </ul>
+                </ul>
+            </div>
             <div className="mt-4">
                 <input
                     type="text"

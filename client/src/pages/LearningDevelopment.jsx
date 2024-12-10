@@ -4,6 +4,7 @@ import CertificationsAchievements from "../components/leaningComponents/Certific
 import LearningCalander from "../components/leaningComponents/LearningCalander";
 import TrainingAndTasks from "../components/leaningComponents/TrainingAndTasks";
 import SkillsAndCompetencies from "../components/leaningComponents/SkillsAndCompetencies";
+import CareerPlans from "../components/leaningComponents/CareePlans";
 
 const LearningDevelopment = () => {
 
@@ -52,28 +53,7 @@ const LearningDevelopment = () => {
         <LearningCalander />
 
         {/* Career Development Plan */}
-        <div className="card bg-gradient-to-r from-blue-500 to-blue-300 text-black rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
-          <h2 className="text-lg font-semibold mb-4">
-            Career Development Plan
-          </h2>
-          <p className="text-sm mb-2">
-            Current Role:{" "}
-            <span className="font-semibold">Junior Software Developer</span>
-          </p>
-          <p className="text-sm mb-2">
-            Goal:{" "}
-            <span className="font-semibold">
-              Move to Senior Software Developer within 2 years
-            </span>
-          </p>
-
-          <h3 className="text-md font-semibold mt-4">Steps to Achieve Goal:</h3>
-          <ul className="list-disc list-inside ml-5 space-y-2 mt-2">
-            <li className="text-sm">Complete Advanced React.js course</li>
-            <li className="text-sm">Master data structures and algorithms</li>
-            <li className="text-sm">Gain project leadership experience</li>
-          </ul>
-        </div>
+        <CareerPlans />
 
         {/* Peer and Mentor Interaction */}
         <div className="card bg-gradient-to-r from-blue-500 to-blue-300 text-black rounded-lg p-5  transition-shadow duration-300 hover:shadow-lg">
