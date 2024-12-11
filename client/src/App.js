@@ -16,35 +16,45 @@ import LeaveAndAttendance from "./pages/LeaveAndAttendance";
 import LearningDevelopment from "./pages/LearningDevelopment";
 import AttendanceAndTime from "./pages/AttendanceAndTime";
 import ReminderPage from "./pages/subPages/ReminderPage.jsx";
+import Communication from "./components/Communication.jsx";
+import PostList from "./pages/Newspaper";
+import StickyCard from "./pages/StickyCard";
 
 //team leader routes
 import TeamManage from "./pages/TeamLeaderPages/TeamManage";
 import Reporting from "./pages/TeamLeaderPages/Reporting";
-import Communication from "./pages/TeamLeaderPages/Communication";
 
 //Mid Lvl Managers routes
 import PerformanceManage from "./pages/MidLvlMangersPages/PerformanceManage";
 import ResourceAllocation from "./pages/MidLvlMangersPages/ResourceAllocation";
 import ReportsandAnalytics from "./pages/MidLvlMangersPages/ReportsandAnalytics";
-import ConflictResolutions from "./pages/MidLvlMangersPages/ConflictResolutions";
+
 import TrainingOversite from "./pages/MidLvlMangersPages/TrainingOversite";
+import SupervicerDashboard from "./pages/SupervicerDashboard.jsx";
 
 //Top Levl Managers routes
 import StrategicPlaning from "./pages/TopLvlManagerPages/StrategicPlaning";
 import PerformanceDashboard from "./pages/TopLvlManagerPages/PerformanceDashboard";
-import SuccessPlaning from "./pages/TopLvlManagerPages/SuccessPlaning";
+
 import Budgeting from "./pages/TopLvlManagerPages/Budgeting";
-import CompilenceTrack from "./pages/TopLvlManagerPages/CompilenceTrack";
+
+import PostForm from "./pages/TopLvlManagerPages/PostToFeed";
 
 //Accountant routes
 import Expenses from "./pages/AccountantPages/Expenses";
 import Profit from "./pages/AccountantPages/Profit";
 import Revenue from "./pages/AccountantPages/Revenue";
 
+//HR routes
+import EmployeeRelationships from "./pages/HRpages/EmployeeRelationships";
+import PayrollManagement from "./pages/HRpages/PayrollManagement";
+import Policies from "./pages/HRpages/Policies";
+import PolicyManagement from "./pages/HRpages/PolicyManagement";
+
 //Ceo routes
 import ExecutiveDashboard from "./pages/CEOpages/ExecutiveDashboard";
 import StrategicInsights from "./pages/CEOpages/StrategicInsights";
-import TalentManagement from "./pages/CEOpages/TalentManagement";
+
 import Meetings from "./pages/CEOpages/Meetings";
 import DecitionSupport from "./pages/CEOpages/DecitionSupport";
 
@@ -53,6 +63,10 @@ import ProtectedRoute from "./pages/auth/ProtectedRoute";
 import Login from "./pages/auth/Login";
 import Offers from "./pages/subPages/Offers";
 import Onboarding from "./pages/subPages/Onboarding";
+import PreApprovals from "./pages/HRpages/PreApprovals";
+
+//not found page
+import NotFound from "./components/NotFound.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -67,6 +81,9 @@ const App = () => {
         {!isLoginPage && <Header />}
         <div className="flex-1 p-4 pl-10 overflow-auto bg-[#f6f5fb]">
           <Routes>
+            {/* Catch-all 404 route */}
+            <Route path="*" element={<NotFound />} />
+
             {/* Public Route */}
             <Route path="/" element={<Login />} />
 
@@ -108,6 +125,11 @@ const App = () => {
               element={<ProtectedRoute element={<Onboarding />} />}
             />
             <Route
+              path="/pre-approvals"
+              element={<ProtectedRoute element={<PreApprovals />} />}
+            />
+
+            <Route
               path="/team-management"
               element={<ProtectedRoute element={<TeamManage />} />}
             />
@@ -131,13 +153,10 @@ const App = () => {
               path="/reporting-analytics"
               element={<ProtectedRoute element={<ReportsandAnalytics />} />}
             />
-            <Route
-              path="/conflict-resolution"
-              element={<ProtectedRoute element={<ConflictResolutions />} />}
-            />
+
             <Route
               path="/training-oversight"
-              element={<ProtectedRoute element={<TrainingOversite />} />}
+              element={<ProtectedRoute element={<SupervicerDashboard />} />}
             />
             <Route
               path="/strategic-planning"
@@ -147,18 +166,12 @@ const App = () => {
               path="/performance-dashboards"
               element={<ProtectedRoute element={<PerformanceDashboard />} />}
             />
-            <Route
-              path="/succession-planning"
-              element={<ProtectedRoute element={<SuccessPlaning />} />}
-            />
+
             <Route
               path="/budgeting"
               element={<ProtectedRoute element={<Budgeting />} />}
             />
-            <Route
-              path="/compliance-tracking"
-              element={<ProtectedRoute element={<CompilenceTrack />} />}
-            />
+
             <Route
               path="/expences"
               element={<ProtectedRoute element={<Expenses />} />}
@@ -179,10 +192,6 @@ const App = () => {
               path="/strategic-insights"
               element={<ProtectedRoute element={<StrategicInsights />} />}
             />
-            <Route
-              path="/talent-management"
-              element={<ProtectedRoute element={<TalentManagement />} />}
-            />
 
             <Route
               path="/decision-support"
@@ -195,6 +204,35 @@ const App = () => {
             <Route
               path="/reminders"
               element={<ProtectedRoute element={<ReminderPage />} />}
+            />
+            <Route
+              path="/employee-relations"
+              element={<ProtectedRoute element={<EmployeeRelationships />} />}
+            />
+            <Route
+              path="/payroll-management"
+              element={<ProtectedRoute element={<PayrollManagement />} />}
+            />
+            <Route
+              path="/policy-management"
+              element={<ProtectedRoute element={<Policies />} />}
+            />
+            <Route
+              path="/manage-policies"
+              element={<ProtectedRoute element={<PolicyManagement />} />}
+            />
+
+            <Route
+              path="/newspaper"
+              element={<ProtectedRoute element={<PostList />} />}
+            />
+            <Route
+              path="/posttofeed"
+              element={<ProtectedRoute element={<PostForm />} />}
+            />
+            <Route
+              path="/sticky-cards"
+              element={<ProtectedRoute element={<StickyCard />} />}
             />
           </Routes>
         </div>

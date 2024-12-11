@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FaBell, FaTimes, FaPlusCircle } from 'react-icons/fa';
 import Reminders from './Reminders';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const ReminderIcon = () => {
     const [showPopUp, setShowPopUp] = useState(false);
@@ -84,7 +84,7 @@ const ReminderIcon = () => {
                 </div>
             )}
             {showPopUp && (
-                <div ref={popUpRef} className="absolute right-0 mt-2 bg-white shadow-lg p-4 rounded-lg w-80">
+                <div ref={popUpRef} className="absolute right-0 mt-2 bg-white shadow-lg p-4 rounded-lg w-80 text-center">
                     <div className="flex justify-between">
                         <button
                             className="text-gray-500 hover:text-gray-700"
@@ -100,6 +100,7 @@ const ReminderIcon = () => {
                         </button>
                     </div>
                     <Reminders />
+                    <Link to={'/reminders'} className='text-gray-600 hover:underline'>All Reminders</Link>
                 </div>
             )}
         </div>

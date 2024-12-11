@@ -149,15 +149,15 @@ const Header = () => {
 
       <div
         ref={dropdownRef}
-        className="relative flex items-center border border-white rounded-full p-2 px-3 space-x-3 backdrop-blur-lg group"
+        className="relative flex items-center border border-white rounded-full p-2 px-3 space-x-3 backdrop-blur-lg group cursor-pointer"
         onClick={toggleDropdown}
       >
         <div className="w-10 justify-center rounded-full">
           <ProfilePicture />
         </div>
-        <span className="text-white cursor-pointer">{empName.name}</span>
+        <span className="text-white">{empName.name}</span>
         <FaAngleDown
-          className="text-white cursor-pointer hover:text-orange-300"
+          className="text-white hover:text-orange-300"
           size={20}
         />
 

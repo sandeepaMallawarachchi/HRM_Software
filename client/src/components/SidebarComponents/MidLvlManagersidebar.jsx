@@ -6,7 +6,7 @@ import {
   FaTools,
   FaComments,
   FaUserGraduate,
-  FaEnvelope
+  FaEnvelope,
 } from "react-icons/fa";
 
 const MidLvlManagerSidebar = ({ isCollapsed }) => {
@@ -17,9 +17,10 @@ const MidLvlManagerSidebar = ({ isCollapsed }) => {
       <NavLink
         to="/communication"
         className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-            : ""
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+            isActive
+              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+              : ""
           }`
         }
       >
@@ -33,9 +34,10 @@ const MidLvlManagerSidebar = ({ isCollapsed }) => {
       <NavLink
         to="/performance-management"
         className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-            : ""
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+            isActive
+              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+              : ""
           }`
         }
       >
@@ -43,15 +45,16 @@ const MidLvlManagerSidebar = ({ isCollapsed }) => {
           size={20}
           className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
         />
-        {!isCollapsed && <span>Performance Management</span>}
+        {!isCollapsed && <span>Performance Manage...</span>}
       </NavLink>
       {/* Resource Allocation Link */}
       <NavLink
         to="/resource-allocation"
         className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-            : ""
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+            isActive
+              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+              : ""
           }`
         }
       >
@@ -59,7 +62,7 @@ const MidLvlManagerSidebar = ({ isCollapsed }) => {
         {!isCollapsed && <span>Resource Allocation</span>}
       </NavLink>
       {/* Reporting and Analytics Link */}
-      <NavLink
+      {/* <NavLink
         to="/reporting-analytics"
         className={({ isActive }) =>
           `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
@@ -73,30 +76,15 @@ const MidLvlManagerSidebar = ({ isCollapsed }) => {
           className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
         />
         {!isCollapsed && <span>Reporting & Analytics</span>}
-      </NavLink>
-      {/* Conflict Resolution Link */}
-      <NavLink
-        to="/conflict-resolution"
-        className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-            : ""
-          }`
-        }
-      >
-        <FaComments
-          size={20}
-          className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-        />
-        {!isCollapsed && <span>Conflict Resolution</span>}
-      </NavLink>
+      </NavLink> */}
       {/* Training Oversight Link */}
       <NavLink
         to="/training-oversight"
         className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-            : ""
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+            isActive
+              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+              : ""
           }`
         }
       >

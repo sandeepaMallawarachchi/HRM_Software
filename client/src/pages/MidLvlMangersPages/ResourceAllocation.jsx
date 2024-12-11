@@ -87,16 +87,16 @@ const ResourceAllocation = () => {
     return date.toLocaleDateString('en-CA');
   };
 
-  const handleResourceReturning = async (resource, quantity, empId) => {
+  const handleResourceReturning = async (id, resource, quantity, empId) => {
     try {
-      await axios.put(`http://localhost:4000/admin/updateQuantity/${resource}/${quantity}/${empId}`);
+      await axios.put(`http://localhost:4000/admin/updateQuantity/${id}/${resource}/${quantity}/${empId}`);
       setResources((prevResources) =>
         prevResources.map((resource) =>
           resource.resource === resource ? { ...resource, quantity: parseInt(quantity, 10) } : resource
         )
       );
 
-      await axios.put(`http://localhost:4000/admin/saveAlert/${resource}/${empId}`, {
+      await axios.put(`http://localhost:4000/admin/saveAlert/${id}/${resource}/${empId}`, {
         alertResponse: 0,
       });
 
@@ -106,9 +106,9 @@ const ResourceAllocation = () => {
     }
   }
 
-  const handleAlert = async (resource, empId) => {
+  const handleAlert = async (id, resource, empId) => {
     try {
-      await axios.put(`http://localhost:4000/admin/saveAlert/${resource}/${empId}`, {
+      await axios.put(`http://localhost:4000/admin/saveAlert/${id}/${resource}/${empId}`, {
         alertResponse: 1,
       });
 
@@ -218,17 +218,18 @@ const ResourceAllocation = () => {
                 {formatDate(history.returneddate) < today ? (
                   <div className="flex justify-between gap-1">
                     <button
-                      onClick={() => handleResourceReturning(history.resource, history.quantity, history.empId)}
+                      onClick={() => handleResourceReturning(history.id, history.resource, history.quantity, history.empId)}
                       className={`px-2 py-1 rounded text-white ${history.status == "Not returned"
                         ? "bg-blue-500 hover:bg-blue-600"
                         : "bg-blue-300 cursor-not-allowed"
                         }`}
-                      disabled={history.status == "Returned"}                >
+                      disabled={history.status == "Returned"}
+                    >
                       Mark as Returned
                     </button>
 
                     <button
-                      onClick={() => handleAlert(history.resource, history.empId)}
+                      onClick={() => handleAlert(history.id, history.resource, history.empId)}
                       className="px-2 py-1 rounded text-white bg-red-500 hover:bg-red-600"
                     >
                       Send an Alert
@@ -236,7 +237,7 @@ const ResourceAllocation = () => {
                   </div>
                 ) : (
                   <button
-                    onClick={() => handleResourceReturning(history.resource, history.quantity, history.empId)}
+                    onClick={() => handleResourceReturning(history.id, history.resource, history.quantity, history.empId)}
                     className="px-2 py-1 rounded text-white bg-blue-500 hover:bg-blue-600"
                   >
                     Mark as Returned

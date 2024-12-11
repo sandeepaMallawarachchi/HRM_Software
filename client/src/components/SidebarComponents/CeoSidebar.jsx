@@ -30,24 +30,6 @@ const CeoSidebar = ({ isCollapsed }) => {
         {!isCollapsed && <span>Strategic Insights</span>}
       </NavLink>
 
-      {/* Talent Management */}
-      <NavLink
-        to="/talent-management"
-        className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
-            isActive
-              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-              : ""
-          }`
-        }
-      >
-        <FaUserTie
-          size={20}
-          className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-        />
-        {!isCollapsed && <span>Talent Management</span>}
-      </NavLink>
-
       {/* Decision-Making Support */}
       <NavLink
         to="/decision-support"
