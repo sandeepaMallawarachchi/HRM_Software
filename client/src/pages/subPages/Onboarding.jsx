@@ -1,5 +1,6 @@
 import React from "react";
-import EmployeeRegistration from "../profileComponents/EmployeeRegistration";
+import EmployeeRegistration from "../auth/EmployeeRegistration";
+
 const Onboarding = () => {
   return (
     <div>
