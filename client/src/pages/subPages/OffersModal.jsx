@@ -37,6 +37,11 @@ const Modal = ({ employee, onClose }) => {
         .finally(() => setLoading(false));
     }
   }, [employee]);
+  const hasChanges =
+    selectedRole !== employee.role ||
+    selectedDesignation !== employee.designation ||
+    bonus !== (earnings?.bonus || 0) ||
+    allowance !== (earnings?.allowance || 0);
 
   // Fetch all roles and designations
   useEffect(() => {
@@ -98,30 +103,55 @@ const Modal = ({ employee, onClose }) => {
   };
 
   const handleUpdateWorkDetails = () => {
-    // Update work details (role, designation)
-    axios
-      .put(`http://localhost:4000/employees/workDetails/${employee.empId}`, {
-        designation: selectedDesignation,
-        role: selectedRole,
-      })
-      .then(() => {
-        // After work details are updated, update earnings (bonus, allowance)
-        return axios.put(
-          `http://localhost:4000/admin/updateEarnings/${employee.empId}`,
-          {
-            bonus: bonus, // Updated bonus value
-            allowance: allowance, // Updated allowance value
+    const updateData = {};
+
+    // Prepare data for updating work details (role, designation)
+    if (selectedRole !== employee.role) {
+      updateData.role = selectedRole;
+    }
+    if (selectedDesignation !== employee.designation) {
+      updateData.designation = selectedDesignation;
+    }
+
+    // Prepare data for updating earnings (bonus, allowance)
+    if (bonus !== earnings?.bonus) {
+      updateData.bonus = bonus;
+    }
+    if (allowance !== earnings?.allowance) {
+      updateData.allowance = allowance;
+    }
+
+    // Only proceed if there are updates
+    if (Object.keys(updateData).length > 0) {
+      // Update work details (role, designation) if necessary
+      axios
+        .put(
+          `http://localhost:4000/employees/workDetails/${employee.empId}`,
+          updateData
+        )
+        .then(() => {
+          // After work details are updated, update earnings (bonus, allowance) if necessary
+          if (updateData.bonus || updateData.allowance) {
+            return axios.put(
+              `http://localhost:4000/admin/updateEarnings/${employee.empId}`,
+              {
+                bonus: updateData.bonus || earnings.bonus, // Updated bonus value
+                allowance: updateData.allowance || earnings.allowance, // Updated allowance value
+              }
+            );
           }
-        );
-      })
-      .then(() => {
-        alert("Work details and earnings updated successfully!");
-        onClose();
-      })
-      .catch((error) => {
-        console.error("Error updating details:", error);
-        alert("Failed to update details");
-      });
+        })
+        .then(() => {
+          alert("Details updated successfully!");
+          onClose();
+        })
+        .catch((error) => {
+          console.error("Error updating details:", error);
+          alert("Failed to update details");
+        });
+    } else {
+      alert("No changes detected.");
+    }
   };
 
   useEffect(() => {
@@ -284,7 +314,7 @@ const Modal = ({ employee, onClose }) => {
                 {
                   label: "Role",
                   options: roles,
-                  value: selectedRole || employee.role, // Use the employee's role as the default if selectedRole is empty
+                  value: selectedRole || employee.role,
                   onChange: setSelectedRole,
                 },
                 {
