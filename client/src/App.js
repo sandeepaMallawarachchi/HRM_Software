@@ -30,6 +30,7 @@ import ResourceAllocation from "./pages/MidLvlMangersPages/ResourceAllocation";
 import ReportsandAnalytics from "./pages/MidLvlMangersPages/ReportsandAnalytics";
 
 import TrainingOversite from "./pages/MidLvlMangersPages/TrainingOversite";
+import SupervicerDashboard from "./pages/SupervicerDashboard.jsx";
 
 //Top Levl Managers routes
 import StrategicPlaning from "./pages/TopLvlManagerPages/StrategicPlaning";
@@ -155,7 +156,7 @@ const App = () => {
 
             <Route
               path="/training-oversight"
-              element={<ProtectedRoute element={<TrainingOversite />} />}
+              element={<ProtectedRoute element={<SupervicerDashboard />} />}
             />
             <Route
               path="/strategic-planning"

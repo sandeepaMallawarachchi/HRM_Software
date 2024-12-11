@@ -108,22 +108,9 @@ const Login = () => {
                 />
               </div>
 
-              <div>
-                <label className="inline-flex items-center cursor-pointer">
-                  <input
-                    id="customCheckLogin"
-                    type="checkbox"
-                    className="form-checkbox border rounded text-blueGray-700 ml-1 w-5 h-5 ease-linear transition-all duration-150"
-                  />
-                  <span className="ml-2 text-sm font-semibold text-blueGray-600">
-                    Remember me
-                  </span>
-                </label>
-              </div>
-
               <div className="text-center mt-4">
                 <button
-                  className="text-white text-sm uppercase bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-[20px] shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
+                  className="text-white uppercase bg-orange-500 hover:bg-orange-600 px-4 py-3 rounded-full shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
                   type="submit"
                   disabled={loading}
                 >

@@ -1466,4 +1466,19 @@ router.put("/saveReminder/:id/:training/:empId", async (req, res) => {
   }
 });
 
+//get employees assigned for superviser
+router.get("/getAssignedEmployees/:empId", async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+            SELECT a.id, a.empId, p.NAME, a.training, a.weight, a.allocatedate, a.finisheddate, a.status
+            FROM workdetails w JOIN personaldetails p ON a.empId = p.empId
+            ORDER By a.created_at DESC
+        `);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Error fetching allocated training:", error);
+    res.status(500).json({ error: "Error fetching allocated training" });
+  }
+});
+
 module.exports = router;

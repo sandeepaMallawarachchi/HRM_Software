@@ -68,8 +68,10 @@ const Profile = () => {
                         onMouseEnter={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
                     >
-                        <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-orange-500">
-                            <ProfilePicture />
+                        <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-orange-500 flex items-center justify-center">
+                            <div className="w-full h-full items-center justify-center">
+                                <ProfilePicture />
+                            </div>
                             {isHovered && (
                                 <label className="absolute inset-0 flex items-center justify-center cursor-pointer">
                                     <span className="bg-white rounded-full p-2 shadow-lg bg-opacity-50">
