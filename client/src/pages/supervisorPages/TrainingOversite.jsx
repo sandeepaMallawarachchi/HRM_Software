@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import AddNewTraining from './AddNewTraining'
-import NewTrainingAllocation from "./NewTrainingAllocation";
+import AddNewTraining from '../MidLvlMangersPages/AddNewTraining'
+import NewTrainingAllocation from "../MidLvlMangersPages/NewTrainingAllocation";
 
 const TrainingOversite = () => {
   const [trainings, setTrainings] = useState([]);

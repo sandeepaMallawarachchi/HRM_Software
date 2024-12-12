@@ -29,8 +29,10 @@ import PerformanceManage from "./pages/MidLvlMangersPages/PerformanceManage";
 import ResourceAllocation from "./pages/MidLvlMangersPages/ResourceAllocation";
 import ReportsandAnalytics from "./pages/MidLvlMangersPages/ReportsandAnalytics";
 import ConflictResolutions from "./pages/MidLvlMangersPages/ConflictResolutions";
-import TrainingOversite from "./pages/MidLvlMangersPages/TrainingOversite";
-import SupervicerDashboard from "./pages/SupervicerDashboard.jsx";
+import TrainingOversite from "./pages/supervisorPages/TrainingOversite.jsx";
+
+//supervisor routes
+import SupervicerDashboard from "./pages/supervisorPages/SupervisorDashboard.jsx";
 
 //Top Levl Managers routes
 import StrategicPlaning from "./pages/TopLvlManagerPages/StrategicPlaning";
@@ -158,7 +160,7 @@ const App = () => {
               element={<ProtectedRoute element={<ConflictResolutions />} />}
             />
             <Route
-              path="/training-oversight"
+              path="/supervisor"
               element={<ProtectedRoute element={<SupervicerDashboard />} />}
             />
             <Route

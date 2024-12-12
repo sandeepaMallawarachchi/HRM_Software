@@ -85,7 +85,7 @@ const Dashboard = () => {
         <div className="cards col-span-1 bg-white rounded-lg  p-4 h-full">
           <h2 className="text-lg font-semibold mb-4">Time at Work</h2>
           <div className="flex items-center space-x-3 mb-5">
-            <div className="bg-gray-300 rounded-full w-12">
+            <div className="w-10 justify-center rounded-full border border-orange-500">
               <ProfilePicture />
             </div>
             <div className="flex-1">
