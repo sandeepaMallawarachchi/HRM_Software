@@ -50,6 +50,7 @@ import EmployeeRelationships from "./pages/HRpages/EmployeeRelationships";
 import PayrollManagement from "./pages/HRpages/PayrollManagement";
 import Policies from "./pages/HRpages/Policies";
 import PolicyManagement from "./pages/HRpages/PolicyManagement";
+import SalaryDeduction from "./pages/HRpages/SalaryDeduction";
 
 //Ceo routes
 import ExecutiveDashboard from "./pages/CEOpages/ExecutiveDashboard";
@@ -233,6 +234,10 @@ const App = () => {
             <Route
               path="/sticky-cards"
               element={<ProtectedRoute element={<StickyCard />} />}
+            />
+            <Route
+              path="/salary-deduction"
+              element={<ProtectedRoute element={<SalaryDeduction />} />}
             />
           </Routes>
         </div>

@@ -233,14 +233,20 @@ const PostList = () => {
               className="bg-white shadow-lg rounded-xl p-6 mb-6 border border-gray-200 w-full hover:shadow-2xl transition-all duration-300"
             >
               <div className="flex items-center space-x-3 mb-4 relative">
-                <button
-                  onClick={() =>
-                    setActivePostId(post.id === activePostId ? null : post.id)
-                  }
-                  className="text-gray-500 hover:text-gray-700 absolute top-0 right-0 mt-2 mr-2"
-                >
-                  ⋯
-                </button>
+                {["Top Lvl Manager", "Ceo"].includes(userRole) && (
+                  <>
+                    <button
+                      onClick={() =>
+                        setActivePostId(
+                          post.id === activePostId ? null : post.id
+                        )
+                      }
+                      className="text-gray-500 hover:text-gray-700 absolute top-0 right-0 mt-2 mr-2"
+                    >
+                      ⋯
+                    </button>
+                  </>
+                )}
 
                 {activePostId === post.id && (
                   <div
