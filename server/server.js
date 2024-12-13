@@ -5,6 +5,7 @@ const authRoutes = require("./routes/authRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const cvRoutes = require("./routes/cvRoutes");
+const salaryroutes = require("./routes/salaryroutes");
 const newsroutes = require("./routes/newsroutes");
 const learningAndDevelopmentRoutes = require("./routes/learningAndDevelopmentRoutes");
 
@@ -29,6 +30,9 @@ app.use("/cv", cvRoutes);
 
 // Use the news routes
 app.use("/news", newsroutes);
+
+// Use the salary routes
+app.use("/salary", salaryroutes);
 
 // Use the learning routes
 app.use("/learning", learningAndDevelopmentRoutes);
