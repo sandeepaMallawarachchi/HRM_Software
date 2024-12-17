@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const AssignedEmployeeModal = ({ onClose, selectedEmpId }) => {
     const empId = localStorage.getItem('empId');
@@ -97,6 +98,13 @@ const AssignedEmployeeModal = ({ onClose, selectedEmpId }) => {
 
                 <h2 className="text-lg font-semibold my-4">All Trainings</h2>
                 <div className="overflow-y-auto max-h-64">
+                    <div className="flex justify-end mb-2">
+                        <Link to={'/training-versite'}>
+                            <button className="bg-orange-500 text-white rounded-lg px-4 py-2 hover:bg-orange-600 ">
+                                Add Training
+                            </button>
+                        </Link>
+                    </div>
                     <table className="min-w-full border border-gray-300 bg-white rounded-lg">
                         <thead className="bg-gray-100">
                             <tr>

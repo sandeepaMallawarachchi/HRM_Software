@@ -164,6 +164,10 @@ const App = () => {
               element={<ProtectedRoute element={<SupervicerDashboard />} />}
             />
             <Route
+              path="/training-versite"
+              element={<ProtectedRoute element={<TrainingOversite />} />}
+            />
+            <Route
               path="/strategic-planning"
               element={<ProtectedRoute element={<StrategicPlaning />} />}
             />
