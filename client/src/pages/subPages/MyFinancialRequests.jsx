@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FaFile } from 'react-icons/fa';
+import { FaLink } from 'react-icons/fa';
 
 const MyFinancialRequests = () => {
     const empId = localStorage.getItem('empId');
@@ -115,7 +115,7 @@ const MyFinancialRequests = () => {
                                                 rel="noopener noreferrer"
                                                 className="flex justify-center items-center text-orange-500 hover:text-orange-700"
                                             >
-                                                <FaFile size={24} />
+                                                <FaLink size={20} />
                                             </a>
                                         ) : (
                                             "-"

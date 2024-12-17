@@ -33,7 +33,7 @@ function giveCurrentDateTime() {
     return new Date().toISOString().replace(/:/g, "-");
 }
 
-//save medical claim
+// save medical claim
 router.post("/uploadMedicalClaim/:empId", upload.array("medicalClaim", 10), async (req, res) => {
     const empId = req.params.empId;
     const requestAmount = req.body.requestamount;
@@ -44,6 +44,7 @@ router.post("/uploadMedicalClaim/:empId", upload.array("medicalClaim", 10), asyn
         }
 
         const dateTime = giveCurrentDateTime();
+        const fileUrls = [];
 
         for (const file of req.files) {
             const storageRef = ref(storage, `medicalClaim/${file.originalname} ${dateTime}`);
@@ -51,10 +52,11 @@ router.post("/uploadMedicalClaim/:empId", upload.array("medicalClaim", 10), asyn
 
             const snapshot = await uploadBytesResumable(storageRef, file.buffer, metadata);
             const downloadURL = await getDownloadURL(snapshot.ref);
-
-            const insertQuery = "INSERT INTO medicalclaim (empId, claim, requestamount) VALUES (?, ?, ?)";
-            await pool.query(insertQuery, [empId, downloadURL, requestAmount]);
+            fileUrls.push(downloadURL);
         }
+
+        const insertQuery = "INSERT INTO medicalclaim (empId, claim, requestamount) VALUES (?, ?, ?)";
+        await pool.query(insertQuery, [empId, JSON.stringify(fileUrls), requestAmount]);
 
         return res.send({
             message: "Files uploaded and medical claims saved successfully",
@@ -65,6 +67,7 @@ router.post("/uploadMedicalClaim/:empId", upload.array("medicalClaim", 10), asyn
         return res.status(500).send(error.message);
     }
 });
+
 
 //get medical claims by empId
 router.get("/getMedicalClaim/:empId", async (req, res) => {
@@ -77,9 +80,25 @@ router.get("/getMedicalClaim/:empId", async (req, res) => {
         );
 
         if (rows.length > 0) {
-            res.status(200).json(rows);
+            const formattedClaims = rows.map((row) => {
+                let claim = [];
+                try {
+                    claim = JSON.parse(row.claim);
+                } catch (e) {
+                    console.error("Invalid JSON format in claim field:", e);
+                }
+                return {
+                    id: row.id,
+                    empId: row.empId,
+                    requestamount: row.requestamount,
+                    claim: claim,
+                    claimstatus: row.claimstatus,
+                };
+            });
+
+            res.status(200).json(formattedClaims);
         } else {
-            res.status(404).json({ message: "Employee not found" });
+            res.status(404).json({ message: "No claims found for this employee" });
         }
     } catch (error) {
         console.error("Error fetching medical claim:", error);

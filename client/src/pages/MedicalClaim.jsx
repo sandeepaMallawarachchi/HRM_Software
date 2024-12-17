@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import AddMedicalClaim from './subPages/AddMedicalClaim';
+import MyMedicalClaims from './subPages/MyMedicalClaims';
 
 const MedicalClaim = () => {
 
@@ -18,16 +19,16 @@ const MedicalClaim = () => {
                 >
                     Add Medical Claim Request
                 </button>
-                {/* <button
-                    onClick={() => handleSectionToggle('attendance')}
-                    className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'attendance' ? 'bg-orange-500 text-white' : ''}`}
+                <button
+                    onClick={() => handleSectionToggle('myclaims')}
+                    className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'myclaims' ? 'bg-orange-500 text-white' : ''}`}
                 >
-                    My Attendance Records
-                </button> */}
+                    My Medical Claims
+                </button>
             </div>
 
             {visibleSection === 'addclaim' && <AddMedicalClaim />}
-            {/* {visibleSection === 'attendance' && <MyAttendance />} */}
+            {visibleSection === 'myclaims' && <MyMedicalClaims />}
         </div>
     )
 }
