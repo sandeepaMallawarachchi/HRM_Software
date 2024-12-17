@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const AssignedEmployeeModal = ({ onClose, selectedEmpId }) => {
-    const empId = localStorage.getItem("empId");
+    const empId = localStorage.getItem('empId');
     const [certificatesList, setCertificatesList] = useState([]);
     const [training, setTraining] = useState([]);
     const [skills, setSkills] = useState([]);
@@ -13,7 +13,7 @@ const AssignedEmployeeModal = ({ onClose, selectedEmpId }) => {
     useEffect(() => {
         const fetchCertificates = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/employees/getCertificates/${empId}`);
+                const response = await axios.get(`http://localhost:4000/employees/getCertificates/${selectedEmpId}`);
                 setCertificatesList(response.data);
             } catch (error) {
                 console.error("Error fetching certificates:", error);
@@ -22,7 +22,7 @@ const AssignedEmployeeModal = ({ onClose, selectedEmpId }) => {
 
         const fetchTraining = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/admin/getAllocatedTraining/${empId}`);
+                const response = await axios.get(`http://localhost:4000/admin/getAllocatedTraining/${selectedEmpId}`);
                 setTraining(response.data);
             } catch (error) {
                 console.error("Error fetching training data:", error);
@@ -31,7 +31,7 @@ const AssignedEmployeeModal = ({ onClose, selectedEmpId }) => {
 
         const fetchSkills = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/learning/getSkill/${empId}`);
+                const response = await axios.get(`http://localhost:4000/learning/getSkill/${selectedEmpId}`);
                 setSkills(response.data);
             } catch (error) {
                 console.error('Error fetching skills:', error);
@@ -41,12 +41,11 @@ const AssignedEmployeeModal = ({ onClose, selectedEmpId }) => {
         fetchSkills();
         fetchTraining();
         fetchCertificates();
-    }, [empId]);
+    }, [selectedEmpId]);
 
     const addFeedback = async () => {
         try {
             const stepsArray = newSteps.split(',').map((step) => step.trim());
-            if (!newFeedback || !newRecommandation || stepsArray.length === 0) return alert('Feedback and steps are required.');
             await axios.post(`http://localhost:4000/learning/addFeedback/${empId}/${selectedEmpId}`, {
                 feedback: newFeedback,
                 recommendation: newRecommandation,
@@ -55,6 +54,7 @@ const AssignedEmployeeModal = ({ onClose, selectedEmpId }) => {
             setNewFeedback('');
             setNewRecommandation('');
             setNewSteps('');
+            alert('Feedback added successfully');
         } catch (error) {
             console.error('Error adding feedback:', error);
             alert('Error adding feedback');
