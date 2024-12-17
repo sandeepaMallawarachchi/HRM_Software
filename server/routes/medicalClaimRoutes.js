@@ -1,0 +1,128 @@
+const express = require("express");
+const router = express.Router();
+const pool = require("../database");
+const nodemailer = require("nodemailer");
+const { validationResult } = require("express-validator");
+const bcrypt = require("bcrypt");
+const multer = require("multer");
+const crypto = require("crypto");
+const { initializeApp } = require("firebase/app");
+const {
+    getStorage,
+    ref,
+    getDownloadURL,
+    uploadBytesResumable,
+} = require("firebase/storage");
+const config = require("../config/firebase.config");
+
+//send emails
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
+
+//upload profile image
+initializeApp(config.firebaseConfig);
+const storage = getStorage();
+const upload = multer({ storage: multer.memoryStorage() });
+
+function giveCurrentDateTime() {
+    return new Date().toISOString().replace(/:/g, "-");
+}
+
+//save medical claim
+router.post("/uploadMedicalClaim/:empId", upload.array("medicalClaim", 10), async (req, res) => {
+    const empId = req.params.empId;
+    const requestAmount = req.body.requestamount;
+
+    try {
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).send("No files uploaded.");
+        }
+
+        const dateTime = giveCurrentDateTime();
+
+        for (const file of req.files) {
+            const storageRef = ref(storage, `medicalClaim/${file.originalname} ${dateTime}`);
+            const metadata = { contentType: file.mimetype };
+
+            const snapshot = await uploadBytesResumable(storageRef, file.buffer, metadata);
+            const downloadURL = await getDownloadURL(snapshot.ref);
+
+            const insertQuery = "INSERT INTO medicalclaim (empId, claim, requestamount) VALUES (?, ?, ?)";
+            await pool.query(insertQuery, [empId, downloadURL, requestAmount]);
+        }
+
+        return res.send({
+            message: "Files uploaded and medical claims saved successfully",
+            filesUploaded: req.files.length,
+        });
+    } catch (error) {
+        console.error("Error uploading files or saving medical claims:", error);
+        return res.status(500).send(error.message);
+    }
+});
+
+//get medical claims by empId
+router.get("/getMedicalClaim/:empId", async (req, res) => {
+    const empId = req.params.empId;
+
+    try {
+        const [rows] = await pool.query(
+            "SELECT * FROM medicalclaim WHERE empId = ?",
+            [empId]
+        );
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: "Employee not found" });
+        }
+    } catch (error) {
+        console.error("Error fetching medical claim:", error);
+        res.status(500).json({ error: "Error fetching medical claim" });
+    }
+});
+
+//get all medical claims
+router.get("/getAllMedicalClaim", async (req, res) => {
+
+    try {
+        const [rows] = await pool.query(
+            "SELECT * FROM medicalclaim"
+        );
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: "claims not found" });
+        }
+    } catch (error) {
+        console.error("Error fetching medical claims:", error);
+        res.status(500).json({ error: "Error fetching medical claims" });
+    }
+});
+
+//update maximum amount
+router.put("/updateClaimAmount", async (req, res) => {
+    const { maxamount } = req.body;
+
+    try {
+        await pool.query(
+            "INSERT INTO claimamount (maxamount) " +
+            "VALUES (?) " +
+            "ON DUPLICATE KEY UPDATE maxamount = ?",
+            [maxamount, maxamount]
+        );
+
+        res.status(200).json({ message: "Max claim amount updated/added successfully" });
+    } catch (error) {
+        console.error("Error updating/adding max claim amount:", error);
+        res.status(500).json({ error: "Error updating/adding max claim amount" });
+    }
+});
+
+module.exports = router;

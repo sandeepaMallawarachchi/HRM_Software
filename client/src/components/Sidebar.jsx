@@ -9,7 +9,8 @@ import {
   FaTachometerAlt,
   FaBook,
   FaFire,
-  FaUserTie
+  FaUserTie,
+  FaHandHoldingMedical
 } from "react-icons/fa";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import logo from "../images/hrm withoutbackground.png";
@@ -222,6 +223,22 @@ const Sidebar = () => {
             {!isCollapsed && <span>Recruitment</span>}
           </NavLink>
         )}
+
+        <NavLink
+          to="/medical"
+          className={({ isActive }) =>
+            `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
+              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+              : ""
+            }`
+          }
+        >
+          <FaHandHoldingMedical
+            size={20}
+            className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+          />
+          {!isCollapsed && <span>Medical Claims</span>}
+        </NavLink>
 
         {/* Offers and Onboarding Submenu (only visible to HR) */}
         {role === "HR" && isRecruitmentOpen && !isCollapsed && (

@@ -7,6 +7,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const cvRoutes = require("./routes/cvRoutes");
 const newsroutes = require("./routes/newsroutes");
 const learningAndDevelopmentRoutes = require("./routes/learningAndDevelopmentRoutes");
+const medicalClaimRoutes = require("./routes/medicalClaimRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -32,6 +33,9 @@ app.use("/news", newsroutes);
 
 // Use the learning routes
 app.use("/learning", learningAndDevelopmentRoutes);
+
+// Use the medical routes
+app.use("/medical", medicalClaimRoutes);
 
 // Start the server
 app.listen(PORT, () => {

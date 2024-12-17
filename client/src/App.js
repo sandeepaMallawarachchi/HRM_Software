@@ -19,6 +19,7 @@ import ReminderPage from "./pages/subPages/ReminderPage.jsx";
 import Communication from "./components/Communication.jsx";
 import PostList from "./pages/Newspaper";
 import StickyCard from "./pages/StickyCard";
+import MedicalClaim from "./pages/MedicalClaim.jsx";
 
 //team leader routes
 import TeamManage from "./pages/TeamLeaderPages/TeamManage";
@@ -117,6 +118,10 @@ const App = () => {
             <Route
               path="/learn"
               element={<ProtectedRoute element={<LearningDevelopment />} />}
+            />
+            <Route
+              path="/medical"
+              element={<ProtectedRoute element={<MedicalClaim />} />}
             />
             <Route
               path="/offers"
