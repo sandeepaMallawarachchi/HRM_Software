@@ -28,7 +28,6 @@ const Accountantsidebar = ({ isCollapsed }) => {
         />
         {!isCollapsed && <span>Profits</span>}
       </NavLink>
-
       {/* Employee Relations */}
       <NavLink
         to="/expences"
@@ -46,7 +45,6 @@ const Accountantsidebar = ({ isCollapsed }) => {
         />
         {!isCollapsed && <span>Expences</span>}
       </NavLink>
-
       {/* Payroll Management */}
       <NavLink
         to="/Revenue"
@@ -63,6 +61,23 @@ const Accountantsidebar = ({ isCollapsed }) => {
           className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
         />
         {!isCollapsed && <span>Revenue</span>}
+      </NavLink>
+
+      <NavLink
+        to="/loansection"
+        className={({ isActive }) =>
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+            isActive
+              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+              : ""
+          }`
+        }
+      >
+        <FaMoneyCheckAlt
+          size={20}
+          className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
+        />
+        {!isCollapsed && <span>Loans Section</span>}
       </NavLink>
     </div>
   );
