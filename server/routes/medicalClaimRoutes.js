@@ -111,13 +111,30 @@ router.get("/getAllMedicalClaim", async (req, res) => {
 
     try {
         const [rows] = await pool.query(
-            "SELECT * FROM medicalclaim"
+            "SELECT * FROM medicalclaim",
         );
 
         if (rows.length > 0) {
-            res.status(200).json(rows);
+            const formattedClaims = rows.map((row) => {
+                let claim = [];
+                try {
+                    claim = JSON.parse(row.claim);
+                } catch (e) {
+                    console.error("Invalid JSON format in claim field:", e);
+                }
+                return {
+                    id: row.id,
+                    empId: row.empId,
+                    requestamount: row.requestamount,
+                    claim: claim,
+                    claimstatus: row.claimstatus,
+                    created_at: row.created_at,
+                };
+            });
+
+            res.status(200).json(formattedClaims);
         } else {
-            res.status(404).json({ message: "claims not found" });
+            res.status(404).json({ message: "No claims found for this employee" });
         }
     } catch (error) {
         console.error("Error fetching medical claims:", error);
@@ -141,6 +158,21 @@ router.put("/updateClaimAmount", async (req, res) => {
     } catch (error) {
         console.error("Error updating/adding max claim amount:", error);
         res.status(500).json({ error: "Error updating/adding max claim amount" });
+    }
+});
+
+//get maximum amount
+router.get("/getClaimAmount", async (req, res) => {
+
+    try {
+        const [row] = await pool.query(
+            `SELECT * FROM claimamount`
+        );
+
+        res.status(200).json(row[0]);
+    } catch (error) {
+        console.error("Error fetching max claim amount:", error);
+        res.status(500).json({ error: "Error fetching max claim amount" });
     }
 });
 

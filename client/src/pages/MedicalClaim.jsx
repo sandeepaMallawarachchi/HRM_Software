@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import AddMedicalClaim from './subPages/AddMedicalClaim';
 import MyMedicalClaims from './subPages/MyMedicalClaims';
+import AcceptMedicalClaims from './subPages/AcceptMedicalClaims';
 
 const MedicalClaim = () => {
 
     const [visibleSection, setVisibleSection] = useState('addclaim');
+    const role = localStorage.getItem('role');
 
     const handleSectionToggle = (section) => {
         setVisibleSection(visibleSection === section ? null : section);
@@ -25,10 +27,19 @@ const MedicalClaim = () => {
                 >
                     My Medical Claims
                 </button>
+                {role === 'Mid Lvl Manager' &&
+                    <button
+                        onClick={() => handleSectionToggle('acceptreject')}
+                        className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'acceptreject' ? 'bg-orange-500 text-white' : ''}`}
+                    >
+                        All Medical Claims
+                    </button>
+                }
             </div>
 
             {visibleSection === 'addclaim' && <AddMedicalClaim />}
             {visibleSection === 'myclaims' && <MyMedicalClaims />}
+            {visibleSection === 'acceptreject' && <AcceptMedicalClaims />}
         </div>
     )
 }
