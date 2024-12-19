@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios"; // Import axios for data fetching
 import { jsPDF } from "jspdf"; // Import jsPDF for generating PDFs
 import Documentations from "./Documentations";
+import Inprogress from "./Inprogress";
 
 const MainPage = () => {
   const [activeSection, setActiveSection] = useState("loans"); // Default active section
@@ -9,6 +10,10 @@ const MainPage = () => {
   const [loanDetails, setLoanDetails] = useState({}); // State to hold loan details fetched from the backend
   const [editableLoan, setEditableLoan] = useState({}); // State to store the loan details when editing
   const [isEditing, setIsEditing] = useState(false); // State to toggle between view and edit mode
+
+  const [password, setPassword] = useState(""); // Password input state
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false); // Show password prompt state
+  const empId = localStorage.getItem("empId"); // Get empId from localStorage
 
   // Function to handle section selection
   const handleSectionClick = (section) => {
@@ -60,8 +65,34 @@ const MainPage = () => {
     setIsEditing(!isEditing);
   };
 
-  // Function to save edited loan details
-  const handleSaveChanges = async () => {
+  // Function to handle saving changes with password confirmation
+  const handleSaveChanges = () => {
+    setShowPasswordPrompt(true);
+  };
+
+  const handlePasswordSubmit = () => {
+    axios
+      .post(`http://localhost:4000/admin/validatePassword/${empId}`, {
+        empId,
+        password,
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          saveChangesToBackend();
+          setShowPasswordPrompt(false);
+          setPassword("");
+        }
+      })
+      .catch((error) => {
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          alert("Incorrect password. Please try again.");
+        } else {
+          alert("Error validating password. Please try again later.");
+        }
+      });
+  };
+
+  const saveChangesToBackend = async () => {
     try {
       const loanId = loanDetails[activeLoan].id; // Get the loan ID
 
@@ -108,6 +139,38 @@ const MainPage = () => {
 
   return (
     <div className="font-sans p-6 max-w-4xl mx-auto">
+      {/* Password Prompt Modal */}
+      {showPasswordPrompt && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 sm:p-8 rounded-xl shadow-xl w-full max-w-md transform transition-all duration-300 ease-in-out scale-100 hover:scale-105">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4 text-center">
+              Enter Password to Confirm
+            </h3>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+            />
+            <div className="mt-4 text-center space-x-4">
+              <button
+                className="bg-red-500 text-white px-8 py-3 rounded-full shadow-md hover:bg-red-600 transition-all duration-300"
+                onClick={() => setShowPasswordPrompt(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-blue-500 text-white px-8 py-3 rounded-full shadow-md hover:bg-blue-600 transition-all duration-300"
+                onClick={handlePasswordSubmit}
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Navigation Bar */}
       <nav className="flex justify-around mb-8 border-b-2 pb-4">
         <button
@@ -272,7 +335,7 @@ const MainPage = () => {
         <div>
           {/* In Progress Section */}
           <h2 className="text-2xl font-semibold mb-4">In Progress</h2>
-          <p>Details about in-progress items will be displayed here.</p>
+          <Inprogress />
         </div>
       )}
     </div>

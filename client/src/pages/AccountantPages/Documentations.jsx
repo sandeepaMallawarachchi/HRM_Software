@@ -103,8 +103,16 @@ const Documentations = () => {
                   {request.amount}
                 </td>
                 <td className="border p-3 text-sm text-gray-600">
-                  {request.date_of_request}
+                  {new Date(request.date_of_request).toLocaleDateString(
+                    "en-US",
+                    {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                    }
+                  )}
                 </td>
+
                 <td className="border p-3 text-sm text-gray-600">
                   {request.status}
                 </td>

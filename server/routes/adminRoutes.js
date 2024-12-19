@@ -211,6 +211,63 @@ router.put("/updateEarnings/:empId", async (req, res) => {
   }
 });
 
+// Update bonus and allowance in the earnings table
+router.put("/updateEarnings/:empId", async (req, res) => {
+  const empId = req.params.empId;
+  const { bonus, allowance } = req.body;
+
+  try {
+    const query = `
+      UPDATE salary
+      SET earnings = JSON_SET(earnings, '$.bonus', ?, '$.allowance', ?)
+      WHERE empId = ?;
+    `;
+    await pool.query(query, [bonus, allowance, empId]);
+
+    res.status(200).json({ message: "Earnings updated successfully." });
+  } catch (error) {
+    console.error("Error updating earnings:", error);
+    res.status(500).json({ error: "Failed to update earnings." });
+  }
+});
+
+// Update bonus and allowance in the earnings table
+router.put("/updatedeductions/:empId", async (req, res) => {
+  const empId = req.params.empId;
+  const { loan, leave } = req.body;
+
+  try {
+    // Validate JSON structure of deductions column
+    const validateQuery = `
+      SELECT JSON_VALID(deductions) AS isValid
+      FROM salary
+      WHERE empId = ?;
+    `;
+    const [rows] = await pool.query(validateQuery, [empId]);
+    if (!rows[0]?.isValid) {
+      return res
+        .status(400)
+        .json({ error: "Deductions column is not valid JSON." });
+    }
+
+    // Update deductions
+    const query = `
+      UPDATE salary
+      SET deductions = JSON_SET(deductions, '$.loan', ?, '$.leave', ?)
+      WHERE empId = ?;
+    `;
+    await pool.query(query, [loan, leave, empId]);
+
+    res.status(200).json({ message: "Deductions updated successfully." });
+  } catch (error) {
+    console.error("Error updating deductions for empId:", empId, error.message);
+    res.status(500).json({
+      error:
+        "Failed to update deductions. Please check the logs for more details.",
+    });
+  }
+});
+
 // Get all employee details
 router.get("/getAllEmployee", async (req, res) => {
   try {
@@ -415,7 +472,9 @@ router.get("/getTeam/:empId/:filteredTeamName", async (req, res) => {
     if (rows.length > 0) {
       res.status(200).json(rows);
     } else {
-      res.status(404).json({ message: "No team records found for this creator" });
+      res
+        .status(404)
+        .json({ message: "No team records found for this creator" });
     }
   } catch (error) {
     res.status(500).json({ error: "Error fetching team details" });
@@ -993,7 +1052,7 @@ router.delete("/deletePolicy/:policyId", async (req, res) => {
   }
 });
 
-router.put('/updatePerformanceOrTask/:id', async (req, res) => {
+router.put("/updatePerformanceOrTask/:id", async (req, res) => {
   const { id } = req.params;
   const { performance, taskcompleted } = req.body;
 
@@ -1002,30 +1061,30 @@ router.put('/updatePerformanceOrTask/:id', async (req, res) => {
     const values = [];
 
     if (performance !== undefined) {
-      fields.push('performance = ?');
+      fields.push("performance = ?");
       values.push(performance);
     }
     if (taskcompleted !== undefined) {
-      fields.push('taskcompleted = ?');
+      fields.push("taskcompleted = ?");
       values.push(taskcompleted);
     }
 
     if (fields.length === 0) {
-      return res.status(400).json('No fields to update');
+      return res.status(400).json("No fields to update");
     }
 
-    const query = `UPDATE teammembers SET ${fields.join(', ')} WHERE id = ?`;
+    const query = `UPDATE teammembers SET ${fields.join(", ")} WHERE id = ?`;
     values.push(id);
 
     const result = await pool.query(query, values);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json('Employee not found');
+      return res.status(404).json("Employee not found");
     }
 
-    res.status(200).json('Updated successfully');
+    res.status(200).json("Updated successfully");
   } catch (error) {
-    res.status(500).json('Error updating data');
+    res.status(500).json("Error updating data");
   }
 });
 
