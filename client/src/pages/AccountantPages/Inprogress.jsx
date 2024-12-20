@@ -6,6 +6,8 @@ const Inprogress = () => {
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState(null);
 
+  const empId = localStorage.getItem("empId"); // Get the logged-in user's empId
+
   // Fetch approved financial requests from the backend
   useEffect(() => {
     const fetchApprovedRequests = async () => {
@@ -13,9 +15,9 @@ const Inprogress = () => {
         const response = await axios.get(
           "http://localhost:4000/employees/getFinancialRequests"
         );
-        // Filter requests with status "Approved"
+        // Filter requests with status "Approved" and exclude the user's own requests
         const filteredRequests = response.data.filter(
-          (request) => request.status === "approved"
+          (request) => request.status === "approved" && request.empId !== empId
         );
         setApprovedRequests(filteredRequests);
         setLoading(false);
@@ -26,12 +28,14 @@ const Inprogress = () => {
     };
 
     fetchApprovedRequests();
-  }, []);
+  }, [empId]);
 
+  // Open modal to display details of a selected request
   const openModal = (request) => {
     setSelectedRequest(request);
   };
 
+  // Close modal
   const closeModal = () => {
     setSelectedRequest(null);
   };
@@ -101,7 +105,14 @@ const Inprogress = () => {
                     {request.amount}
                   </td>
                   <td className="border p-3 text-sm text-gray-600">
-                    {request.date_of_request}
+                    {new Date(request.date_of_request).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                      }
+                    )}
                   </td>
                   <td className="border p-3 text-sm text-gray-600">
                     {request.status}
@@ -130,7 +141,7 @@ const Inprogress = () => {
       {selectedRequest && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/2">
-            <h3 className="text-xl font-bold mb-4">Employee Details</h3>
+            <h3 className="text-xl font-bold mb-4">Request Details</h3>
             <p>
               <strong>Employee ID:</strong> {selectedRequest.empId}
             </p>
@@ -145,7 +156,14 @@ const Inprogress = () => {
             </p>
             <p>
               <strong>Date of Request:</strong>{" "}
-              {selectedRequest.date_of_request}
+              {new Date(selectedRequest.date_of_request).toLocaleDateString(
+                "en-US",
+                {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                }
+              )}
             </p>
             <p>
               <strong>Status:</strong> {selectedRequest.status}

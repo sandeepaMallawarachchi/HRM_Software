@@ -188,4 +188,62 @@ router.delete("/loans/:id", async (req, res) => {
   }
 });
 
+router.post("/insertSalary", (req, res) => {
+  const { empId, department, designation } = req.body;
+
+  // Ensure all required data is provided
+  if (!empId || !department || !designation) {
+    return res
+      .status(400)
+      .json({ error: "empId, department, and designation are required" });
+  }
+
+  // Calculate salary based on department and designation
+  const basicSalary = calculateSalary(department, designation);
+
+  if (basicSalary === 0) {
+    return res.status(400).json({
+      error:
+        "Salary could not be calculated for the given department and designation",
+    });
+  }
+
+  // SQL query to update the basic_salary in the workdetails table
+  const query = `
+    UPDATE workdetails
+    SET basic_salary = ?
+    WHERE empId = ?
+  `;
+
+  // Use the pool to execute the query
+  pool.execute(query, [basicSalary, empId], (err, results) => {
+    if (err) {
+      console.error("Error updating salary:", err);
+      return res.status(500).json({ error: "Failed to update salary" });
+    }
+
+    // Return success response
+    res.status(200).json({ message: "Salary updated successfully", results });
+  });
+});
+
+// In your backend (e.g., workdetailsRoutes.js or in the same route file)
+// Assuming you are using Express and MySQL with Pool for DB connection
+router.put("/workdetails/updateSalaryByDeptAndDesig", async (req, res) => {
+  const { department, designation, salary } = req.body;
+
+  try {
+    const query = `
+      UPDATE workdetails
+      SET basic_salary = ?
+      WHERE department = ? AND designation = ?
+    `;
+    await pool.query(query, [salary, department, designation]);
+    res.status(200).send("Workdetails table updated successfully");
+  } catch (error) {
+    console.error("Error updating workdetails:", error);
+    res.status(500).send("Error updating workdetails");
+  }
+});
+
 module.exports = router;

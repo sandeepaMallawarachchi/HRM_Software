@@ -23,6 +23,14 @@ const Documentations = () => {
     fetchFinancialRequests();
   }, []);
 
+  // Get the logged-in user's empId from localStorage
+  const loggedInEmpId = localStorage.getItem("empId");
+
+  // Filter out rows with the logged-in user's empId
+  const filteredRequests = financialRequests.filter(
+    (request) => request.empId !== loggedInEmpId
+  );
+
   // Handle status update
   const handleStatusUpdate = async (requestId, newStatus) => {
     try {
@@ -88,7 +96,7 @@ const Documentations = () => {
             </tr>
           </thead>
           <tbody>
-            {financialRequests.map((request) => (
+            {filteredRequests.map((request) => (
               <tr key={request.id} className="hover:bg-gray-50">
                 <td className="border p-3 text-sm text-gray-600">
                   {request.id}

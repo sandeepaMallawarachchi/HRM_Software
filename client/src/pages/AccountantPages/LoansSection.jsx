@@ -1,44 +1,47 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"; // Import axios for data fetching
-import { jsPDF } from "jspdf"; // Import jsPDF for generating PDFs
+import axios from "axios";
+import { jsPDF } from "jspdf";
 import Documentations from "./Documentations";
 import Inprogress from "./Inprogress";
 
 const MainPage = () => {
-  const [activeSection, setActiveSection] = useState("loans"); // Default active section
-  const [activeLoan, setActiveLoan] = useState("personal"); // Default active loan
-  const [loanDetails, setLoanDetails] = useState({}); // State to hold loan details fetched from the backend
-  const [editableLoan, setEditableLoan] = useState({}); // State to store the loan details when editing
-  const [isEditing, setIsEditing] = useState(false); // State to toggle between view and edit mode
+  const [activeSection, setActiveSection] = useState("loans");
+  const [activeLoan, setActiveLoan] = useState("personal");
+  const [loanDetails, setLoanDetails] = useState({});
+  const [editableLoan, setEditableLoan] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
+  const [password, setPassword] = useState("");
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+  const empId = localStorage.getItem("empId");
+  const [userRole, setUserRole] = useState("");
 
-  const [password, setPassword] = useState(""); // Password input state
-  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false); // Show password prompt state
-  const empId = localStorage.getItem("empId"); // Get empId from localStorage
+  useEffect(() => {
+    const role = localStorage.getItem("role");
+    setUserRole(role);
+  }, []);
 
-  // Function to handle section selection
   const handleSectionClick = (section) => {
     setActiveSection(section);
   };
 
-  // Function to handle loan selection
   const handleLoanClick = (loanType) => {
     setActiveLoan(loanType);
-    setEditableLoan(loanDetails[loanType]); // Set the loan details to editable state
-    setIsEditing(false); // Reset edit mode
+    setEditableLoan(loanDetails[loanType]);
+    setIsEditing(false);
   };
 
   useEffect(() => {
     const fetchLoanDetails = async () => {
       try {
-        const response = await axios.get("http://localhost:4000/salary/loans"); // Adjust backend route if needed
+        const response = await axios.get("http://localhost:4000/salary/loans");
         const loansData = response.data;
 
         const loansObject = {};
         loansData.forEach((loan) => {
           loansObject[loan.loantype.toLowerCase()] = {
-            id: loan.id, // Include loan ID
-            title: loan.loantype, // Title of the loan
-            ...loan.about, // Spread 'about' object fields
+            id: loan.id,
+            title: loan.loantype,
+            ...loan.about,
           };
         });
 
@@ -51,7 +54,6 @@ const MainPage = () => {
     fetchLoanDetails();
   }, []);
 
-  // Function to handle editing form fields
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditableLoan((prevState) => ({
@@ -60,12 +62,10 @@ const MainPage = () => {
     }));
   };
 
-  // Function to toggle edit mode
   const toggleEdit = () => {
     setIsEditing(!isEditing);
   };
 
-  // Function to handle saving changes with password confirmation
   const handleSaveChanges = () => {
     setShowPasswordPrompt(true);
   };
@@ -94,18 +94,14 @@ const MainPage = () => {
 
   const saveChangesToBackend = async () => {
     try {
-      const loanId = loanDetails[activeLoan].id; // Get the loan ID
-
-      // Prepare the payload with serialized 'about'
+      const loanId = loanDetails[activeLoan].id;
       const payload = {
-        loantype: loanDetails[activeLoan].title, // Loan type
-        about: JSON.stringify(editableLoan), // Serialize editableLoan to JSON
+        loantype: loanDetails[activeLoan].title,
+        about: JSON.stringify(editableLoan),
       };
 
-      // Send the update request
       await axios.put(`http://localhost:4000/salary/loans/${loanId}`, payload);
 
-      // Update state with the new details
       setLoanDetails((prevState) => ({
         ...prevState,
         [activeLoan]: { ...loanDetails[activeLoan], ...editableLoan },
@@ -119,7 +115,6 @@ const MainPage = () => {
     }
   };
 
-  // Generate PDF document with loan details
   const generatePDF = () => {
     const doc = new jsPDF();
     const loan = loanDetails[activeLoan];
@@ -139,7 +134,6 @@ const MainPage = () => {
 
   return (
     <div className="font-sans p-6 max-w-4xl mx-auto">
-      {/* Password Prompt Modal */}
       {showPasswordPrompt && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 sm:p-8 rounded-xl shadow-xl w-full max-w-md transform transition-all duration-300 ease-in-out scale-100 hover:scale-105">
@@ -171,7 +165,6 @@ const MainPage = () => {
         </div>
       )}
 
-      {/* Navigation Bar */}
       <nav className="flex justify-around mb-8 border-b-2 pb-4">
         <button
           onClick={() => handleSectionClick("loans")}
@@ -183,32 +176,34 @@ const MainPage = () => {
         >
           Loans
         </button>
-        <button
-          onClick={() => handleSectionClick("documentations")}
-          className={`px-6 py-2 rounded-lg transition-colors duration-300 ${
-            activeSection === "documentations"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-100 text-gray-700"
-          }`}
-        >
-          Documentations
-        </button>
-        <button
-          onClick={() => handleSectionClick("inprogress")}
-          className={`px-6 py-2 rounded-lg transition-colors duration-300 ${
-            activeSection === "inprogress"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-100 text-gray-700"
-          }`}
-        >
-          In Progress
-        </button>
+        {userRole === "Accountant" && (
+          <button
+            onClick={() => handleSectionClick("documentations")}
+            className={`px-6 py-2 rounded-lg transition-colors duration-300 ${
+              activeSection === "documentations"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-100 text-gray-700"
+            }`}
+          >
+            Documentations
+          </button>
+        )}
+        {userRole === "Accountant" && (
+          <button
+            onClick={() => handleSectionClick("inprogress")}
+            className={`px-6 py-2 rounded-lg transition-colors duration-300 ${
+              activeSection === "inprogress"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-100 text-gray-700"
+            }`}
+          >
+            In Progress
+          </button>
+        )}
       </nav>
 
-      {/* Conditional Rendering Based on Active Section */}
       {activeSection === "loans" && (
         <div>
-          {/* Loans Navigation Bar */}
           <nav className="flex justify-around mb-6 border-b-2 pb-4">
             {Object.keys(loanDetails).map((loanType) => (
               <button
@@ -225,7 +220,6 @@ const MainPage = () => {
             ))}
           </nav>
 
-          {/* Loan Details Form Section */}
           {loanDetails[activeLoan] && (
             <section className="p-6 border-2 border-gray-200 rounded-lg bg-gray-50">
               <h2 className="text-2xl font-semibold mb-4">
@@ -290,26 +284,26 @@ const MainPage = () => {
                 </div>
               </form>
 
-              {/* Edit/Save Toggle */}
-              <div className="text-center mt-6">
-                {isEditing ? (
-                  <button
-                    onClick={handleSaveChanges}
-                    className="inline-block bg-green-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-600 transition-all duration-300"
-                  >
-                    Save Changes
-                  </button>
-                ) : (
-                  <button
-                    onClick={toggleEdit}
-                    className="inline-block bg-yellow-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-yellow-600 transition-all duration-300"
-                  >
-                    Edit
-                  </button>
-                )}
-              </div>
+              {userRole === "Accountant" && (
+                <div className="text-center mt-6">
+                  {isEditing ? (
+                    <button
+                      onClick={handleSaveChanges}
+                      className="inline-block bg-green-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-600 transition-all duration-300"
+                    >
+                      Save Changes
+                    </button>
+                  ) : (
+                    <button
+                      onClick={toggleEdit}
+                      className="inline-block bg-yellow-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-yellow-600 transition-all duration-300"
+                    >
+                      Edit
+                    </button>
+                  )}
+                </div>
+              )}
 
-              {/* Download PDF Section */}
               <div className="text-center mt-6">
                 <button
                   onClick={generatePDF}
@@ -323,17 +317,15 @@ const MainPage = () => {
         </div>
       )}
 
-      {activeSection === "documentations" && (
+      {activeSection === "documentations" && userRole === "Accountant" && (
         <div>
-          {/* Documentation Section */}
           <h2 className="text-2xl font-semibold mb-4">Documentations</h2>
           <Documentations />
         </div>
       )}
 
-      {activeSection === "inprogress" && (
+      {activeSection === "inprogress" && userRole === "Accountant" && (
         <div>
-          {/* In Progress Section */}
           <h2 className="text-2xl font-semibold mb-4">In Progress</h2>
           <Inprogress />
         </div>
