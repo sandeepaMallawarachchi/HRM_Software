@@ -4,13 +4,14 @@ import {
   FaWallet,
   FaCalendarCheck,
   FaListAlt,
+  FaRegHeart,
   FaAngleLeft,
   FaAngleRight,
   FaTachometerAlt,
   FaBook,
   FaFire,
   FaUserTie,
-  FaHandHoldingMedical
+  FaHandHoldingMedical,
 } from "react-icons/fa";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import logo from "../images/hrm withoutbackground.png";
@@ -300,7 +301,7 @@ const Sidebar = () => {
             }`
           }
         >
-          <FaListAlt
+          <FaRegHeart
             size={20}
             className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
           />
