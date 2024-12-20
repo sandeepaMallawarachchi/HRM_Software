@@ -111,7 +111,8 @@ router.get("/getAllMedicalClaim", async (req, res) => {
 
     try {
         const [rows] = await pool.query(
-            "SELECT * FROM medicalclaim",
+            "SELECT * FROM medicalclaim WHERE claimstatus = ?",
+            ['Pending']
         );
 
         if (rows.length > 0) {

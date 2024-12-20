@@ -85,6 +85,7 @@ const AcceptMedicalClaims = () => {
                     <thead>
                         <tr>
                             <th className="py-2 px-4 border-b">Claim ID</th>
+                            <th className="py-2 px-4 border-b">Employee ID</th>
                             <th className="py-2 px-4 border-b">Requested Date</th>
                             <th className="py-2 px-4 border-b">Request Amount</th>
                             <th className="py-2 px-4 border-b">File Link</th>
@@ -96,6 +97,7 @@ const AcceptMedicalClaims = () => {
                             filteredClaims.map((claim, index) => (
                                 <tr key={index} className="hover:bg-gray-50">
                                     <td className="py-2 px-4 border-b text-center">{claim.id}</td>
+                                    <td className="py-2 px-4 border-b text-center">{claim.empId}</td>
                                     <td className="py-2 px-4 border-b text-center">{formatDate(claim.created_at)}</td>
                                     <td className="py-2 px-4 border-b text-center">{claim.requestamount}</td>
                                     <td className="py-2 px-4 border-b text-center">
@@ -115,7 +117,18 @@ const AcceptMedicalClaims = () => {
                                             "-"
                                         )}
                                     </td>
-                                    <td className="py-2 px-4 border-b flex justify-between">
+                                    <td className="py-2 px-4 border-b flex justify-between gap-2">
+                                        <button
+                                            className="px-2 py-1 rounded text-white bg-blue-500 hover:bg-blue-600 w-full"
+                                        >
+                                            Accept
+                                        </button>
+
+                                        <button
+                                            className="px-2 py-1 rounded text-white bg-red-500 hover:bg-red-600 w-full"
+                                        >
+                                            Reject
+                                        </button>
                                     </td>
                                 </tr>
                             ))
