@@ -173,7 +173,7 @@ router.get("/getClaimSummary/:empId", async (req, res) => {
 
         const [spentAmountResult] = await pool.query(
             `SELECT SUM(requestamount) AS totalSpent FROM medicalclaim WHERE empId = ? AND claimstatus = ?`,
-            [empId, 'Pending']
+            [empId, 'Accepted']
         );
 
         const maxAmount = maxAmountResult[0]?.maxamount || 0;

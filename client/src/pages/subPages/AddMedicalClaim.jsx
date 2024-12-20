@@ -3,10 +3,11 @@ import axios from "axios";
 import { FaMoneyBillWave, FaChartLine, FaClipboardList, FaFileUpload, FaTimes } from "react-icons/fa";
 
 const AddMedicalClaim = () => {
-    const empId = localStorage.getItem('empId');
+    const empId = localStorage.getItem("empId");
     const [files, setFiles] = useState([]);
     const [requestAmount, setRequestAmount] = useState("");
     const [claimSummary, setClaimSummary] = useState({});
+    const [errorMessage, setErrorMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
 
@@ -15,7 +16,17 @@ const AddMedicalClaim = () => {
         setFiles(selectedFiles);
     };
 
-    const handleAmountChange = (e) => setRequestAmount(e.target.value);
+    const handleAmountChange = (e) => {
+        const value = e.target.value;
+        const remainingAmount = claimSummary?.maxAmount - claimSummary?.totalSpent || 0;
+
+        if (value > remainingAmount) {
+            setErrorMessage(`Request amount cannot exceed ${remainingAmount} LKR`);
+        } else {
+            setErrorMessage("");
+        }
+        setRequestAmount(value);
+    };
 
     const handleRemoveFile = (index) => {
         setFiles(files.filter((_, i) => i !== index));
@@ -26,6 +37,11 @@ const AddMedicalClaim = () => {
 
         if (!termsAccepted) {
             alert("Please accept the terms and conditions.");
+            return;
+        }
+
+        if (errorMessage) {
+            alert("Please fix the errors before submitting.");
             return;
         }
 
@@ -66,13 +82,12 @@ const AddMedicalClaim = () => {
         <div className="p-6 px-20 bg-gray-100 rounded-lg shadow-md">
             <h2 className="text-2xl font-semibold mb-4">Medical Claims</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-
                 <div className="bg-white p-4 rounded-lg shadow-md flex items-center">
                     <FaMoneyBillWave className="text-4xl text-green-500 mr-4" />
                     <div>
                         <h3 className="text-xl font-semibold">Maximum Amount</h3>
                         <p className="text-gray-700">
-                            {claimSummary?.maxAmount || 0}LKR
+                            {claimSummary?.maxAmount || 0} LKR
                         </p>
                     </div>
                 </div>
@@ -81,7 +96,7 @@ const AddMedicalClaim = () => {
                     <div>
                         <h3 className="text-xl font-semibold">Spent Amount</h3>
                         <p className="text-gray-700">
-                            {claimSummary?.totalSpent || 0}LKR
+                            {claimSummary?.totalSpent || 0} LKR
                         </p>
                     </div>
                 </div>
@@ -90,7 +105,7 @@ const AddMedicalClaim = () => {
                     <div>
                         <h3 className="text-xl font-semibold">Remaining Amount</h3>
                         <p className="text-gray-700">
-                            {claimSummary?.maxAmount - claimSummary?.totalSpent}LKR
+                            {claimSummary?.maxAmount - claimSummary?.totalSpent || 0} LKR
                         </p>
                     </div>
                 </div>
@@ -114,7 +129,6 @@ const AddMedicalClaim = () => {
                     </label>
                 </div>
 
-                {/* Display selected files */}
                 {files.length > 0 && (
                     <div className="mt-2">
                         <h4 className="text-lg font-semibold">Selected Files:</h4>
@@ -141,9 +155,15 @@ const AddMedicalClaim = () => {
                         placeholder="Enter Request Amount"
                         value={requestAmount}
                         onChange={handleAmountChange}
+                        max={claimSummary?.maxAmount - claimSummary?.totalSpent}
                         required
-                        className="border rounded-md p-2 w-full"
+                        className={`border rounded-md p-2 w-full ${
+                            errorMessage ? "border-red-500" : ""
+                        }`}
                     />
+                    {errorMessage && (
+                        <p className="text-red-500 text-sm mt-1">{errorMessage}</p>
+                    )}
                 </div>
 
                 <div className="flex items-center">
