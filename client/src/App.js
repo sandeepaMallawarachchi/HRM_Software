@@ -29,14 +29,11 @@ import Reporting from "./pages/TeamLeaderPages/Reporting";
 import PerformanceManage from "./pages/MidLvlMangersPages/PerformanceManage";
 import ResourceAllocation from "./pages/MidLvlMangersPages/ResourceAllocation";
 import ReportsandAnalytics from "./pages/MidLvlMangersPages/ReportsandAnalytics";
-import ConflictResolutions from "./pages/MidLvlMangersPages/ConflictResolutions";
+// import ConflictResolutions from "./pages/MidLvlMangersPages/ConflictResolutions";
 import TrainingOversite from "./pages/supervisorPages/TrainingOversite.jsx";
 
 //supervisor routes
 import SupervicerDashboard from "./pages/supervisorPages/SupervisorDashboard.jsx";
-
-import TrainingOversite from "./pages/MidLvlMangersPages/TrainingOversite";
-import SupervicerDashboard from "./pages/SupervicerDashboard.jsx";
 
 //Top Levl Managers routes
 import StrategicPlaning from "./pages/TopLvlManagerPages/StrategicPlaning";
