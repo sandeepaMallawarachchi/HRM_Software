@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaFileUpload, FaTimes } from "react-icons/fa";
+import { FaMoneyBillWave, FaChartLine, FaClipboardList, FaFileUpload, FaTimes } from "react-icons/fa";
 
 const AddMedicalClaim = () => {
     const empId = localStorage.getItem('empId');
     const [files, setFiles] = useState([]);
     const [requestAmount, setRequestAmount] = useState("");
+    const [claimSummary, setClaimSummary] = useState({});
     const [loading, setLoading] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
 
@@ -48,9 +49,53 @@ const AddMedicalClaim = () => {
         }
     };
 
+    const fetchTotal = async () => {
+        try {
+            const res = await axios.get(`http://localhost:4000/medical/getClaimSummary/${empId}`);
+            setClaimSummary(res.data);
+        } catch (err) {
+            console.log("Error fetching claims");
+        }
+    };
+
+    useEffect(() => {
+        fetchTotal();
+    }, [empId]);
+
     return (
         <div className="p-6 px-20 bg-gray-100 rounded-lg shadow-md">
             <h2 className="text-2xl font-semibold mb-4">Medical Claims</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+
+                <div className="bg-white p-4 rounded-lg shadow-md flex items-center">
+                    <FaMoneyBillWave className="text-4xl text-green-500 mr-4" />
+                    <div>
+                        <h3 className="text-xl font-semibold">Maximum Amount</h3>
+                        <p className="text-gray-700">
+                            {claimSummary?.maxAmount || 0}LKR
+                        </p>
+                    </div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-md flex items-center">
+                    <FaChartLine className="text-4xl text-blue-500 mr-4" />
+                    <div>
+                        <h3 className="text-xl font-semibold">Spent Amount</h3>
+                        <p className="text-gray-700">
+                            {claimSummary?.totalSpent || 0}LKR
+                        </p>
+                    </div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-md flex items-center">
+                    <FaClipboardList className="text-4xl text-yellow-500 mr-4" />
+                    <div>
+                        <h3 className="text-xl font-semibold">Remaining Amount</h3>
+                        <p className="text-gray-700">
+                            {claimSummary?.maxAmount - claimSummary?.totalSpent}LKR
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <div className="flex flex-col gap-4 mb-4">
                 <div>
                     <input

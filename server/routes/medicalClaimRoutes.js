@@ -162,18 +162,26 @@ router.put("/updateClaimAmount", async (req, res) => {
     }
 });
 
-//get maximum amount
-router.get("/getClaimAmount", async (req, res) => {
+//get claim summary by empId
+router.get("/getClaimSummary/:empId", async (req, res) => {
+    const empId = req.params.empId;
 
     try {
-        const [row] = await pool.query(
-            `SELECT * FROM claimamount`
+        const [maxAmountResult] = await pool.query(
+            `SELECT maxamount FROM claimamount`
         );
 
-        res.status(200).json(row[0]);
+        const [spentAmountResult] = await pool.query(
+            `SELECT SUM(requestamount) AS totalSpent FROM medicalclaim WHERE empId = ? AND claimstatus = ?`,
+            [empId, 'Pending']
+        );
+
+        const maxAmount = maxAmountResult[0]?.maxamount || 0;
+        const totalSpent = spentAmountResult[0]?.totalSpent || 0;
+
+        res.status(200).json({ maxAmount, totalSpent });
     } catch (error) {
-        console.error("Error fetching max claim amount:", error);
-        res.status(500).json({ error: "Error fetching max claim amount" });
+        res.status(500).json({ error: "Error fetching claim summary" });
     }
 });
 
