@@ -108,5 +108,142 @@ router.delete("/salaries/:id", async (req, res) => {
     res.status(500).send({ error: "Database error." });
   }
 });
+router.post("/loans", async (req, res) => {
+  try {
+    const { loantype, about } = req.body;
+    const query = "INSERT INTO loans (loantype, about) VALUES (?, ?)";
+    const [result] = await pool.query(query, [loantype, about]);
+    res.status(201).json({ id: result.insertId, loantype, about });
+  } catch (err) {
+    console.error("Error adding loan:", err);
+    res.status(500).json({ error: "Database error." });
+  }
+});
+
+// READ: Get all loans
+router.get("/loans", async (req, res) => {
+  try {
+    const query = "SELECT * FROM loans";
+    const [results] = await pool.query(query);
+    res.status(200).json(results);
+  } catch (err) {
+    console.error("Error fetching loans:", err);
+    res.status(500).json({ error: "Database error." });
+  }
+});
+
+// READ: Get a specific loan by ID
+router.get("/loans/:id", async (req, res) => {
+  try {
+    const loanId = req.params.id;
+    const query = "SELECT * FROM loans WHERE id = ?";
+    const [results] = await pool.query(query, [loanId]);
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Loan not found." });
+    }
+
+    res.status(200).json(results[0]);
+  } catch (err) {
+    console.error("Error fetching loan by ID:", err);
+    res.status(500).json({ error: "Database error." });
+  }
+});
+
+router.put("/loans/:id", async (req, res) => {
+  try {
+    const loanId = req.params.id;
+    const { loantype, about } = req.body; // 'about' will be a JSON string
+
+    const query = "UPDATE loans SET loantype = ?, about = ? WHERE id = ?";
+    const [result] = await pool.query(query, [loantype, about, loanId]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Loan not found." });
+    }
+
+    res.status(200).json({ id: loanId, loantype, about });
+  } catch (err) {
+    console.error("Error updating loan:", err);
+    res.status(500).json({ error: "Database error." });
+  }
+});
+
+// DELETE: Delete a loan
+router.delete("/loans/:id", async (req, res) => {
+  try {
+    const loanId = req.params.id;
+
+    const query = "DELETE FROM loans WHERE id = ?";
+    const [result] = await pool.query(query, [loanId]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Loan not found." });
+    }
+
+    res.status(200).json({ message: "Loan deleted successfully." });
+  } catch (err) {
+    console.error("Error deleting loan:", err);
+    res.status(500).json({ error: "Database error." });
+  }
+});
+
+router.post("/insertSalary", (req, res) => {
+  const { empId, department, designation } = req.body;
+
+  // Ensure all required data is provided
+  if (!empId || !department || !designation) {
+    return res
+      .status(400)
+      .json({ error: "empId, department, and designation are required" });
+  }
+
+  // Calculate salary based on department and designation
+  const basicSalary = calculateSalary(department, designation);
+
+  if (basicSalary === 0) {
+    return res.status(400).json({
+      error:
+        "Salary could not be calculated for the given department and designation",
+    });
+  }
+
+  // SQL query to update the basic_salary in the workdetails table
+  const query = `
+    UPDATE workdetails
+    SET basic_salary = ?
+    WHERE empId = ?
+  `;
+
+  // Use the pool to execute the query
+  pool.execute(query, [basicSalary, empId], (err, results) => {
+    if (err) {
+      console.error("Error updating salary:", err);
+      return res.status(500).json({ error: "Failed to update salary" });
+    }
+
+    // Return success response
+    res.status(200).json({ message: "Salary updated successfully", results });
+  });
+});
+
+// In your backend (e.g., workdetailsRoutes.js or in the same route file)
+// Assuming you are using Express and MySQL with Pool for DB connection
+router.put("/workdetails/updateSalaryByDeptAndDesig", async (req, res) => {
+  const { department, designation, salary } = req.body;
+
+  try {
+    const query = `
+      UPDATE workdetails
+      SET basic_salary = ?
+      WHERE department = ? AND designation = ?
+    `;
+    await pool.query(query, [salary, department, designation]);
+    res.status(200).send("Workdetails table updated successfully");
+  } catch (error) {
+    console.error("Error updating workdetails:", error);
+    res.status(500).send("Error updating workdetails");
+  }
+});
 
 module.exports = router;

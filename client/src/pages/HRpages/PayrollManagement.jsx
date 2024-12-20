@@ -93,21 +93,47 @@ const PayrollManagement = () => {
 
     setFilteredSalaries(filtered);
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       if (editingId) {
-        // Update existing salary
+        // Update existing salary in the salaries table
         await axios.put(
           `http://localhost:4000/salary/salaries/${editingId}`,
           formData
         );
+
+        // Update the salary in the workdetails table for employees with the same department and designation
+        await axios.put(
+          "http://localhost:4000/salary/workdetails/updateSalaryByDeptAndDesig",
+          {
+            department: formData.department,
+            designation: formData.designation,
+            salary: formData.basic_salary,
+          }
+        );
+
         setEditingId(null);
       } else {
-        // Add new salary
-        await axios.post("http://localhost:4000/salary/salaries", formData);
+        // Add new salary in the salaries table
+        const newSalaryResponse = await axios.post(
+          "http://localhost:4000/salary/salaries",
+          formData
+        );
+
+        // Get the department and designation from the formData to update workdetails
+        await axios.put(
+          "http://localhost:4000/salary/workdetails/updateSalaryByDeptAndDesig",
+          {
+            department: formData.department,
+            designation: formData.designation,
+            salary: formData.basic_salary,
+          }
+        );
       }
+
+      // Reset the form and fetch updated data
       setFormData({ department: "", designation: "", basic_salary: "" });
       fetchSalaries(); // Re-fetch all salaries after submit
     } catch (error) {

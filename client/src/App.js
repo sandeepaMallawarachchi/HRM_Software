@@ -50,6 +50,7 @@ import PostForm from "./pages/TopLvlManagerPages/PostToFeed";
 import Expenses from "./pages/AccountantPages/Expenses";
 import Profit from "./pages/AccountantPages/Profit";
 import Revenue from "./pages/AccountantPages/Revenue";
+import LoansSection from "./pages/AccountantPages/LoansSection";
 
 //HR routes
 import EmployeeRelationships from "./pages/HRpages/EmployeeRelationships";
@@ -252,6 +253,10 @@ const App = () => {
             <Route
               path="/salary-deduction"
               element={<ProtectedRoute element={<SalaryDeduction />} />}
+            />
+            <Route
+              path="/loansection"
+              element={<ProtectedRoute element={<LoansSection />} />}
             />
           </Routes>
         </div>
