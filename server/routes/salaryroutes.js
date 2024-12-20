@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../database");
+const cron = require("node-cron");
 
 router.post("/salaries", async (req, res) => {
   const { department, designation, basic_salary } = req.body;
@@ -244,6 +245,46 @@ router.put("/workdetails/updateSalaryByDeptAndDesig", async (req, res) => {
     console.error("Error updating workdetails:", error);
     res.status(500).send("Error updating workdetails");
   }
+});
+
+// Function to add salary rows
+const generateMonthlySalaries = async () => {
+  try {
+    // Fetch all employees from workdetails
+    const [workDetails] = await pool.query(
+      "SELECT empId, basic_salary FROM workdetails"
+    );
+
+    // Insert a new row for each employee in the salary table
+    for (const detail of workDetails) {
+      const { empId, basic_salary } = detail;
+
+      // Construct the earnings JSON
+      const earnings = {
+        basic: parseFloat(basic_salary),
+        bonus: 0,
+        overtime: 0,
+        allowance: 0,
+      };
+
+      // Insert the new salary record
+      await pool.query(
+        `INSERT INTO salary (empId, date, total_days_worked, total_hours_worked, earnings, deductions) 
+         VALUES (?, CURDATE(), 0, 0, ?, ?)`,
+        [empId, JSON.stringify(earnings), JSON.stringify({})] // Empty deductions
+      );
+    }
+
+    console.log("Monthly salaries generated successfully.");
+  } catch (error) {
+    console.error("Error generating monthly salaries:", error);
+  }
+};
+
+// Schedule this function to run on the 20th of every month
+cron.schedule("0 0 20 * *", () => {
+  console.log("Running salary generation job...");
+  generateMonthlySalaries();
 });
 
 module.exports = router;

@@ -3,7 +3,6 @@ import axios from "axios";
 import { FaFile, FaLink } from "react-icons/fa";
 import Modal from "./MyfinancialsModal"; // Import the Modal component
 
-
 const MyFinancialRequests = () => {
   const empId = localStorage.getItem("empId");
   const [financialRequestList, setFinancialRequestList] = useState([]);
@@ -73,7 +72,6 @@ const MyFinancialRequests = () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
-
   return (
     <div className="p-6 px-20 bg-[#eaeaea] rounded-lg shadow-md">
       {/* Filters */}
@@ -101,56 +99,63 @@ const MyFinancialRequests = () => {
               ))}
           </select>
 
-            {/* Previous Financial Requests */}
-            <div className="mt-10">
-                <h3 className="text-lg mb-4">Previous Financial Requests</h3>
-                <table className="min-w-full bg-white border text-gray-600 rounded-lg">
-                    <thead>
-                        <tr>
-                            <th className="py-2 px-4 border-b">Date of Request</th>
-                            <th className="py-2 px-4 border-b">Request Type</th>
-                            <th className="py-2 px-4 border-b">Amount Requested</th>
-                            <th className="py-2 px-4 border-b">Repayment Terms</th>
-                            <th className="py-2 px-4 border-b">Reason for Request</th>
-                            <th className="py-2 px-4 border-b">Attachment</th>
-                            <th className="py-2 px-4 border-b">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody className="text-center">
-                        {filteredFinancialRequestList.length > 0 ? (
-                            filteredFinancialRequestList.map((financial, index) => (
-                                <tr key={index}>
-                                    <td className="py-2 px-4 border-b">{formatDate(financial.date_of_request)}</td>
-                                    <td className="py-2 px-4 border-b">{financial.request_type}</td>
-                                    <td className="py-2 px-4 border-b">{financial.amount}</td>
-                                    <td className="py-2 px-4 border-b">{financial.repayment_terms}</td>
-                                    <td className="py-2 px-4 border-b">{financial.reason}</td>
-                                    <td className="py-2 px-4 border-b text-center">
-                                        {financial.attachment ? (
-                                            <a
-                                                href={financial.attachment}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex justify-center items-center text-orange-500 hover:text-orange-700"
-                                            >
-                                                <FaLink size={20} />
-                                            </a>
-                                        ) : (
-                                            "-"
-                                        )}
-                                    </td>
-                                    <td className="py-2 px-4 border-b">{financial.status}</td>
-                                </tr>
-                            ))
+          {/* Previous Financial Requests */}
+          <div className="mt-10">
+            <h3 className="text-lg mb-4">Previous Financial Requests</h3>
+            <table className="min-w-full bg-white border text-gray-600 rounded-lg">
+              <thead>
+                <tr>
+                  <th className="py-2 px-4 border-b">Date of Request</th>
+                  <th className="py-2 px-4 border-b">Request Type</th>
+                  <th className="py-2 px-4 border-b">Amount Requested</th>
+                  <th className="py-2 px-4 border-b">Repayment Terms</th>
+                  <th className="py-2 px-4 border-b">Reason for Request</th>
+                  <th className="py-2 px-4 border-b">Attachment</th>
+                  <th className="py-2 px-4 border-b">Status</th>
+                </tr>
+              </thead>
+              <tbody className="text-center">
+                {filteredFinancialRequestList.length > 0 ? (
+                  filteredFinancialRequestList.map((financial, index) => (
+                    <tr key={index}>
+                      <td className="py-2 px-4 border-b">
+                        {formatDate(financial.date_of_request)}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {financial.request_type}
+                      </td>
+                      <td className="py-2 px-4 border-b">{financial.amount}</td>
+                      <td className="py-2 px-4 border-b">
+                        {financial.repayment_terms}
+                      </td>
+                      <td className="py-2 px-4 border-b">{financial.reason}</td>
+                      <td className="py-2 px-4 border-b text-center">
+                        {financial.attachment ? (
+                          <a
+                            href={financial.attachment}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex justify-center items-center text-orange-500 hover:text-orange-700"
+                          >
+                            <FaLink size={20} />
+                          </a>
                         ) : (
-                            <tr>
-                                <td colSpan="7" className="text-center py-4">No financial requests found</td>
-                            </tr>
+                          "-"
                         )}
-                    </tbody>
-                </table>
-            </div>
-
+                      </td>
+                      <td className="py-2 px-4 border-b">{financial.status}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="7" className="text-center py-4">
+                      No financial requests found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div>
