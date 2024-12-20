@@ -35,12 +35,15 @@ import TrainingOversite from "./pages/supervisorPages/TrainingOversite.jsx";
 //supervisor routes
 import SupervicerDashboard from "./pages/supervisorPages/SupervisorDashboard.jsx";
 
+import TrainingOversite from "./pages/MidLvlMangersPages/TrainingOversite";
+import SupervicerDashboard from "./pages/SupervicerDashboard.jsx";
+
 //Top Levl Managers routes
 import StrategicPlaning from "./pages/TopLvlManagerPages/StrategicPlaning";
 import PerformanceDashboard from "./pages/TopLvlManagerPages/PerformanceDashboard";
-import SuccessPlaning from "./pages/TopLvlManagerPages/SuccessPlaning";
+
 import Budgeting from "./pages/TopLvlManagerPages/Budgeting";
-import CompilenceTrack from "./pages/TopLvlManagerPages/CompilenceTrack";
+
 import PostForm from "./pages/TopLvlManagerPages/PostToFeed";
 
 //Accountant routes
@@ -53,6 +56,7 @@ import EmployeeRelationships from "./pages/HRpages/EmployeeRelationships";
 import PayrollManagement from "./pages/HRpages/PayrollManagement";
 import Policies from "./pages/HRpages/Policies";
 import PolicyManagement from "./pages/HRpages/PolicyManagement";
+import SalaryDeduction from "./pages/HRpages/SalaryDeduction";
 
 //Ceo routes
 import ExecutiveDashboard from "./pages/CEOpages/ExecutiveDashboard";
@@ -160,10 +164,7 @@ const App = () => {
               path="/reporting-analytics"
               element={<ProtectedRoute element={<ReportsandAnalytics />} />}
             />
-            <Route
-              path="/conflict-resolution"
-              element={<ProtectedRoute element={<ConflictResolutions />} />}
-            />
+
             <Route
               path="/supervisor"
               element={<ProtectedRoute element={<SupervicerDashboard />} />}
@@ -180,18 +181,12 @@ const App = () => {
               path="/performance-dashboards"
               element={<ProtectedRoute element={<PerformanceDashboard />} />}
             />
-            <Route
-              path="/succession-planning"
-              element={<ProtectedRoute element={<SuccessPlaning />} />}
-            />
+
             <Route
               path="/budgeting"
               element={<ProtectedRoute element={<Budgeting />} />}
             />
-            <Route
-              path="/compliance-tracking"
-              element={<ProtectedRoute element={<CompilenceTrack />} />}
-            />
+
             <Route
               path="/expences"
               element={<ProtectedRoute element={<Expenses />} />}
@@ -253,6 +248,10 @@ const App = () => {
             <Route
               path="/sticky-cards"
               element={<ProtectedRoute element={<StickyCard />} />}
+            />
+            <Route
+              path="/salary-deduction"
+              element={<ProtectedRoute element={<SalaryDeduction />} />}
             />
           </Routes>
         </div>

@@ -6,7 +6,7 @@ import {
   FaTachometerAlt,
   FaMoneyBillWave,
   FaClipboardList,
-  FaEnvelope
+  FaEnvelope,
 } from "react-icons/fa";
 
 const TopLvlManagerSidebar = ({ isCollapsed }) => {
@@ -17,9 +17,10 @@ const TopLvlManagerSidebar = ({ isCollapsed }) => {
       <NavLink
         to="/communication"
         className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-            : ""
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+            isActive
+              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+              : ""
           }`
         }
       >
@@ -33,9 +34,10 @@ const TopLvlManagerSidebar = ({ isCollapsed }) => {
       <NavLink
         to="/strategic-planning"
         className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-            : ""
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+            isActive
+              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+              : ""
           }`
         }
       >
@@ -45,29 +47,14 @@ const TopLvlManagerSidebar = ({ isCollapsed }) => {
         />
         {!isCollapsed && <span>Strategic Planning</span>}
       </NavLink>
-      {/* Succession Planning Link */}
-      <NavLink
-        to="/succession-planning"
-        className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-            : ""
-          }`
-        }
-      >
-        <FaUserTie
-          size={20}
-          className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-        />
-        {!isCollapsed && <span>Succession Planning</span>}
-      </NavLink>
       {/* Performance Dashboards Link */}
       <NavLink
         to="/performance-dashboards"
         className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-            : ""
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+            isActive
+              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+              : ""
           }`
         }
       >
@@ -81,9 +68,10 @@ const TopLvlManagerSidebar = ({ isCollapsed }) => {
       <NavLink
         to="/budgeting"
         className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-            : ""
+          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${
+            isActive
+              ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
+              : ""
           }`
         }
       >
@@ -92,22 +80,6 @@ const TopLvlManagerSidebar = ({ isCollapsed }) => {
           className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
         />
         {!isCollapsed && <span>Budgeting</span>}
-      </NavLink>
-      {/* Compliance Tracking Link */}
-      <NavLink
-        to="/compliance-tracking"
-        className={({ isActive }) =>
-          `flex items-center p-3 text-gray-600 hover:bg-orange-100 w-full rounded-r-[30px] transition-colors ${isActive
-            ? "bg-gradient-to-r from-orange-400 to-orange-500 text-white"
-            : ""
-          }`
-        }
-      >
-        <FaClipboardList
-          size={20}
-          className={`mr-2 ${isCollapsed ? "mx-auto" : ""}`}
-        />
-        {!isCollapsed && <span>Compliance Tracking</span>}
       </NavLink>
     </div>
   );

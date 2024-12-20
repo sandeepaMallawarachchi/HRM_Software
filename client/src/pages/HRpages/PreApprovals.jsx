@@ -12,28 +12,38 @@ const PreApprovals = () => {
     name: "",
   });
   const [editingId, setEditingId] = useState(null);
+  const [filters, setFilters] = useState({ name: "", department: "" });
+  const [departments, setDepartments] = useState([]);
 
-  const [filters, setFilters] = useState({
-    name: "",
-    department: "",
-  });
-
-  // Fetch all records
+  // Fetch all pre-approval records
   const fetchPreApprovals = async () => {
     try {
       const response = await axios.get("http://localhost:4000/cv/preApprovals");
       setPreApprovals(response.data);
-      setFilteredPreApprovals(response.data); // Initialize filtered records
+      setFilteredPreApprovals(response.data);
     } catch (error) {
       console.error("Error fetching records:", error);
     }
   };
 
+  // Fetch all departments
+  const fetchDepartments = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:4000/admin/getAllDepartments"
+      );
+      setDepartments(response.data);
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+    }
+  };
+
   useEffect(() => {
     fetchPreApprovals();
+    fetchDepartments();
   }, []);
 
-  // Handle input changes
+  // Handle form input changes
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setFormData((prevData) => ({
@@ -42,7 +52,7 @@ const PreApprovals = () => {
     }));
   };
 
-  // Handle filter changes
+  // Handle filter input changes
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prevFilters) => ({
@@ -51,7 +61,7 @@ const PreApprovals = () => {
     }));
   };
 
-  // Apply filters
+  // Apply filters to the pre-approvals list
   const applyFilters = () => {
     let filtered = preApprovals;
 
@@ -73,16 +83,16 @@ const PreApprovals = () => {
   };
 
   useEffect(() => {
-    applyFilters(); // Apply filters whenever the filter state changes
+    applyFilters();
   }, [filters, preApprovals]);
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const data = new FormData();
+
     for (const key in formData) {
-      if (formData[key] !== undefined && formData[key] !== null) {
+      if (formData[key]) {
         data.append(key, formData[key]);
       }
     }
@@ -110,7 +120,7 @@ const PreApprovals = () => {
     }
   };
 
-  // Handle edit action
+  // Handle editing a record
   const handleEdit = (record) => {
     setEditingId(record.id);
     setFormData({
@@ -122,7 +132,7 @@ const PreApprovals = () => {
     });
   };
 
-  // Handle delete action
+  // Handle deleting a record
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:4000/cv/preApprovals/${id}`);
@@ -160,21 +170,11 @@ const PreApprovals = () => {
           className="border rounded p-2 w-full"
         >
           <option value="">Select Department</option>
-          <option value="IT (Information Technology)">
-            IT (Information Technology)
-          </option>
-          <option value="Management">Management</option>
-          <option value="Human Resources (HR)">Human Resources (HR)</option>
-          <option value="Finance and Accounting">Finance and Accounting</option>
-          <option value="Sales">Sales</option>
-          <option value="Marketing">Marketing</option>
-          <option value="Operations">Operations</option>
-          <option value="Customer Service">Customer Service</option>
-          <option value="Research and Development (R&D)">
-            Research and Development (R&D)
-          </option>
-          <option value="Legal">Legal</option>
-          <option value="Executive Management">Executive Management</option>
+          {departments.map((dept, index) => (
+            <option key={index} value={dept.department}>
+              {dept.department}
+            </option>
+          ))}
         </select>
 
         <select
@@ -216,10 +216,8 @@ const PreApprovals = () => {
           {editingId ? "Update" : "Submit"}
         </button>
       </form>
-      {/* Filter Section */}
 
-      <br></br>
-      <div className="flex space-x-4 mb-6">
+      <div className="flex space-x-4 my-6">
         <input
           type="text"
           name="name"
@@ -236,25 +234,15 @@ const PreApprovals = () => {
           className="border rounded p-2 w-1/3"
         >
           <option value="">Select Department</option>
-          <option value="IT (Information Technology)">
-            IT (Information Technology)
-          </option>
-          <option value="Management">Management</option>
-          <option value="Human Resources (HR)">Human Resources (HR)</option>
-          <option value="Finance and Accounting">Finance and Accounting</option>
-          <option value="Sales">Sales</option>
-          <option value="Marketing">Marketing</option>
-          <option value="Operations">Operations</option>
-          <option value="Customer Service">Customer Service</option>
-          <option value="Research and Development (R&D)">
-            Research and Development (R&D)
-          </option>
-          <option value="Legal">Legal</option>
-          <option value="Executive Management">Executive Management</option>
+          {departments.map((dept, index) => (
+            <option key={index} value={dept.department}>
+              {dept.department}
+            </option>
+          ))}
         </select>
       </div>
 
-      <table className="table-auto w-full mt-6 bg-white shadow-md rounded">
+      <table className="table-auto w-full bg-white shadow-md rounded">
         <thead>
           <tr className="bg-gray-100">
             <th className="px-4 py-2">Name</th>
