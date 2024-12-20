@@ -19,6 +19,7 @@ import ReminderPage from "./pages/subPages/ReminderPage.jsx";
 import Communication from "./components/Communication.jsx";
 import PostList from "./pages/Newspaper";
 import StickyCard from "./pages/StickyCard";
+import MedicalClaim from "./pages/MedicalClaim.jsx";
 
 //team leader routes
 import TeamManage from "./pages/TeamLeaderPages/TeamManage";
@@ -28,6 +29,11 @@ import Reporting from "./pages/TeamLeaderPages/Reporting";
 import PerformanceManage from "./pages/MidLvlMangersPages/PerformanceManage";
 import ResourceAllocation from "./pages/MidLvlMangersPages/ResourceAllocation";
 import ReportsandAnalytics from "./pages/MidLvlMangersPages/ReportsandAnalytics";
+import ConflictResolutions from "./pages/MidLvlMangersPages/ConflictResolutions";
+import TrainingOversite from "./pages/supervisorPages/TrainingOversite.jsx";
+
+//supervisor routes
+import SupervicerDashboard from "./pages/supervisorPages/SupervisorDashboard.jsx";
 
 import TrainingOversite from "./pages/MidLvlMangersPages/TrainingOversite";
 import SupervicerDashboard from "./pages/SupervicerDashboard.jsx";
@@ -119,6 +125,10 @@ const App = () => {
               element={<ProtectedRoute element={<LearningDevelopment />} />}
             />
             <Route
+              path="/medical"
+              element={<ProtectedRoute element={<MedicalClaim />} />}
+            />
+            <Route
               path="/offers"
               element={<ProtectedRoute element={<Offers />} />}
             />
@@ -157,8 +167,12 @@ const App = () => {
             />
 
             <Route
-              path="/training-oversight"
+              path="/supervisor"
               element={<ProtectedRoute element={<SupervicerDashboard />} />}
+            />
+            <Route
+              path="/training-versite"
+              element={<ProtectedRoute element={<TrainingOversite />} />}
             />
             <Route
               path="/strategic-planning"
