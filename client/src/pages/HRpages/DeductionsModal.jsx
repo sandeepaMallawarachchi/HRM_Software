@@ -199,14 +199,14 @@ const DeductionsModal = ({ employee, onClose }) => {
                   {[
                     { label: "Net Pay", value: `$${salaryDetails.net_pay}` },
                     {
-                      label: "Total Deductions",
+                      label: "Total Earnings",
                       value: `$${salaryDetails.total_earnings}`,
                     },
                     {
                       label: "Total Deductions",
                       value: `$${salaryDetails.total_deductions}`,
                     },
-                    { label: "Bonus", value: `$${salaryDetails.bonus}` },
+
                     { label: "Date", value: salaryDetails.date },
                   ].map(({ label, value }) => (
                     <div key={label} className="flex justify-between">
