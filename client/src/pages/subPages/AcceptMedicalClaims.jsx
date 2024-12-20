@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaLink } from 'react-icons/fa';
+import { FaLink } from "react-icons/fa";
 
 const AcceptMedicalClaims = () => {
-    const empId = localStorage.getItem('empId');
+    const empId = localStorage.getItem("empId");
     const [claims, setClaims] = useState([]);
     const [filteredClaims, setFilteredClaims] = useState([]);
-    const [yearFilter, setYearFilter] = useState('');
-    const [monthFilter, setMonthFilter] = useState('');
+    const [yearFilter, setYearFilter] = useState("");
+    const [monthFilter, setMonthFilter] = useState("");
 
     const fetchClaims = async () => {
         try {
@@ -21,7 +21,7 @@ const AcceptMedicalClaims = () => {
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
-        return date.toLocaleDateString('en-CA');
+        return date.toLocaleDateString("en-CA");
     };
 
     const handleFilterChange = () => {
@@ -29,24 +29,30 @@ const AcceptMedicalClaims = () => {
             const requestDate = new Date(claim.created_at);
             const requestYear = requestDate.getFullYear();
             const requestMonth = requestDate.getMonth() + 1;
-
             const matchesYear = yearFilter ? requestYear === parseInt(yearFilter) : true;
             const matchesMonth = monthFilter ? requestMonth === parseInt(monthFilter) : true;
-
             return matchesYear && matchesMonth;
         });
         setFilteredClaims(filteredList);
     };
 
+    const updateClaimStatus = async (claimId, status) => {
+        try {
+            await axios.put(`http://localhost:4000/medical/updateClaimStatus/${claimId}/${status}`);
+            alert("Claim status updated successfully");
+            await fetchClaims();
+        } catch (err) {
+            console.log("Error updating claim status");
+        }
+    };
+
     useEffect(() => {
         fetchClaims();
         handleFilterChange();
-
     }, [empId, yearFilter, monthFilter, claims]);
 
     return (
         <div className="p-6 px-20 bg-gray-100 rounded-lg shadow-md">
-            {/* Filters */}
             <div className="flex space-x-4 mt-5">
                 <div>
                     <label className="block text-gray-700">Filter by Year</label>
@@ -74,7 +80,7 @@ const AcceptMedicalClaims = () => {
                         <option value="">All Months</option>
                         {Array.from({ length: 12 }, (_, index) => (
                             <option key={index + 1} value={index + 1}>
-                                {new Date(0, index).toLocaleString('en-US', { month: 'long' })}
+                                {new Date(0, index).toLocaleString("en-US", { month: "long" })}
                             </option>
                         ))}
                     </select>
@@ -117,31 +123,38 @@ const AcceptMedicalClaims = () => {
                                             "-"
                                         )}
                                     </td>
-                                    <td className="py-2 px-4 border-b flex justify-between gap-2">
-                                        <button
-                                            className="px-2 py-1 rounded text-white bg-blue-500 hover:bg-blue-600 w-full"
-                                        >
-                                            Accept
-                                        </button>
-
-                                        <button
-                                            className="px-2 py-1 rounded text-white bg-red-500 hover:bg-red-600 w-full"
-                                        >
-                                            Reject
-                                        </button>
+                                    <td className="py-2 px-4 border-b">
+                                        {claim.claimstatus === "Pending" ? (
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => updateClaimStatus(claim.id, "Accepted")}
+                                                    className="px-2 py-1 rounded text-white bg-blue-500 hover:bg-blue-600 w-full"
+                                                >
+                                                    Accept
+                                                </button>
+                                                <button
+                                                    onClick={() => updateClaimStatus(claim.id, "Rejected")}
+                                                    className="px-2 py-1 rounded text-white bg-red-500 hover:bg-red-600 w-full"
+                                                >
+                                                    Reject
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <span className="text-center font-medium">{claim.claimstatus}</span>
+                                        )}
                                     </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="4" className="text-center py-4">No medical claims found</td>
+                                <td colSpan="6" className="text-center py-4">No medical claims found</td>
                             </tr>
                         )}
                     </tbody>
                 </table>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default AcceptMedicalClaims
+export default AcceptMedicalClaims;

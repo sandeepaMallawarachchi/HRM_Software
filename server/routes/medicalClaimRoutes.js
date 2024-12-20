@@ -148,16 +148,16 @@ router.put("/updateClaimAmount", async (req, res) => {
     const { maxamount } = req.body;
 
     try {
-        await pool.query(
-            "INSERT INTO claimamount (maxamount) " +
-            "VALUES (?) " +
-            "ON DUPLICATE KEY UPDATE maxamount = ?",
-            [maxamount, maxamount]
-        );
+        const [existingRow] = await pool.query("SELECT COUNT(*) AS count FROM claimamount");
+
+        if (existingRow[0].count > 0) {
+            await pool.query("UPDATE claimamount SET maxamount = ?", [maxamount]);
+        } else {
+            await pool.query("INSERT INTO claimamount (maxamount) VALUES (?)", [maxamount]);
+        }
 
         res.status(200).json({ message: "Max claim amount updated/added successfully" });
     } catch (error) {
-        console.error("Error updating/adding max claim amount:", error);
         res.status(500).json({ error: "Error updating/adding max claim amount" });
     }
 });
@@ -182,6 +182,22 @@ router.get("/getClaimSummary/:empId", async (req, res) => {
         res.status(200).json({ maxAmount, totalSpent });
     } catch (error) {
         res.status(500).json({ error: "Error fetching claim summary" });
+    }
+});
+
+//update claim status
+router.put("/updateClaimStatus/:claimId/:claimStatus", async (req, res) => {
+    const { claimId, claimStatus } = req.params;
+    try {
+        await pool.query(
+            "UPDATE medicalclaim SET claimstatus = ? WHERE id = ?",
+            [claimStatus, claimId]
+        );
+
+        res.status(200).json({ message: "Claim status updated successfully" });
+    } catch (error) {
+        console.error("Error updating/adding claim status:", error);
+        res.status(500).json({ error: "Error updating claim status" });
     }
 });
 

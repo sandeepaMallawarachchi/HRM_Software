@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import AddMedicalClaim from './subPages/AddMedicalClaim';
 import MyMedicalClaims from './subPages/MyMedicalClaims';
 import AcceptMedicalClaims from './subPages/AcceptMedicalClaims';
+import ManageClaims from './subPages/ManageClaims';
 
 const MedicalClaim = () => {
 
@@ -28,18 +29,28 @@ const MedicalClaim = () => {
                     My Medical Claims
                 </button>
                 {role === 'Mid Lvl Manager' &&
-                    <button
-                        onClick={() => handleSectionToggle('acceptreject')}
-                        className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'acceptreject' ? 'bg-orange-500 text-white' : ''}`}
-                    >
-                        All Medical Claims
-                    </button>
+                    <div className='flex space-x-4'>
+                        <button
+                            onClick={() => handleSectionToggle('acceptreject')}
+                            className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'acceptreject' ? 'bg-orange-500 text-white' : ''}`}
+                        >
+                            All Medical Claims
+                        </button>
+
+                        <button
+                            onClick={() => handleSectionToggle('manageclaims')}
+                            className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${visibleSection === 'manageclaims' ? 'bg-orange-500 text-white' : ''}`}
+                        >
+                            Manage Medical Claims
+                        </button>
+                    </div>
                 }
             </div>
 
             {visibleSection === 'addclaim' && <AddMedicalClaim />}
             {visibleSection === 'myclaims' && <MyMedicalClaims />}
             {visibleSection === 'acceptreject' && <AcceptMedicalClaims />}
+            {visibleSection === 'manageclaims' && <ManageClaims />}
         </div>
     )
 }
