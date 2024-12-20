@@ -1466,18 +1466,20 @@ router.put("/saveReminder/:id/:training/:empId", async (req, res) => {
   }
 });
 
-//get employees assigned for superviser
+//get employees assigned for supervisor
 router.get("/getAssignedEmployees/:empId", async (req, res) => {
+  const supervisor = req.params.empId;
+
   try {
     const [rows] = await pool.query(`
-            SELECT a.id, a.empId, p.NAME, a.training, a.weight, a.allocatedate, a.finisheddate, a.status
-            FROM workdetails w JOIN personaldetails p ON a.empId = p.empId
-            ORDER By a.created_at DESC
-        `);
+            SELECT w.empId, p.NAME, w.designation, w.department
+            FROM workdetails w JOIN personaldetails p ON w.empId = p.empId
+            WHERE w.supervisor = ?
+        `, [supervisor]);
     res.status(200).json(rows);
   } catch (error) {
-    console.error("Error fetching allocated training:", error);
-    res.status(500).json({ error: "Error fetching allocated training" });
+    console.error("Error fetching employee details:", error);
+    res.status(500).json({ error: "Error fetching employee details" });
   }
 });
 

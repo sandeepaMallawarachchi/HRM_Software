@@ -100,6 +100,8 @@ const Header = () => {
         return "Decision Support";
       case "/reminders":
         return "Reminders";
+      case "/supervisor":
+        return "Supervisor Dashboard";
       default:
         return "Dashboard";
     }

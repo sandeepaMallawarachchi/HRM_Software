@@ -116,10 +116,6 @@ router.post("/addFeedback/:mentorId/:empId", async (req, res) => {
             [mentorId, empId]
         );
 
-        if (existingFeedback.length === 0) {
-            return res.status(404).json({ error: "No feedback found for this mentor and employee." });
-        }
-
         const feedbackValue = feedback || existingFeedback[0].feedback;
         const recommendationValue = recommendation || existingFeedback[0].recommendation;
         const stepsValue = steps ? JSON.stringify(steps) : existingFeedback[0].steps;
