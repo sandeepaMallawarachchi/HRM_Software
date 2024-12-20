@@ -185,6 +185,31 @@ router.get("/getClaimSummary/:empId", async (req, res) => {
     }
 });
 
+//get all claim summary
+router.get("/getAllClaimSummary", async (req, res) => {
+    try {
+        const [maxAmountResult] = await pool.query(`SELECT maxamount FROM claimamount`);
+
+        const [spentAmountResult] = await pool.query(
+            `SELECT empId, requestamount, created_at FROM medicalclaim WHERE claimstatus = ?`,
+            ['Accepted']
+        );
+
+        const maxAmount = maxAmountResult[0]?.maxamount || 0;
+        const totalSpent = spentAmountResult.reduce((sum, row) => sum + row.requestamount, 0).toString().replace(/^0+/, '');
+
+        const spentAmounts = spentAmountResult.map(row => ({
+            empId: row.empId,
+            requestamount: row.requestamount,
+            created_at: row.created_at,
+        }));
+
+        res.status(200).json({ maxAmount, totalSpent, spentAmounts });
+    } catch (error) {
+        res.status(500).json({ error: "Error fetching claim summary" });
+    }
+});
+
 //update claim status
 router.put("/updateClaimStatus/:claimId/:claimStatus", async (req, res) => {
     const { claimId, claimStatus } = req.params;
