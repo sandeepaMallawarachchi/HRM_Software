@@ -169,7 +169,7 @@ const App = () => {
               element={<ProtectedRoute element={<SupervicerDashboard />} />}
             />
             <Route
-              path="/training-versite"
+              path="/training-oversight"
               element={<ProtectedRoute element={<TrainingOversite />} />}
             />
             <Route
