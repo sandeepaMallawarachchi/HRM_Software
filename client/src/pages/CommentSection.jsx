@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { FaUserCircle } from "react-icons/fa";
 
-const CommentSection = ({ postId }) => {
+const CommentSection = ({ postId, showAllComments }) => {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
   const [userName, setUserName] = useState(""); // State to store the current employee's name
-  const [showAllComments, setShowAllComments] = useState(false); // State to toggle between showing all or latest comment
+  // const [showAllComments, setShowAllComments] = useState(false); // State to toggle between showing all or latest comment
 
   useEffect(() => {
     const empId = localStorage.getItem("empId"); // Get the current empId
@@ -56,31 +57,25 @@ const CommentSection = ({ postId }) => {
   };
 
   return (
-    <div className="mt-2">
+    <div className="w-full">
       {/* Display latest comment if showAllComments is false */}
       {comments.length > 0 && !showAllComments ? (
-        <div className="text-gray-600">
+        <div className="text-gray-600 flex gap-2">
+          <FaUserCircle size={20} />
           {comments[comments.length - 1].user}:{" "}
           {comments[comments.length - 1].comment}
         </div>
       ) : (
         // Display all comments if showAllComments is true
-        <div className="mb-2">
+        <div className="mb-2 h-20 overflow-y-auto">
           {comments.map((c, index) => (
-            <div key={index} className="text-gray-600">
+            <div key={index} className="text-gray-600 flex gap-2 my-2">
+              <FaUserCircle size={20} />
               {c.user}: {c.comment}
             </div>
           ))}
         </div>
       )}
-
-      {/* Button to toggle between showing latest comment and all comments */}
-      <button
-        onClick={() => setShowAllComments(!showAllComments)}
-        className="text-blue-500 hover:text-blue-600 font-semibold mt-2"
-      >
-        {showAllComments ? "Hide Comments" : "Show All Comments"}
-      </button>
 
       {/* Add a new comment */}
       <div className="mt-4 flex gap-2">

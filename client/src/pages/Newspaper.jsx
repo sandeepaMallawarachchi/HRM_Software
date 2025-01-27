@@ -4,6 +4,7 @@ import PostForm from "./TopLvlManagerPages/PostToFeed";
 import CommentSection from "./CommentSection";
 import LoadingSpinner from "./LoadingSpinner";
 import StickyCard from "./StickyCard";
+import { FaRegHeart, FaHeart, FaComment } from "react-icons/fa";
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
@@ -20,6 +21,7 @@ const PostList = () => {
   });
 
   const dropdownRef = useRef(null); // Ref for dropdown
+  const [showAllComments, setShowAllComments] = useState(false);
 
   const handleClickOutside = (event) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -74,10 +76,10 @@ const PostList = () => {
     const updatedPosts = posts.map((post) =>
       post.id === postId
         ? {
-            ...post,
-            liked: !post.liked, // Toggle liked state
-            likes: post.liked ? post.likes - 1 : post.likes + 1, // Increment or decrement likes based on current state
-          }
+          ...post,
+          liked: !post.liked, // Toggle liked state
+          likes: post.liked ? post.likes - 1 : post.likes + 1, // Increment or decrement likes based on current state
+        }
         : post
     );
 
@@ -165,7 +167,7 @@ const PostList = () => {
 
   return (
     <div className="flex justify-start w-full">
-      <div className="flex-1 max-w-3xl px-4">
+      <div className="flex-1 max-w-3xl px-4 w-1/2">
         {["Top Lvl Manager", "Ceo"].includes(userRole) && (
           <div className="mb-6">
             <button
@@ -233,14 +235,20 @@ const PostList = () => {
               className="bg-white shadow-lg rounded-xl p-6 mb-6 border border-gray-200 w-full hover:shadow-2xl transition-all duration-300"
             >
               <div className="flex items-center space-x-3 mb-4 relative">
-                <button
-                  onClick={() =>
-                    setActivePostId(post.id === activePostId ? null : post.id)
-                  }
-                  className="text-gray-500 hover:text-gray-700 absolute top-0 right-0 mt-2 mr-2"
-                >
-                  ⋯
-                </button>
+                {["Top Lvl Manager", "Ceo"].includes(userRole) && (
+                  <>
+                    <button
+                      onClick={() =>
+                        setActivePostId(
+                          post.id === activePostId ? null : post.id
+                        )
+                      }
+                      className="text-gray-500 hover:text-gray-700 absolute top-0 right-0 mt-2 mr-2"
+                    >
+                      ⋯
+                    </button>
+                  </>
+                )}
 
                 {activePostId === post.id && (
                   <div
@@ -271,7 +279,7 @@ const PostList = () => {
               {post.attachment && (
                 <div className="mt-4 flex items-start">
                   {post.attachment.endsWith(".mp4") ||
-                  post.attachment.endsWith(".webm") ? (
+                    post.attachment.endsWith(".webm") ? (
                     <video
                       controls
                       className="w-full max-w-[500px] max-h-[500px] object-contain rounded-lg"
@@ -294,44 +302,34 @@ const PostList = () => {
                   )}
                 </div>
               )}
+              <div key={post.id} className="mt-2 text-sm text-right">
+                {new Date(post.created_at).toLocaleString()}
+              </div>
 
-              <div className="flex items-center justify-between mt-4">
-                <div className="flex space-x-4 items-center">
-                  <button onClick={() => likePost(post.id)}>
-                    {post.liked ? (
-                      <span className="text-red-500">❤️</span>
-                    ) : (
-                      <span>♡</span>
-                    )}
-                    {post.likes} Likes
-                  </button>
-
-                  <CommentSection postId={post.id} showAllComments={false} />
-                  <button
-                    onClick={() => {
-                      setPosts((prevPosts) =>
-                        prevPosts.map((p) =>
-                          p.id === post.id
-                            ? { ...p, showAllComments: !p.showAllComments }
-                            : p
-                        )
-                      );
-                    }}
-                    className="text-gray-500 font-semibold hover:text-gray-600 transition-all duration-200"
-                  ></button>
-                </div>
-                <li key={post.id} className="mb-2">
-                  ,&nbsp;
-                  <span className="font-semibold"></span>{" "}
-                  {new Date(post.created_at).toLocaleString()}
-                </li>
+              <div className="flex gap-5">
+                <button onClick={() => likePost(post.id)} className="flex gap-2">
+                  {post.liked ? (
+                    <FaHeart className="text-red-600 fill-current" />
+                  ) : (
+                    <FaRegHeart />
+                  )}
+                  {post.likes} Likes
+                </button>
+                <button
+                  className="text-blue-500 hover:text-blue-600 font-semibold"
+                  onClick={() => setShowAllComments(!showAllComments)}
+                >
+                  <FaComment />
+                </button>
+              </div>
+              <div className="flex space-x-4 items-center mt-2">
+                <CommentSection postId={post.id} showAllComments={showAllComments} />
               </div>
             </div>
           )
         )}
       </div>
-      <div>
-        {/* This is where you can render the StickyCard component */}
+      <div className="w-1/2">
         <StickyCard />
       </div>
     </div>
