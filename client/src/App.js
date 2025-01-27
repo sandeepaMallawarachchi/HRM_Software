@@ -20,6 +20,7 @@ import Communication from "./components/Communication.jsx";
 import PostList from "./pages/Newspaper";
 import StickyCard from "./pages/StickyCard";
 import MedicalClaim from "./pages/MedicalClaim.jsx";
+import TaxCalculator from "./pages/TaxCalculator.jsx";
 
 //team leader routes
 import TeamManage from "./pages/TeamLeaderPages/TeamManage";
@@ -254,6 +255,10 @@ const App = () => {
             <Route
               path="/loansection"
               element={<ProtectedRoute element={<LoansSection />} />}
+            />
+            <Route
+              path="/taxCalculator"
+              element={<ProtectedRoute element={<TaxCalculator />} />}
             />
           </Routes>
         </div>
