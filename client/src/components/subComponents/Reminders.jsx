@@ -7,6 +7,7 @@ const Reminders = () => {
     const empId = localStorage.getItem('empId');
     const [learningReminders, setLearningReminders] = useState([]);
     const [otherReminders, setOtherReminders] = useState([]);
+    const [trainingReminders, setTrainingReminders] = useState([]);
     const [alerts, setAlerts] = useState([]);
 
     const fetchReminders = async () => {
@@ -26,6 +27,9 @@ const Reminders = () => {
 
             const response = await axios.get(`http://localhost:4000/admin/getAllocatedResources/${empId}`);
             setAlerts(response.data.filter((alert) => alert.alert === 1));
+
+            const trainingReminders = await axios.get(`http://localhost:4000/admin/getTrainingReminder/${empId}`);
+            setTrainingReminders(trainingReminders.data);
         } catch (error) {
             console.log("Error fetching reminders:", error);
         }
@@ -59,6 +63,17 @@ const Reminders = () => {
                         <div key={reminder.id} className="flex gap-4 mt-3 p-4 bg-gray-100 rounded-xl">
                             <FaBell size={20} color='blue' />
                             <span>{reminder.reminder}</span>
+                        </div>
+                    ))}
+                </div></Link>
+            )}
+
+            {trainingReminders.length > 0 && (
+                <Link to={'/learn'}><div>
+                    {trainingReminders.map((reminder) => (
+                        <div key={reminder.id} className="flex gap-4 mt-3 p-4 bg-gray-100 rounded-xl">
+                            <FaBell size={20} color='orange' />
+                            <span>{reminder.training}</span>
                         </div>
                     ))}
                 </div></Link>
