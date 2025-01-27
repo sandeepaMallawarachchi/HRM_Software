@@ -112,7 +112,7 @@ const Stickycards = () => {
         {["Top Lvl Manager", "Ceo"].includes(userRole) && (
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col sm:flex-row gap-4 mb-6"
+            className="flex flex-col gap-4 mb-6"
           >
             <input
               type="text"
@@ -120,7 +120,7 @@ const Stickycards = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               type="text"
@@ -128,11 +128,11 @@ const Stickycards = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
               type="submit"
-              className="bg-orange-500 text-white px-6 py-2 rounded-md shadow-md hover:bg-blue-400 transition-all"
+              className="w-full bg-orange-500 text-white px-6 py-2 rounded-md shadow-md hover:bg-blue-400 transition-all"
             >
               {editCard ? "Update" : "Create"}
             </button>
