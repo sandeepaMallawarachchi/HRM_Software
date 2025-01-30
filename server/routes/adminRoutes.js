@@ -1525,6 +1525,25 @@ router.put("/saveReminder/:id/:training/:empId", async (req, res) => {
   }
 });
 
+//get training reminder by empId
+router.get("/getTrainingReminder/:empId", async (req, res) => {
+  const empId = req.params.empId;
+
+  try {
+    const [rows] = await pool.query(
+      `
+      SELECT id, training, reminder
+      FROM allocatedtraining
+      WHERE empId = ? AND DATE(created_at) = CURDATE()
+      `,
+      [empId]
+    );
+    res.status(200).json(rows);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching reminders for the current day" });
+  }
+});
+
 //get employees assigned for supervisor
 router.get("/getAssignedEmployees/:empId", async (req, res) => {
   const supervisor = req.params.empId;
