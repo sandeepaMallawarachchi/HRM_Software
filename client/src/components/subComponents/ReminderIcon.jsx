@@ -8,6 +8,7 @@ const ReminderIcon = () => {
     const [showPopUp, setShowPopUp] = useState(false);
     const [reminderCount, setReminderCount] = useState(0);
     const [alertsCount, setAlertsCount] = useState(0);
+    const [trainingCount, setTrainingCount] = useState(0);
     const navigate = useNavigate('');
     const empId = localStorage.getItem('empId');
     const popUpRef = useRef(null);
@@ -34,6 +35,15 @@ const ReminderIcon = () => {
         }
     };
 
+    const fetchTrainingCount = async () => {
+        try {
+            const response = await axios.get(`http://localhost:4000/admin/getTrainingReminder/${empId}`);
+            setTrainingCount(response.data.length);
+        } catch (error) {
+            console.log("Error fetching reminder count:", error);
+        }
+    };
+
     const togglePopUp = () => {
         setShowPopUp(!showPopUp);
     };
@@ -45,6 +55,7 @@ const ReminderIcon = () => {
     useEffect(() => {
         fetchReminderCount();
         fetchAlertsCount();
+        fetchTrainingCount();
     }, []);
 
     const handleAddingReminder = () => {
@@ -69,7 +80,7 @@ const ReminderIcon = () => {
         };
     }, [showPopUp]);
 
-    const totalCount = reminderCount + alertsCount;
+    const totalCount = reminderCount + alertsCount + trainingCount;
 
     return (
         <div className="relative">
@@ -100,7 +111,7 @@ const ReminderIcon = () => {
                         </button>
                     </div>
                     <Reminders />
-                    <Link to={'/reminders'} className='text-gray-600 hover:underline'>All Reminders</Link>
+                    <Link to={'/reminders'} className='text-gray-600 hover:underline mt-2'>All Reminders</Link>
                 </div>
             )}
         </div>

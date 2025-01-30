@@ -19,6 +19,8 @@ import ReminderPage from "./pages/subPages/ReminderPage.jsx";
 import Communication from "./components/Communication.jsx";
 import PostList from "./pages/Newspaper";
 import StickyCard from "./pages/StickyCard";
+import MedicalClaim from "./pages/MedicalClaim.jsx";
+import TaxCalculator from "./pages/TaxCalculator.jsx";
 
 //team leader routes
 import TeamManage from "./pages/TeamLeaderPages/TeamManage";
@@ -28,9 +30,11 @@ import Reporting from "./pages/TeamLeaderPages/Reporting";
 import PerformanceManage from "./pages/MidLvlMangersPages/PerformanceManage";
 import ResourceAllocation from "./pages/MidLvlMangersPages/ResourceAllocation";
 import ReportsandAnalytics from "./pages/MidLvlMangersPages/ReportsandAnalytics";
+// import ConflictResolutions from "./pages/MidLvlMangersPages/ConflictResolutions";
+import TrainingOversite from "./pages/supervisorPages/TrainingOversite.jsx";
 
-import TrainingOversite from "./pages/MidLvlMangersPages/TrainingOversite";
-import SupervicerDashboard from "./pages/SupervicerDashboard.jsx";
+//supervisor routes
+import SupervicerDashboard from "./pages/supervisorPages/SupervisorDashboard.jsx";
 
 //Top Levl Managers routes
 import StrategicPlaning from "./pages/TopLvlManagerPages/StrategicPlaning";
@@ -44,12 +48,14 @@ import PostForm from "./pages/TopLvlManagerPages/PostToFeed";
 import Expenses from "./pages/AccountantPages/Expenses";
 import Profit from "./pages/AccountantPages/Profit";
 import Revenue from "./pages/AccountantPages/Revenue";
+import LoansSection from "./pages/AccountantPages/LoansSection";
 
 //HR routes
 import EmployeeRelationships from "./pages/HRpages/EmployeeRelationships";
 import PayrollManagement from "./pages/HRpages/PayrollManagement";
 import Policies from "./pages/HRpages/Policies";
 import PolicyManagement from "./pages/HRpages/PolicyManagement";
+import SalaryDeduction from "./pages/HRpages/SalaryDeduction";
 
 //Ceo routes
 import ExecutiveDashboard from "./pages/CEOpages/ExecutiveDashboard";
@@ -117,6 +123,10 @@ const App = () => {
               element={<ProtectedRoute element={<LearningDevelopment />} />}
             />
             <Route
+              path="/medical"
+              element={<ProtectedRoute element={<MedicalClaim />} />}
+            />
+            <Route
               path="/offers"
               element={<ProtectedRoute element={<Offers />} />}
             />
@@ -155,8 +165,12 @@ const App = () => {
             />
 
             <Route
-              path="/training-oversight"
+              path="/supervisor"
               element={<ProtectedRoute element={<SupervicerDashboard />} />}
+            />
+            <Route
+              path="/training-oversight"
+              element={<ProtectedRoute element={<TrainingOversite />} />}
             />
             <Route
               path="/strategic-planning"
@@ -233,6 +247,18 @@ const App = () => {
             <Route
               path="/sticky-cards"
               element={<ProtectedRoute element={<StickyCard />} />}
+            />
+            <Route
+              path="/salary-deduction"
+              element={<ProtectedRoute element={<SalaryDeduction />} />}
+            />
+            <Route
+              path="/loansection"
+              element={<ProtectedRoute element={<LoansSection />} />}
+            />
+            <Route
+              path="/taxCalculator"
+              element={<ProtectedRoute element={<TaxCalculator />} />}
             />
           </Routes>
         </div>

@@ -1101,6 +1101,19 @@ router.post("/payrollAssistance/:empId", async (req, res) => {
   }
 });
 
+// Route to get all financial requests
+router.get("/getFinancialRequests", async (req, res) => {
+  try {
+    const query = "SELECT * FROM financial_requests ORDER BY created_at DESC";
+    const [results] = await pool.query(query);
+
+    res.status(200).json(results);
+  } catch (error) {
+    console.error("Error fetching financial requests:", error);
+    res.status(500).json({ error: "Failed to fetch financial requests." });
+  }
+});
+
 //financial request
 router.post(
   "/financialRequest/:empId",
@@ -1182,6 +1195,97 @@ router.get("/getFinancialRequests/:empId", async (req, res) => {
   } catch (error) {
     console.error("Error fetching financial requests:", error);
     res.status(500).json({ error: "Failed to fetch financial requests." });
+  }
+});
+
+// Route to update a financial request by id
+router.put("/updateFinancialRequest/:id", async (req, res) => {
+  const requestId = req.params.id;
+  const {
+    request_type,
+    date_of_request,
+    amount,
+    reason,
+    repayment_terms,
+    status,
+  } = req.body;
+
+  try {
+    // Build the query to update the financial request
+    let query = `
+      UPDATE financial_requests 
+      SET request_type = ?, 
+          date_of_request = ?, 
+          amount = ?, 
+          reason = ?, 
+          repayment_terms = ?, 
+          status = ?
+      WHERE id = ?
+    `;
+
+    const queryParams = [
+      request_type,
+      date_of_request,
+      amount,
+      reason,
+      repayment_terms || null,
+      status || "pending", // Default status to 'pending' if not provided
+      requestId,
+    ];
+
+    // Execute the query to update the financial request
+    const [result] = await pool.query(query, queryParams);
+
+    // Check if the request was updated successfully
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Financial request not found." });
+    }
+
+    res.status(200).json({
+      message: "Financial request updated successfully.",
+    });
+  } catch (error) {
+    console.error("Error updating financial request:", error);
+    res.status(500).json({ error: "Failed to update financial request." });
+  }
+});
+
+// Route to update the status of a financial request by ID
+router.put("/updateFinancialRequestStatus/:id", async (req, res) => {
+  const requestId = req.params.id;
+  const { status } = req.body;
+
+  try {
+    // Validate the input status
+    if (!status) {
+      return res.status(400).json({ error: "Status is required." });
+    }
+
+    // Build the query to update only the status
+    const query = `
+      UPDATE financial_requests 
+      SET status = ? 
+      WHERE id = ?
+    `;
+
+    const queryParams = [status, requestId];
+
+    // Execute the query to update the status
+    const [result] = await pool.query(query, queryParams);
+
+    // Check if the request was updated successfully
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Financial request not found." });
+    }
+
+    res.status(200).json({
+      message: "Financial request status updated successfully.",
+    });
+  } catch (error) {
+    console.error("Error updating financial request status:", error);
+    res
+      .status(500)
+      .json({ error: "Failed to update financial request status." });
   }
 });
 
