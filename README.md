@@ -89,4 +89,6 @@ Contributions to this project:
   <img src="sss/screenshot7.png" width="300">
   <img src="sss/screenshot8.png" width="300">
   <img src="sss/screenshot9.png" width="300">
+  <img src="sss/screenshot10.png" width="300">
+  <img src="sss/screenshot11.png" width="300">
 </p>
