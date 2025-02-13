@@ -80,15 +80,15 @@ Contributions to this project:
 
 ## 📸 Screenshots
 <p align="center">
-  <img src="sss/screenshot1.png" width="300">
-  <img src="sss/screenshot2.png" width="300">
-  <img src="sss/screenshot3.png" width="300">
-  <img src="sss/screenshot4.png" width="300">
-  <img src="sss/screenshot5.png" width="300">
-  <img src="sss/screenshot6.png" width="300">
-  <img src="sss/screenshot7.png" width="300">
-  <img src="sss/screenshot8.png" width="300">
-  <img src="sss/screenshot9.png" width="300">
-  <img src="sss/screenshot10.png" width="300">
-  <img src="sss/screenshot11.png" width="300">
+  <img src="sss/Screenshot1.png" width="300">
+  <img src="sss/Screenshot2.png" width="300">
+  <img src="sss/Screenshot3.png" width="300">
+  <img src="sss/Screenshot4.png" width="300">
+  <img src="sss/Screenshot5.png" width="300">
+  <img src="sss/Screenshot6.png" width="300">
+  <img src="sss/Screenshot7.png" width="300">
+  <img src="sss/Screenshot8.png" width="300">
+  <img src="sss/Screenshot9.png" width="300">
+  <img src="sss/Screenshot10.png" width="300">
+  <img src="sss/Screenshot11.png" width="300">
 </p>
