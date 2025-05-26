@@ -9,6 +9,7 @@ const salaryroutes = require("./routes/salaryroutes");
 const newsroutes = require("./routes/newsroutes");
 const learningAndDevelopmentRoutes = require("./routes/learningAndDevelopmentRoutes");
 const medicalClaimRoutes = require("./routes/medicalClaimRoutes");
+const leavesRoutes = require("./routes/leavesRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -40,6 +41,9 @@ app.use("/learning", learningAndDevelopmentRoutes);
 
 // Use the medical routes
 app.use("/medical", medicalClaimRoutes);
+
+// Use the leave routes
+app.use("/leaves", leavesRoutes);
 
 // Start the server
 app.listen(PORT, () => {
