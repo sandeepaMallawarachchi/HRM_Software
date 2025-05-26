@@ -10,6 +10,35 @@ const LeaveAndAttendance = () => {
   const [isSupervisor, setIsSupervisor] = useState(false);
   const role = localStorage.getItem("role");
   const empId = localStorage.getItem("empId");
+  const [notificationCount, setNotificationCount] = useState(0);
+
+  useEffect(() => {
+    const fetchExpiringPendingLeaves = async () => {
+      try {
+        const res = await axios.get("http://localhost:4000/leaves/all");
+
+        const now = new Date();
+        const next24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+        const expiringSoon = res.data.filter((leave) => {
+          const dateTo = new Date(leave.date_to);
+          return (
+            leave.status === "Pending" &&
+            dateTo > now && // Not already expired
+            dateTo <= next24Hours // Will expire within next 24 hours
+          );
+        });
+
+        setNotificationCount(expiringSoon.length);
+      } catch (err) {
+        console.error("Failed to fetch leaves:", err);
+      }
+    };
+
+    if (role === "HR") {
+      fetchExpiringPendingLeaves();
+    }
+  }, [role]);
 
   const handleSectionToggle = (section) => {
     setVisibleSection(visibleSection === section ? null : section);
@@ -61,11 +90,16 @@ const LeaveAndAttendance = () => {
         {role === "HR" && (
           <button
             onClick={() => handleSectionToggle("checkleaves")}
-            className={`py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${
+            className={`relative py-2 px-4 border border-orange-500 rounded-full text-orange-500 hover:bg-orange-500 hover:text-white transition-all ${
               visibleSection === "checkleaves" ? "bg-orange-500 text-white" : ""
             }`}
           >
             Check Leaves
+            {notificationCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {notificationCount}
+              </span>
+            )}
           </button>
         )}
       </div>
