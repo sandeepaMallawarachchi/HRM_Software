@@ -10,7 +10,7 @@ const Documentations = () => {
     const fetchFinancialRequests = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:4000/employees/getFinancialRequests" // Fetch all financial requests
+          "https://global-hrm-mobile-server.vercel.app/employees/getFinancialRequests" // Fetch all financial requests
         );
         setFinancialRequests(response.data);
         setLoading(false);
@@ -35,7 +35,7 @@ const Documentations = () => {
   const handleStatusUpdate = async (requestId, newStatus) => {
     try {
       const response = await axios.put(
-        `http://localhost:4000/employees/updateFinancialRequestStatus/${requestId}`, // Use requestId to update status
+        `https://global-hrm-mobile-server.vercel.app/employees/updateFinancialRequestStatus/${requestId}`, // Use requestId to update status
         { status: newStatus }
       );
       // Update the status in the UI after successful update

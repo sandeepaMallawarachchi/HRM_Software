@@ -18,7 +18,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:4000/auth/login", {
+      const res = await axios.post("https://global-hrm-mobile-server.vercel.app/auth/login", {
         email,
         password,
       });

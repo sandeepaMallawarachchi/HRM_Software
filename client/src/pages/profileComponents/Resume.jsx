@@ -19,10 +19,10 @@ const Resume = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const experienceResponse = await axios.get(`http://localhost:4000/employees/getExperience/${empId}`);
+        const experienceResponse = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getExperience/${empId}`);
         setExperienceList(experienceResponse.data);
 
-        const educationResponse = await axios.get(`http://localhost:4000/employees/getEducation/${empId}`);
+        const educationResponse = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getEducation/${empId}`);
         setEducationList(educationResponse.data);
       } catch (err) {
         console.log("Error fetching data:", err);
@@ -34,7 +34,7 @@ const Resume = () => {
   //add experience
   const handleAddExperience = async () => {
     try {
-      const response = await axios.post(`http://localhost:4000/employees/experience/${empId}`, newExperience);
+      const response = await axios.post(`https://global-hrm-mobile-server.vercel.app/employees/experience/${empId}`, newExperience);
       setExperienceList(prev => [...prev, { ...newExperience, id: response.data.id }]); // Use the returned ID
       setNewExperience({ date_from: '', date_to: '', company: '', role: '' });
       setIsAddingExperience(false);
@@ -48,7 +48,7 @@ const Resume = () => {
   //add education
   const handleAddEducation = async () => {
     try {
-      const response = await axios.post(`http://localhost:4000/employees/education/${empId}`, newEducation);
+      const response = await axios.post(`https://global-hrm-mobile-server.vercel.app/employees/education/${empId}`, newEducation);
       setEducationList(prev => [...prev, { ...newEducation, id: response.data.id }]); // Use the returned ID
       setNewEducation({ date_from: '', date_to: '', institution: '', degree: '' });
       setIsAddingEducation(false);
@@ -62,7 +62,7 @@ const Resume = () => {
   // Handle updating the experience
   const handleUpdateExperience = async () => {
     try {
-      const response = await axios.put(`http://localhost:4000/employees/updateExperience/${empId}/${editExperience.id}`, editExperience);
+      const response = await axios.put(`https://global-hrm-mobile-server.vercel.app/employees/updateExperience/${empId}/${editExperience.id}`, editExperience);
       setExperienceList(prev =>
         prev.map(exp => (exp.id === editExperience.id ? response.data : exp)) // Update the correct experience
       );
@@ -77,7 +77,7 @@ const Resume = () => {
   // Handle updating the education
   const handleUpdateEducation = async () => {
     try {
-      const response = await axios.put(`http://localhost:4000/employees/updateEducation/${empId}/${editEducation.id}`, editEducation);
+      const response = await axios.put(`https://global-hrm-mobile-server.vercel.app/employees/updateEducation/${empId}/${editEducation.id}`, editEducation);
       setEducationList(prev =>
         prev.map(edu => (edu.id === editEducation.id ? response.data : edu)) // Update the correct experience
       );
@@ -95,7 +95,7 @@ const Resume = () => {
 
     if (confirmDelete) {
       try {
-        await axios.delete(`http://localhost:4000/employees/deleteExperience/${empId}/${expId}`);
+        await axios.delete(`https://global-hrm-mobile-server.vercel.app/employees/deleteExperience/${empId}/${expId}`);
         setExperienceList(prev => prev.filter(exp => exp.id !== expId));
         alert('Experience deleted successfully.');
       } catch (error) {
@@ -113,7 +113,7 @@ const Resume = () => {
 
     if (confirmDelete) {
       try {
-        await axios.delete(`http://localhost:4000/employees/deleteEducation/${empId}/${eduId}`);
+        await axios.delete(`https://global-hrm-mobile-server.vercel.app/employees/deleteEducation/${empId}/${eduId}`);
         setEducationList(prev => prev.filter(edu => edu.id !== eduId));
         alert('Education deleted successfully.');
       } catch (error) {

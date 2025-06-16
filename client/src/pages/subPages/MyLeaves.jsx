@@ -12,7 +12,7 @@ const MyLeaves = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const requestResponse = await axios.get(`http://localhost:4000/employees/getLeaveRequest/${empId}`);
+                const requestResponse = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getLeaveRequest/${empId}`);
                 setLeaveRequestList(requestResponse.data);
                 setFilteredLeaveRequestList(requestResponse.data);
             } catch (err) {
@@ -32,7 +32,7 @@ const MyLeaves = () => {
 
         if (confirmDelete) {
             try {
-                await axios.delete(`http://localhost:4000/employees/deleteLeave/${empId}/${leaveId}`);
+                await axios.delete(`https://global-hrm-mobile-server.vercel.app/employees/deleteLeave/${empId}/${leaveId}`);
                 setLeaveRequestList(prevList => prevList.filter(leave => leave.id !== leaveId));
                 setFilteredLeaveRequestList(prevList => prevList.filter(leave => leave.id !== leaveId));
             } catch (error) {

@@ -11,7 +11,7 @@ const AcceptMedicalClaims = () => {
 
     const fetchClaims = async () => {
         try {
-            const res = await axios.get(`http://localhost:4000/medical/getAllMedicalClaim`);
+            const res = await axios.get(`https://global-hrm-mobile-server.vercel.app/medical/getAllMedicalClaim`);
             setClaims(res.data);
             setFilteredClaims(res.data);
         } catch (err) {
@@ -38,7 +38,7 @@ const AcceptMedicalClaims = () => {
 
     const updateClaimStatus = async (claimId, status) => {
         try {
-            await axios.put(`http://localhost:4000/medical/updateClaimStatus/${claimId}/${status}`);
+            await axios.put(`https://global-hrm-mobile-server.vercel.app/medical/updateClaimStatus/${claimId}/${status}`);
             alert("Claim status updated successfully");
             await fetchClaims();
         } catch (err) {

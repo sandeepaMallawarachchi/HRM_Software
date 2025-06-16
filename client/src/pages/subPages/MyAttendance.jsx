@@ -11,7 +11,7 @@ const MyAttendance = () => {
     useEffect(() => {
         const fetchAttendance = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/employees/getAttendance/${empId}`);
+                const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getAttendance/${empId}`);
                 setAttendanceRecords(response.data);
                 setFilteredAttendanceRecords(response.data);
             } catch (error) {

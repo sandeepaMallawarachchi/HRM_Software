@@ -19,7 +19,7 @@ const LearningCalendar = () => {
     const fetchReminders = async (selectedDate) => {
         try {
             const formattedDate = formatDateForDB(selectedDate);
-            const response = await axios.get(`http://localhost:4000/employees/getReminders/${empId}`, {
+            const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getReminders/${empId}`, {
                 params: { date: formattedDate, subject: "Learning" },
             });
             setReminders(response.data);
@@ -41,7 +41,7 @@ const LearningCalendar = () => {
         if (reminder.trim()) {
             try {
                 const formattedDate = formatDateForDB(date);
-                await axios.post(`http://localhost:4000/employees/addReminders/${empId}`, {
+                await axios.post(`https://global-hrm-mobile-server.vercel.app/employees/addReminders/${empId}`, {
                     date: formattedDate,
                     reminder,
                     subject: "Learning",

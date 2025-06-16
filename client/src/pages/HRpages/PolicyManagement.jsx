@@ -31,7 +31,7 @@ const PolicyManagement = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        "http://localhost:4000/admin/getPolicies"
+        "https://global-hrm-mobile-server.vercel.app/admin/getPolicies"
       );
       setPolicies(response.data);
     } catch (error) {
@@ -70,7 +70,7 @@ const PolicyManagement = () => {
   // Create a new policy
   const handleCreatePolicy = async () => {
     try {
-      await axios.post("http://localhost:4000/admin/addPolicy", newPolicy);
+      await axios.post("https://global-hrm-mobile-server.vercel.app/admin/addPolicy", newPolicy);
       fetchPolicies();
       setNewPolicy({
         policy_title: "",
@@ -95,7 +95,7 @@ const PolicyManagement = () => {
   const handleUpdatePolicy = async () => {
     try {
       await axios.put(
-        `http://localhost:4000/admin/updatePolicy/${selectedPolicy.policy_id}`,
+        `https://global-hrm-mobile-server.vercel.app/admin/updatePolicy/${selectedPolicy.policy_id}`,
         selectedPolicy
       );
       fetchPolicies();
@@ -110,7 +110,7 @@ const PolicyManagement = () => {
   // Delete a policy
   const handleDeletePolicy = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/admin/deletePolicy/${id}`);
+      await axios.delete(`https://global-hrm-mobile-server.vercel.app/admin/deletePolicy/${id}`);
       fetchPolicies();
       alert("Policy deleted successfully");
     } catch (error) {

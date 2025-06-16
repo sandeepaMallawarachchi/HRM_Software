@@ -33,7 +33,7 @@ const CertificationsAchievements = () => {
 
     try {
       await axios.post(
-        `http://localhost:4000/employees/addCertificate/${empId}`,
+        `https://global-hrm-mobile-server.vercel.app/employees/addCertificate/${empId}`,
         newCertificate
       );
       alert("Certificate added successfully!");
@@ -51,7 +51,7 @@ const CertificationsAchievements = () => {
     const fetchCertificates = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:4000/employees/getCertificates/${empId}`
+          `https://global-hrm-mobile-server.vercel.app/employees/getCertificates/${empId}`
         );
         setCertificatesList(response.data);
       } catch (error) {

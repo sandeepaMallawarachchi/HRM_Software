@@ -12,7 +12,7 @@ const LeaveAnalysis = () => {
   useEffect(() => {
     const fetchLeaveAnalysis = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/employees/leaveAnalysis/${empId}`);
+        const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/leaveAnalysis/${empId}`);
         setLeaveAnalysis(response.data);
       } catch (error) {
         console.log('Error fetching leave analysis');

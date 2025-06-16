@@ -47,7 +47,7 @@ const Support = ({ onClose }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:4000/employees/support/${empId}`,
+        `https://global-hrm-mobile-server.vercel.app/employees/support/${empId}`,
         {
           method: "POST",
           headers: {

@@ -17,7 +17,7 @@ const PolicyTable = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        "http://localhost:4000/admin/getPolicies"
+        "https://global-hrm-mobile-server.vercel.app/admin/getPolicies"
       );
       setPolicies(response.data);
     } catch (error) {
@@ -34,7 +34,7 @@ const PolicyTable = () => {
   // Handle password validation and navigation
   const handlePasswordSubmit = () => {
     axios
-      .post(`http://localhost:4000/admin/validatePassword/${empId}`, {
+      .post(`https://global-hrm-mobile-server.vercel.app/admin/validatePassword/${empId}`, {
         password: password,
       })
       .then((response) => {

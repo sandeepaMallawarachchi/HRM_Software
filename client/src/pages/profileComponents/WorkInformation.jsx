@@ -8,7 +8,7 @@ const WorkInformation = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const workResponse = await axios.get(`http://localhost:4000/employees/getWorkDetails/${empId}`);
+                const workResponse = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getWorkDetails/${empId}`);
                 setWorkDetails(workResponse.data);
             } catch (err) {
                 console.log("Error fetching data:", err);

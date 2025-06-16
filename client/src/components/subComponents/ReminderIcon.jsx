@@ -16,7 +16,7 @@ const ReminderIcon = () => {
     const fetchReminderCount = async () => {
         const today = new Date().toISOString().slice(0, 10);
         try {
-            const response = await axios.get(`http://localhost:4000/employees/getAllReminders/${empId}`, {
+            const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getAllReminders/${empId}`, {
                 params: { date: today },
             });
             setReminderCount(response.data.length);
@@ -27,7 +27,7 @@ const ReminderIcon = () => {
 
     const fetchAlertsCount = async () => {
         try {
-            const response = await axios.get(`http://localhost:4000/admin/getAllocatedResources/${empId}`);
+            const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getAllocatedResources/${empId}`);
             const filteredAlerts = response.data.filter((item) => item.alert === 1);
             setAlertsCount(filteredAlerts.length);
         } catch (error) {
@@ -37,7 +37,7 @@ const ReminderIcon = () => {
 
     const fetchTrainingCount = async () => {
         try {
-            const response = await axios.get(`http://localhost:4000/admin/getTrainingReminder/${empId}`);
+            const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getTrainingReminder/${empId}`);
             setTrainingCount(response.data.length);
         } catch (error) {
             console.log("Error fetching reminder count:", error);

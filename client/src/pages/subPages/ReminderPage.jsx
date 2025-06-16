@@ -17,7 +17,7 @@ const ReminderPage = () => {
                 .toISOString()
                 .slice(0, 10);
 
-            const response = await axios.get(`http://localhost:4000/employees/getAllReminders/${empId}`, {
+            const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getAllReminders/${empId}`, {
                 params: { date: localDate },
             });
             setReminders(response.data);
@@ -36,7 +36,7 @@ const ReminderPage = () => {
                 const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
                     .toISOString()
                     .slice(0, 10);
-                await axios.post(`http://localhost:4000/employees/addReminders/${empId}`, {
+                await axios.post(`https://global-hrm-mobile-server.vercel.app/employees/addReminders/${empId}`, {
                     date: localDate,
                     reminder,
                     subject,

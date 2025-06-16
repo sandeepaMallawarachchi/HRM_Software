@@ -56,7 +56,7 @@ const LoginDetails = () => {
 
         try {
             const response = await fetch(
-                "http://localhost:4000/employees/loginCredentials",
+                "https://global-hrm-mobile-server.vercel.app/employees/loginCredentials",
                 {
                     method: "POST",
                     headers: {

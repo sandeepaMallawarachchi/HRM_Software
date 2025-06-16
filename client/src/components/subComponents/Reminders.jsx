@@ -15,20 +15,20 @@ const Reminders = () => {
         const formattedDate = today.toLocaleDateString('en-CA');
 
         try {
-            const learningResponse = await axios.get(`http://localhost:4000/employees/getReminders/${empId}`, {
+            const learningResponse = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getReminders/${empId}`, {
                 params: { date: formattedDate, subject: 'Learning' },
             });
             setLearningReminders(learningResponse.data);
 
-            const otherResponse = await axios.get(`http://localhost:4000/employees/getReminders/${empId}`, {
+            const otherResponse = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getReminders/${empId}`, {
                 params: { date: formattedDate, subject: 'Others' },
             });
             setOtherReminders(otherResponse.data);
 
-            const response = await axios.get(`http://localhost:4000/admin/getAllocatedResources/${empId}`);
+            const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getAllocatedResources/${empId}`);
             setAlerts(response.data.filter((alert) => alert.alert === 1));
 
-            const trainingReminders = await axios.get(`http://localhost:4000/admin/getTrainingReminder/${empId}`);
+            const trainingReminders = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getTrainingReminder/${empId}`);
             setTrainingReminders(trainingReminders.data);
         } catch (error) {
             console.log("Error fetching reminders:", error);

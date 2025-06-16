@@ -12,7 +12,7 @@ const MessageIcon = () => {
 
     const fetchMessageCount = async () => {
         try {
-            const response = await axios.get(`http://localhost:4000/admin/getMember/${empId}`);
+            const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getMember/${empId}`);
             const unreadCount = response.data.filter((msg) => msg.read !== 'read').length;
             setMessagesCount(unreadCount);
         } catch (error) {

@@ -33,7 +33,7 @@ const Communication = () => {
   useEffect(() => {
     const empId = localStorage.getItem("empId");
     if (empId) {
-      fetch(`http://localhost:4000/employees/getEmployee/${empId}`)
+      fetch(`https://global-hrm-mobile-server.vercel.app/employees/getEmployee/${empId}`)
         .then((response) => response.json())
         .then((data) => {
           if (data.empId && data.role) {
@@ -84,7 +84,7 @@ const Communication = () => {
       const fetchMeetingMembers = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:4000/admin/getAllMMembers/${currentMeetingId}`
+            `https://global-hrm-mobile-server.vercel.app/admin/getAllMMembers/${currentMeetingId}`
           );
           setMeetingMembers(response.data);
         } catch (error) {
@@ -180,7 +180,7 @@ const Communication = () => {
         const meetingRef = ref(db, `meetings/${meetingId}`);
         await remove(meetingRef);
         await axios.delete(
-          `http://localhost:4000/admin/deleteMeeting/${meetingId}`
+          `https://global-hrm-mobile-server.vercel.app/admin/deleteMeeting/${meetingId}`
         );
       } catch (error) {
         console.error("Error removing meeting: ", error);

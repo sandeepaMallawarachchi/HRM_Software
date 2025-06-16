@@ -33,7 +33,7 @@ const MainPage = () => {
   useEffect(() => {
     const fetchLoanDetails = async () => {
       try {
-        const response = await axios.get("http://localhost:4000/salary/loans");
+        const response = await axios.get("https://global-hrm-mobile-server.vercel.app/salary/loans");
         const loansData = response.data;
 
         const loansObject = {};
@@ -72,7 +72,7 @@ const MainPage = () => {
 
   const handlePasswordSubmit = () => {
     axios
-      .post(`http://localhost:4000/admin/validatePassword/${empId}`, {
+      .post(`https://global-hrm-mobile-server.vercel.app/admin/validatePassword/${empId}`, {
         empId,
         password,
       })
@@ -100,7 +100,7 @@ const MainPage = () => {
         about: JSON.stringify(editableLoan),
       };
 
-      await axios.put(`http://localhost:4000/salary/loans/${loanId}`, payload);
+      await axios.put(`https://global-hrm-mobile-server.vercel.app/salary/loans/${loanId}`, payload);
 
       setLoanDetails((prevState) => ({
         ...prevState,

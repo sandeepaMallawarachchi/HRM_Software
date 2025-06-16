@@ -12,7 +12,7 @@ const CurrentStrategicGoals = () => {
   const fetchData = async () => {
     try {
       const planResponse = await axios.get(
-        `http://localhost:4000/admin/getPlans/${empId}`
+        `https://global-hrm-mobile-server.vercel.app/admin/getPlans/${empId}`
       );
       setPlanList(planResponse.data);
       setFilteredPlanList(planResponse.data);
@@ -39,7 +39,7 @@ const CurrentStrategicGoals = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:4000/admin/updateProgress/${planId}`,
+        `https://global-hrm-mobile-server.vercel.app/admin/updateProgress/${planId}`,
         { progress: newProgress }
       );
       alert(response.data.message);

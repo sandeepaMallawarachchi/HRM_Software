@@ -13,7 +13,7 @@ const Supervisers = ({ onClose, onSelect }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("http://localhost:4000/admin/getAllEmployee");
+                const response = await axios.get("https://global-hrm-mobile-server.vercel.app/admin/getAllEmployee");
                 setEmployeeList(response.data);
                 setFilteredEmployeeList(response.data);
             } catch (error) {

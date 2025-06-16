@@ -19,7 +19,7 @@ const MyFinancialRequests = () => {
     const fetchData = async () => {
       try {
         const requestResponse = await axios.get(
-          `http://localhost:4000/employees/getFinancialRequests/${empId}`
+          `https://global-hrm-mobile-server.vercel.app/employees/getFinancialRequests/${empId}`
         );
         setFinancialRequestList(requestResponse.data);
         setFilteredFinancialRequestList(requestResponse.data);

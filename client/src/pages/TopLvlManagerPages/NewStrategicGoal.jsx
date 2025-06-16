@@ -47,7 +47,7 @@ const NewStrategicGoal = () => {
         };
 
         try {
-            await axios.post(`http://localhost:4000/admin/addStrategicPlan/${empId}`, newPlan);
+            await axios.post(`https://global-hrm-mobile-server.vercel.app/admin/addStrategicPlan/${empId}`, newPlan);
             setPlanData({
                 goal: '',
                 description: '',

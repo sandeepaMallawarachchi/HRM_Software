@@ -33,7 +33,7 @@ const PostList = () => {
   const fetchCreatedAt = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:4000/posts/created_at"
+        "https://global-hrm-mobile-server.vercel.app/posts/created_at"
       );
       setPosts(response.data); // Set the posts data
       setLoading(false);
@@ -46,7 +46,7 @@ const PostList = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await axios.get("http://localhost:4000/news/posts");
+      const response = await axios.get("https://global-hrm-mobile-server.vercel.app/news/posts");
       const postsWithLikes = response.data.map((post) => {
         const likedPosts = JSON.parse(localStorage.getItem("likedPosts")) || [];
         return {
@@ -98,9 +98,9 @@ const PostList = () => {
 
       // Send the like/unlike request to the server
       if (updatedPosts.find((post) => post.id === postId).liked) {
-        await axios.post(`http://localhost:4000/news/posts/${postId}/like`);
+        await axios.post(`https://global-hrm-mobile-server.vercel.app/news/posts/${postId}/like`);
       } else {
-        await axios.post(`http://localhost:4000/news/posts/${postId}/unlike`);
+        await axios.post(`https://global-hrm-mobile-server.vercel.app/news/posts/${postId}/unlike`);
       }
     } catch (error) {
       console.error("Error liking/unliking post:", error);
@@ -133,7 +133,7 @@ const PostList = () => {
       }
 
       await axios.put(
-        `http://localhost:4000/news/posts/${editingPost.id}`,
+        `https://global-hrm-mobile-server.vercel.app/news/posts/${editingPost.id}`,
         formData,
         {
           headers: {
@@ -156,7 +156,7 @@ const PostList = () => {
 
   const deletePost = async (postId) => {
     try {
-      await axios.delete(`http://localhost:4000/news/posts/${postId}`);
+      await axios.delete(`https://global-hrm-mobile-server.vercel.app/news/posts/${postId}`);
       fetchPosts();
     } catch (error) {
       console.error("Error deleting post:", error);

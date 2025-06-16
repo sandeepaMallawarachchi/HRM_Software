@@ -53,7 +53,7 @@ const AddMedicalClaim = () => {
 
         try {
             setLoading(true);
-            await axios.post(`http://localhost:4000/medical/uploadMedicalClaim/${empId}`, formData);
+            await axios.post(`https://global-hrm-mobile-server.vercel.app/medical/uploadMedicalClaim/${empId}`, formData);
             setFiles([]);
             setRequestAmount("");
             alert("Claims uploaded successfully");
@@ -67,7 +67,7 @@ const AddMedicalClaim = () => {
 
     const fetchTotal = async () => {
         try {
-            const res = await axios.get(`http://localhost:4000/medical/getClaimSummary/${empId}`);
+            const res = await axios.get(`https://global-hrm-mobile-server.vercel.app/medical/getClaimSummary/${empId}`);
             setClaimSummary(res.data);
         } catch (err) {
             console.log("Error fetching claims");

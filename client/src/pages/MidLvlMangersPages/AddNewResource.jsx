@@ -27,7 +27,7 @@ const AddNewResource = ({ onClose }) => {
         };
 
         try {
-            await axios.post(`http://localhost:4000/admin/addNewResource`, newResource);
+            await axios.post(`https://global-hrm-mobile-server.vercel.app/admin/addNewResource`, newResource);
             setResourceData({
                 resource: '',
                 type: '',

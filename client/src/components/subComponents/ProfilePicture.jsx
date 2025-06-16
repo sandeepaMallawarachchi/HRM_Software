@@ -9,7 +9,7 @@ const ProfilePicture = () => {
     useEffect(() => {
         const fetchProfilePic = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/employees/getProfileImage/${empId}`);
+                const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getProfileImage/${empId}`);
                 if (response.data.imageUrl) {
                     setAvatar(response.data.imageUrl);
                 }

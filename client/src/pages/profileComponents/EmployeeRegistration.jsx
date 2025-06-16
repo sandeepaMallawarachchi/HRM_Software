@@ -59,7 +59,7 @@ const EmployeeRegistration = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:4000/auth/loginCredentials', {
+            const response = await fetch('https://global-hrm-mobile-server.vercel.app/auth/loginCredentials', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ const EmployeeRegistration = () => {
     const handleWorkSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:4000/employees/workDetails', {
+            const response = await fetch('https://global-hrm-mobile-server.vercel.app/employees/workDetails', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

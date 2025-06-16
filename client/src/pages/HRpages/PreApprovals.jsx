@@ -18,7 +18,7 @@ const PreApprovals = () => {
   // Fetch all pre-approval records
   const fetchPreApprovals = async () => {
     try {
-      const response = await axios.get("http://localhost:4000/cv/preApprovals");
+      const response = await axios.get("https://global-hrm-mobile-server.vercel.app/cv/preApprovals");
       setPreApprovals(response.data);
       setFilteredPreApprovals(response.data);
     } catch (error) {
@@ -30,7 +30,7 @@ const PreApprovals = () => {
   const fetchDepartments = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:4000/admin/getAllDepartments"
+        "https://global-hrm-mobile-server.vercel.app/admin/getAllDepartments"
       );
       setDepartments(response.data);
     } catch (error) {
@@ -100,12 +100,12 @@ const PreApprovals = () => {
     try {
       if (editingId) {
         await axios.put(
-          `http://localhost:4000/cv/preApprovals/${editingId}`,
+          `https://global-hrm-mobile-server.vercel.app/cv/preApprovals/${editingId}`,
           data
         );
         setEditingId(null);
       } else {
-        await axios.post("http://localhost:4000/cv/preApprovals", data);
+        await axios.post("https://global-hrm-mobile-server.vercel.app/cv/preApprovals", data);
       }
       setFormData({
         department: "",
@@ -135,7 +135,7 @@ const PreApprovals = () => {
   // Handle deleting a record
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/cv/preApprovals/${id}`);
+      await axios.delete(`https://global-hrm-mobile-server.vercel.app/cv/preApprovals/${id}`);
       fetchPreApprovals();
     } catch (error) {
       console.error("Error deleting record:", error);

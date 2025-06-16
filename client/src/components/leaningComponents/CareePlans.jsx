@@ -9,7 +9,7 @@ const CareerPlans = () => {
 
     const fetchCareerPlans = async () => {
         try {
-            const response = await axios.get(`http://localhost:4000/learning/getCareerPlan/${empId}`);
+            const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/learning/getCareerPlan/${empId}`);
             setCareerPlans(response.data);
         } catch (error) {
             console.error('Error fetching career plans:', error);
@@ -20,7 +20,7 @@ const CareerPlans = () => {
         try {
             const stepsArray = newSteps.split(',').map((step) => step.trim());
             if (!newPlan || stepsArray.length === 0) return alert('Plan and steps are required.');
-            await axios.post(`http://localhost:4000/learning/addCareerPlan/${empId}`, {
+            await axios.post(`https://global-hrm-mobile-server.vercel.app/learning/addCareerPlan/${empId}`, {
                 plan: newPlan,
                 steps: stepsArray,
             });

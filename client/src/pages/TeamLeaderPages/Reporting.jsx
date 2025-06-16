@@ -38,7 +38,7 @@ const Reporting = () => {
       return;
     }
     try {
-      const response = await axios.get(`http://localhost:4000/admin/getTeam/${empId}/${selectedTeamName}`);
+      const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getTeam/${empId}/${selectedTeamName}`);
       setTeamData(response.data);
       setFilteredData(response.data);
     } catch (err) {
@@ -49,7 +49,7 @@ const Reporting = () => {
   useEffect(() => {
     const fetchTeamsAndData = async () => {
       try {
-        const teamsResponse = await axios.get(`http://localhost:4000/admin/getAllTeams/${empId}`);
+        const teamsResponse = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getAllTeams/${empId}`);
         setAllTeams(teamsResponse.data);
         setFilteredData(teamsResponse.data);
       } catch (err) {
@@ -81,7 +81,7 @@ const Reporting = () => {
     }
 
     try {
-      await axios.put(`http://localhost:4000/admin/updatePerformanceOrTask/${id}`, updatedFields);
+      await axios.put(`https://global-hrm-mobile-server.vercel.app/admin/updatePerformanceOrTask/${id}`, updatedFields);
       setFilteredData((prevData) =>
         prevData.map((data) =>
           data.id === id ? { ...data, ...updatedFields } : data
@@ -192,7 +192,7 @@ const Reporting = () => {
         chatId,
       };
 
-      await axios.post(`http://localhost:4000/admin/addMember`, newMember);
+      await axios.post(`https://global-hrm-mobile-server.vercel.app/admin/addMember`, newMember);
       navigate('/communication');
     } catch (error) {
       console.error("Error adding members to chat:", error);

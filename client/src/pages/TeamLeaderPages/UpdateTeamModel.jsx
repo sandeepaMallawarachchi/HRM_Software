@@ -13,7 +13,7 @@ const UpdateTeamModel = ({ teamName, onClose }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("http://localhost:4000/admin/getAllEmployee");
+                const response = await axios.get("https://global-hrm-mobile-server.vercel.app/admin/getAllEmployee");
                 setEmployeeList(response.data);
                 setFilteredEmployeeList(response.data);
             } catch (error) {
@@ -66,7 +66,7 @@ const UpdateTeamModel = ({ teamName, onClose }) => {
                 members: membersWithDetails,
             };
             await axios.post(
-                `http://localhost:4000/admin/updateTeam/${creatorEmpId}`,
+                `https://global-hrm-mobile-server.vercel.app/admin/updateTeam/${creatorEmpId}`,
                 newTeamData
             );
             alert("Team updated successfully!");

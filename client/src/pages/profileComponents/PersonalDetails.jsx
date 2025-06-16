@@ -20,7 +20,7 @@ const PersonalDetails = () => {
     useEffect(() => {
         const fetchDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/employees/getPersonalDetails/${empId}`);
+                const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getPersonalDetails/${empId}`);
                 const data = response.data || {};
 
                 // Manually format the date without time zone adjustments
@@ -47,7 +47,7 @@ const PersonalDetails = () => {
 
     const handleSave = async () => {
         try {
-            const response = await axios.post(`http://localhost:4000/employees/savePersonalDetails/${empId}`, details);
+            const response = await axios.post(`https://global-hrm-mobile-server.vercel.app/employees/savePersonalDetails/${empId}`, details);
             console.log(response.data.message);
             alert('Details updated successfully');
             setIsChanged(false);

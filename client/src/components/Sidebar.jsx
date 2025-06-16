@@ -33,7 +33,7 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchAssignedEmployees = async () => {
       try {
-        const res = await axios.get(`http://localhost:4000/admin/getAssignedEmployees/${empId}`);
+        const res = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getAssignedEmployees/${empId}`);
         if (res.data && res.data.length > 0) {
           setIsSupervisor(true);
         } else {

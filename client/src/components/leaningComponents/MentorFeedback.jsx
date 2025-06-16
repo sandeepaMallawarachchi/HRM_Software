@@ -7,7 +7,7 @@ const MentorFeedback = () => {
 
     const fetchFeedback = async () => {
         try {
-            const response = await axios.get(`http://localhost:4000/learning/getEmpFeedback/${empId}`);
+            const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/learning/getEmpFeedback/${empId}`);
             setFeedback(response.data);
         } catch (error) {
             console.error('Error fetching feedback:', error);

@@ -9,7 +9,7 @@ const Messages = ({ onMessageRead }) => {
 
     const fetchMessages = async () => {
         try {
-            const groupResponse = await axios.get(`http://localhost:4000/admin/getMember/${empId}`);
+            const groupResponse = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getMember/${empId}`);
             setGroupMessages(groupResponse.data);
         } catch (error) {
             console.log("Error fetching messages:", error);
@@ -27,7 +27,7 @@ const Messages = ({ onMessageRead }) => {
 
     const markAsRead = async (id, chatId) => {
         try {
-            await axios.put(`http://localhost:4000/admin/markAsRead/${empId}/${chatId}`, { read: 'read' });
+            await axios.put(`https://global-hrm-mobile-server.vercel.app/admin/markAsRead/${empId}/${chatId}`, { read: 'read' });
             setGroupMessages((prevMessages) =>
                 prevMessages.map((msg) =>
                     msg.id === id ? { ...msg, read: 'read' } : msg

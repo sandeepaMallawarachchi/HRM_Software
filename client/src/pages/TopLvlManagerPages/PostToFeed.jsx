@@ -47,7 +47,7 @@ const PostForm = () => {
     formData.append("userRole", userRole);
 
     try {
-      await axios.post("http://localhost:4000/news/posts", formData, {
+      await axios.post("https://global-hrm-mobile-server.vercel.app/news/posts", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success("Post created successfully!");

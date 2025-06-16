@@ -14,7 +14,7 @@ const Payslip = () => {
         const fetchPayslips = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`http://localhost:4000/admin/getPayslip/${empId}`);
+                const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getPayslip/${empId}`);
                 setPayslips(response.data);
             } catch (err) {
                 console.error('Error fetching payslips:', err);

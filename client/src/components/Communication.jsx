@@ -33,7 +33,7 @@ const Communication = () => {
   useEffect(() => {
     const empId = localStorage.getItem("empId");
     if (empId) {
-      fetch(`http://localhost:4000/employees/getEmployee/${empId}`)
+      fetch(`https://global-hrm-mobile-server.vercel.app/employees/getEmployee/${empId}`)
         .then((response) => response.json())
         .then((data) => {
           if (data.empId && data.role) {
@@ -84,7 +84,7 @@ const Communication = () => {
       const fetchChatMembers = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:4000/admin/getAllMembers/${currentChatId}`
+            `https://global-hrm-mobile-server.vercel.app/admin/getAllMembers/${currentChatId}`
           );
           setChatMembers(response.data);
         } catch (error) {
@@ -179,7 +179,7 @@ const Communication = () => {
       try {
         const chatRef = ref(db, `chats/${chatId}`);
         await remove(chatRef);
-        await axios.delete(`http://localhost:4000/admin/deleteChat/${chatId}`);
+        await axios.delete(`https://global-hrm-mobile-server.vercel.app/admin/deleteChat/${chatId}`);
       } catch (error) {
         console.error("Error deleting chat: ", error);
         alert("Error deleting chat");

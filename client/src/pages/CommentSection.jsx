@@ -17,7 +17,7 @@ const CommentSection = ({ postId, showAllComments }) => {
   const fetchUserName = async (empId) => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/employees/getPersonalDetails/${empId}`
+        `https://global-hrm-mobile-server.vercel.app/employees/getPersonalDetails/${empId}`
       );
       setUserName(response.data.name || "Unknown User"); // Set the name from the API response
     } catch (error) {
@@ -28,7 +28,7 @@ const CommentSection = ({ postId, showAllComments }) => {
   const fetchComments = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/news/posts/${postId}/comments`
+        `https://global-hrm-mobile-server.vercel.app/news/posts/${postId}/comments`
       );
       setComments(response.data);
     } catch (error) {
@@ -45,7 +45,7 @@ const CommentSection = ({ postId, showAllComments }) => {
     }
 
     try {
-      await axios.post(`http://localhost:4000/news/posts/${postId}/comment`, {
+      await axios.post(`https://global-hrm-mobile-server.vercel.app/news/posts/${postId}/comment`, {
         user: userName, // Pass the user's name instead of empId
         comment,
       });

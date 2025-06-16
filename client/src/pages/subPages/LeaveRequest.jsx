@@ -87,7 +87,7 @@ const LeaveRequest = () => {
         };
 
         try {
-            await axios.post(`http://localhost:4000/employees/requestLeave/${empId}`, newLeaveRequest);
+            await axios.post(`https://global-hrm-mobile-server.vercel.app/employees/requestLeave/${empId}`, newLeaveRequest);
             setLeaveData({
                 leaveType: '',
                 dateFrom: '',

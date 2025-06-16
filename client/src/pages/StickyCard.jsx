@@ -18,7 +18,7 @@ const Stickycards = () => {
   const fetchCards = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:4000/news/getAllStickyCards"
+        "https://global-hrm-mobile-server.vercel.app/news/getAllStickyCards"
       );
       console.log("Fetched cards:", response.data); // Debugging
       setCards(response.data);
@@ -35,7 +35,7 @@ const Stickycards = () => {
   const createCard = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:4000/news/addStickyCard",
+        "https://global-hrm-mobile-server.vercel.app/news/addStickyCard",
         {
           title,
           description,
@@ -58,7 +58,7 @@ const Stickycards = () => {
     }
     try {
       const response = await axios.put(
-        `http://localhost:4000/news/updateStickyCard/${editCard.id}`,
+        `https://global-hrm-mobile-server.vercel.app/news/updateStickyCard/${editCard.id}`,
         { title, description }
       );
       console.log("Updated card response:", response.data); // Debugging
@@ -76,7 +76,7 @@ const Stickycards = () => {
   // Delete a sticky card
   const deleteCard = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/news/deleteStickyCard/${id}`);
+      await axios.delete(`https://global-hrm-mobile-server.vercel.app/news/deleteStickyCard/${id}`);
       setCards(cards.filter((card) => card.id !== id));
     } catch (error) {
       console.error("Error deleting card:", error);

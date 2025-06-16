@@ -14,12 +14,12 @@ const ExecutiveDashboard = () => {
 
         // Fetch total revenue for the last quarter
         const revenueResponse = await axios.get(
-          "http://localhost:4000/employees/total-revenue/last-quarter"
+          "https://global-hrm-mobile-server.vercel.app/employees/total-revenue/last-quarter"
         );
 
         // Fetch average profit margin
         const profitMarginResponse = await axios.get(
-          "http://localhost:4000/employees/avg-profit-margin"
+          "https://global-hrm-mobile-server.vercel.app/employees/avg-profit-margin"
         );
 
         // Set the responses to state

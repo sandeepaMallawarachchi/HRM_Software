@@ -9,7 +9,7 @@ const PerformanceMetrics = () => {
 
     const handleUpdate = async () => {
         try {
-            const response = await axios.put(`http://localhost:4000/learning/updateMetrics/${empId}`, {
+            const response = await axios.put(`https://global-hrm-mobile-server.vercel.app/learning/updateMetrics/${empId}`, {
                 targettime: targetTime,
                 completedtime: completedTime,
             });
@@ -22,7 +22,7 @@ const PerformanceMetrics = () => {
 
     const fetchPerformance = async () => {
         try {
-            const response = await axios.get(`http://localhost:4000/learning/getPerformanceMetrics/${empId}`);
+            const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/learning/getPerformanceMetrics/${empId}`);
             const data = response.data;
             if (data) {
                 setTargetTime(data.targettime || 7);

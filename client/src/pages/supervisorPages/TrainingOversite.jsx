@@ -15,7 +15,7 @@ const TrainingOversite = () => {
   useEffect(() => {
     const fetchTraining = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/admin/getAllTrainings`);
+        const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getAllTrainings`);
         setTrainings(response.data);
       } catch (error) {
         console.log(error)
@@ -27,7 +27,7 @@ const TrainingOversite = () => {
   useEffect(() => {
     const fetchAllocatedTrainings = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/admin/getAllAllocatedTraining`);
+        const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getAllAllocatedTraining`);
         setAllocationHistory(response.data);
       } catch (error) {
         console.log(error)
@@ -59,16 +59,16 @@ const TrainingOversite = () => {
 
   const handleTrainingComplete = async (id, training, empId) => {
     try {
-      await axios.put(`http://localhost:4000/admin/updateStatus/${id}/${training}/${empId}`);
+      await axios.put(`https://global-hrm-mobile-server.vercel.app/admin/updateStatus/${id}/${training}/${empId}`);
 
-      await axios.put(`http://localhost:4000/admin/saveReminder/${id}/${training}/${empId}`, {
+      await axios.put(`https://global-hrm-mobile-server.vercel.app/admin/saveReminder/${id}/${training}/${empId}`, {
         reminderResponse: 0,
       });
 
       alert("Training marked as completed successfully");
 
       // Optionally fetch updated data
-      const response = await axios.get(`http://localhost:4000/admin/getAllAllocatedTraining`);
+      const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getAllAllocatedTraining`);
       setAllocationHistory(response.data);
     } catch (error) {
       alert("Error updating training status!");
@@ -77,7 +77,7 @@ const TrainingOversite = () => {
 
   const handleReminder = async (id, training, empId) => {
     try {
-      await axios.put(`http://localhost:4000/admin/saveReminder/${id}/${training}/${empId}`, {
+      await axios.put(`https://global-hrm-mobile-server.vercel.app/admin/saveReminder/${id}/${training}/${empId}`, {
         reminderResponse: 1,
       });
 

@@ -27,7 +27,7 @@ const AddNewTraining = ({ onClose }) => {
         };
 
         try {
-            await axios.post(`http://localhost:4000/admin/addNewTraining`, newTraining);
+            await axios.post(`https://global-hrm-mobile-server.vercel.app/admin/addNewTraining`, newTraining);
             setTrainingData({
                 training: '',
                 weight: '',

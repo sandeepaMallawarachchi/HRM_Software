@@ -22,7 +22,7 @@ const ManageClaims = () => {
     useEffect(() => {
         const fetchClaimSummary = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/medical/getAllClaimSummary`);
+                const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/medical/getAllClaimSummary`);
                 setMaxAmount(response.data.maxAmount);
                 setTotalSpent(response.data.totalSpent);
 
@@ -58,7 +58,7 @@ const ManageClaims = () => {
 
     const handleUpdateAmount = async () => {
         try {
-            await axios.put('http://localhost:4000/medical/updateClaimAmount', { maxAmount: newAmount });
+            await axios.put('https://global-hrm-mobile-server.vercel.app/medical/updateClaimAmount', { maxAmount: newAmount });
             setMaxAmount(newAmount);
             setNewAmount('');
             alert('Claim amount updated successfully');

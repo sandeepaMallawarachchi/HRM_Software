@@ -43,7 +43,7 @@ const PerformanceManage = () => {
   useEffect(() => {
     const fetchData = async () => {
       const teamResponse = await axios.get(
-        "http://localhost:4000/admin/getTeamAndPerformance"
+        "https://global-hrm-mobile-server.vercel.app/admin/getTeamAndPerformance"
       );
       setTeamRecords(teamResponse.data);
       setFilteredTeamRecords(teamResponse.data);
@@ -92,7 +92,7 @@ const PerformanceManage = () => {
         members: membersWithEmpId,
         timestamp,
       });
-      await axios.post(`http://localhost:4000/admin/addMember`, {
+      await axios.post(`https://global-hrm-mobile-server.vercel.app/admin/addMember`, {
         members: membersWithEmpId,
         chatId,
       });

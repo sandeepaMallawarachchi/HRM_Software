@@ -19,7 +19,7 @@ const LeaveAndAttendance = () => {
     const fetchAssignedEmployees = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:4000/admin/getAssignedEmployees/${empId}`
+          `https://global-hrm-mobile-server.vercel.app/admin/getAssignedEmployees/${empId}`
         );
         setIsSupervisor(res.data && res.data.length > 0);
       } catch (error) {

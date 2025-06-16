@@ -17,7 +17,7 @@ const ResourceAllocation = () => {
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/admin/getAllResources`);
+        const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getAllResources`);
         setResources(response.data);
       } catch (error) {
         console.log(error)
@@ -29,7 +29,7 @@ const ResourceAllocation = () => {
   useEffect(() => {
     const fetchAllocatedResources = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/admin/getAllAllocatedResources`);
+        const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getAllAllocatedResources`);
         setAllocationHistory(response.data);
       } catch (error) {
         console.log(error)
@@ -65,7 +65,7 @@ const ResourceAllocation = () => {
   const handleUpdateQuantity = async (id) => {
     const newQuantity = editedQuantities[id];
     try {
-      await axios.put(`http://localhost:4000/admin/updateResource/${id}/${newQuantity}`);
+      await axios.put(`https://global-hrm-mobile-server.vercel.app/admin/updateResource/${id}/${newQuantity}`);
       setResources((prevResources) =>
         prevResources.map((resource) =>
           resource.id === id ? { ...resource, quantity: parseInt(newQuantity, 10) } : resource
@@ -89,14 +89,14 @@ const ResourceAllocation = () => {
 
   const handleResourceReturning = async (id, resource, quantity, empId) => {
     try {
-      await axios.put(`http://localhost:4000/admin/updateQuantity/${id}/${resource}/${quantity}/${empId}`);
+      await axios.put(`https://global-hrm-mobile-server.vercel.app/admin/updateQuantity/${id}/${resource}/${quantity}/${empId}`);
       setResources((prevResources) =>
         prevResources.map((resource) =>
           resource.resource === resource ? { ...resource, quantity: parseInt(quantity, 10) } : resource
         )
       );
 
-      await axios.put(`http://localhost:4000/admin/saveAlert/${id}/${resource}/${empId}`, {
+      await axios.put(`https://global-hrm-mobile-server.vercel.app/admin/saveAlert/${id}/${resource}/${empId}`, {
         alertResponse: 0,
       });
 
@@ -108,7 +108,7 @@ const ResourceAllocation = () => {
 
   const handleAlert = async (id, resource, empId) => {
     try {
-      await axios.put(`http://localhost:4000/admin/saveAlert/${id}/${resource}/${empId}`, {
+      await axios.put(`https://global-hrm-mobile-server.vercel.app/admin/saveAlert/${id}/${resource}/${empId}`, {
         alertResponse: 1,
       });
 

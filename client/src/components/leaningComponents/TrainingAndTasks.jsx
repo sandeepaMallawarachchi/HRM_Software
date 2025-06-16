@@ -11,7 +11,7 @@ const TrainingAndTasks = () => {
 
         const fetchTraining = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/admin/getAllocatedTraining/${empId}`);
+                const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getAllocatedTraining/${empId}`);
                 setTraining(response.data);
             } catch (error) {
                 console.error("Error fetching training data:", error);

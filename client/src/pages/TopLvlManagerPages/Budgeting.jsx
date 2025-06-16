@@ -19,7 +19,7 @@ const Budgeting = () => {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const response = await axios.get("http://localhost:4000/admin/getAllDepartments");
+        const response = await axios.get("https://global-hrm-mobile-server.vercel.app/admin/getAllDepartments");
         setDepartments(response.data.map((dept) => dept.department));
       } catch (error) {
         console.error("Error fetching departments:", error);
@@ -29,7 +29,7 @@ const Budgeting = () => {
     const fetchAllocatedBudget = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:4000/admin/getAllocatedBudget/${selectedDepartment}/${new Date().getFullYear()}/${new Date().getMonth() + 1}`
+          `https://global-hrm-mobile-server.vercel.app/admin/getAllocatedBudget/${selectedDepartment}/${new Date().getFullYear()}/${new Date().getMonth() + 1}`
         );
         setAllocatedBudget(response.data);
       } catch (error) {
@@ -40,7 +40,7 @@ const Budgeting = () => {
     const fetchSpentBudget = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:4000/admin/getSpentBudget/${selectedDepartment}/${new Date().getFullYear()}/${new Date().getMonth() + 1}`
+          `https://global-hrm-mobile-server.vercel.app/admin/getSpentBudget/${selectedDepartment}/${new Date().getFullYear()}/${new Date().getMonth() + 1}`
         );
         setSpentBudget(response.data);
       } catch (error) {

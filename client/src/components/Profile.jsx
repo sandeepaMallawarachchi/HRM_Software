@@ -20,13 +20,13 @@ const Profile = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const personalResponse = await axios.get(`http://localhost:4000/employees/getPersonalDetails/${empId}`);
+                const personalResponse = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getPersonalDetails/${empId}`);
                 setPersonalDetails(personalResponse.data);
                 if (personalResponse.data.profilepic) {
                     setAvatar(`http://localhost:4000${personalResponse.data.profilepic}`);
                 }
 
-                const workResponse = await axios.get(`http://localhost:4000/employees/getWorkDetails/${empId}`);
+                const workResponse = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getWorkDetails/${empId}`);
                 setWorkDetails(workResponse.data);
             } catch (err) {
                 console.log("Error fetching data:", err);
@@ -43,7 +43,7 @@ const Profile = () => {
             formData.append('profilePic', file);
 
             try {
-                await axios.post(`http://localhost:4000/employees/uploadProfileImage/${empId}`, formData, {
+                await axios.post(`https://global-hrm-mobile-server.vercel.app/employees/uploadProfileImage/${empId}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },

@@ -29,7 +29,7 @@ const PayRollAssitance = () => {
         }
 
         try {
-            const response = await axios.get(`http://localhost:4000/admin/getPayslip/${empId}`, { params: { date: selectedDate } });
+            const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getPayslip/${empId}`, { params: { date: selectedDate } });
 
             if (response.data.date === selectedDate) {
                 setDate(selectedDate);
@@ -52,7 +52,7 @@ const PayRollAssitance = () => {
         }
 
         try {
-            const response = await axios.post(`http://localhost:4000/employees/payrollAssistance/${empId}`, {
+            const response = await axios.post(`https://global-hrm-mobile-server.vercel.app/employees/payrollAssistance/${empId}`, {
                 date,
                 subject,
                 description: isDescriptionRequired ? description : ''

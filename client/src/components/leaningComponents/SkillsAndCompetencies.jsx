@@ -9,7 +9,7 @@ const SkillsAndCompetencies = () => {
 
     const fetchSkills = async () => {
         try {
-            const response = await axios.get(`http://localhost:4000/learning/getSkill/${empId}`);
+            const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/learning/getSkill/${empId}`);
             setSkills(response.data);
         } catch (error) {
             console.error('Error fetching skills:', error);
@@ -18,7 +18,7 @@ const SkillsAndCompetencies = () => {
 
     const addSkill = async () => {
         try {
-            await axios.post(`http://localhost:4000/learning/addSkill/${empId}`, {
+            await axios.post(`https://global-hrm-mobile-server.vercel.app/learning/addSkill/${empId}`, {
                 skill: newSkill,
                 level: newLevel,
             });
@@ -34,7 +34,7 @@ const SkillsAndCompetencies = () => {
 
     const updateSkillLevel = async (id, level) => {
         try {
-            await axios.put(`http://localhost:4000/learning/updateSkill/${id}/${level}`);
+            await axios.put(`https://global-hrm-mobile-server.vercel.app/learning/updateSkill/${id}/${level}`);
             fetchSkills();
         } catch (error) {
             console.error('Error updating skill level:', error);

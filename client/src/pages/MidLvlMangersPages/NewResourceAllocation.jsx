@@ -17,7 +17,7 @@ const NewResourceAllocation = ({ selectedResourceId, selectedResource, selectedR
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("http://localhost:4000/admin/getAllEmployee");
+                const response = await axios.get("https://global-hrm-mobile-server.vercel.app/admin/getAllEmployee");
                 setEmployeeList(response.data);
                 setFilteredEmployeeList(response.data);
             } catch (error) {
@@ -76,7 +76,7 @@ const NewResourceAllocation = ({ selectedResourceId, selectedResource, selectedR
         };
 
         try {
-            await axios.post(`http://localhost:4000/admin/allocateResource/${selectedEmployee.empId}`, allocationData);
+            await axios.post(`https://global-hrm-mobile-server.vercel.app/admin/allocateResource/${selectedEmployee.empId}`, allocationData);
             alert("Resource allocated successfully!");
             onClose();
         } catch (error) {

@@ -30,7 +30,7 @@ const StrategicInsights = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:4000/employees/strategic-insights?department=${selectedDepartment}`
+          `https://global-hrm-mobile-server.vercel.app/employees/strategic-insights?department=${selectedDepartment}`
         );
         const data = response.data;
 

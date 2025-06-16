@@ -23,7 +23,7 @@ const AddWorkDetails = () => {
     const handleWorkSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`http://localhost:4000/employees/workDetails/${workFormData.empId}`,
+            const response = await fetch(`https://global-hrm-mobile-server.vercel.app/employees/workDetails/${workFormData.empId}`,
                 {
                     method: "POST",
                     headers: {

@@ -45,7 +45,7 @@ const Profit = () => {
   useEffect(() => {
     // Fetch data from the backend API
     axios
-      .get(`http://localhost:4000/employees/profit`) // Changed endpoint to "profit"
+      .get(`https://global-hrm-mobile-server.vercel.app/employees/profit`) // Changed endpoint to "profit"
       .then((response) => {
         setData(response.data);
         setFilteredData(response.data);
@@ -146,7 +146,7 @@ const Profit = () => {
 
     // Send POST request to insert new data into the backend
     axios
-      .post(`http://localhost:4000/employees/profit`, adjustedFormData)
+      .post(`https://global-hrm-mobile-server.vercel.app/employees/profit`, adjustedFormData)
       .then((response) => {
         // After successfully adding the row, refresh the data
         setData([...data, response.data]);
@@ -200,7 +200,7 @@ const Profit = () => {
     // Send PUT request to update the row in the backend using Department and Date
     axios
       .put(
-        `http://localhost:4000/employees/profit/${rowToUpdate.Department}/${rowToUpdate.Date}`, // Changed endpoint to "profit"
+        `https://global-hrm-mobile-server.vercel.app/employees/profit/${rowToUpdate.Department}/${rowToUpdate.Date}`, // Changed endpoint to "profit"
         rowToUpdate
       )
       .then((response) => {

@@ -25,7 +25,7 @@ const Header = () => {
 
       try {
         const response = await axios.get(
-          `http://localhost:4000/employees/getPersonalDetails/${empId}`
+          `https://global-hrm-mobile-server.vercel.app/employees/getPersonalDetails/${empId}`
         );
         setEmpName(response.data);
       } catch (err) {

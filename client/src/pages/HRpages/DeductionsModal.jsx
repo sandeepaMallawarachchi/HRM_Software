@@ -20,7 +20,7 @@ const DeductionsModal = ({ employee, onClose }) => {
       setLoading(true);
       axios
         .get(
-          `http://localhost:4000/employees/getPersonalDetails/${employee.empId}`
+          `https://global-hrm-mobile-server.vercel.app/employees/getPersonalDetails/${employee.empId}`
         )
         .then((response) => {
           setDetails(response.data);
@@ -41,7 +41,7 @@ const DeductionsModal = ({ employee, onClose }) => {
       const fetchSalaryDetails = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:4000/admin/getPayslip/${employee.empId}`
+            `https://global-hrm-mobile-server.vercel.app/admin/getPayslip/${employee.empId}`
           );
           setSalaryDetails(response.data[0]); // Assuming you want the most recent salary details
         } catch (error) {
@@ -56,7 +56,7 @@ const DeductionsModal = ({ employee, onClose }) => {
   // Handle password validation and update
   const handlePasswordSubmit = () => {
     axios
-      .post(`http://localhost:4000/admin/validatePassword/${empId}`, {
+      .post(`https://global-hrm-mobile-server.vercel.app/admin/validatePassword/${empId}`, {
         empId: employee.empId,
         password: password,
       })
@@ -91,7 +91,7 @@ const DeductionsModal = ({ employee, onClose }) => {
     if (Object.keys(updateData).length > 0) {
       // Update deductions (loan, leave) if necessary
       axios
-        .put(`http://localhost:4000/admin/updatedeductions/${employee.empId}`, {
+        .put(`https://global-hrm-mobile-server.vercel.app/admin/updatedeductions/${employee.empId}`, {
           loan: updateData.loan || deductions.loan, // Updated loan value
           leave: updateData.leave || deductions.leave, // Updated leave value
         })
@@ -113,7 +113,7 @@ const DeductionsModal = ({ employee, onClose }) => {
       const fetchProfilePic = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:4000/employees/getProfileImage/${employee.empId}`
+            `https://global-hrm-mobile-server.vercel.app/employees/getProfileImage/${employee.empId}`
           );
           if (response.data.imageUrl) {
             setAvatar(response.data.imageUrl);
@@ -131,7 +131,7 @@ const DeductionsModal = ({ employee, onClose }) => {
     if (employee) {
       setLoading(true);
       axios
-        .get(`http://localhost:4000/admin/getEarnings/${employee.empId}`)
+        .get(`https://global-hrm-mobile-server.vercel.app/admin/getEarnings/${employee.empId}`)
         .then((response) => {
           setEarnings(response.data);
         })

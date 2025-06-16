@@ -13,7 +13,7 @@ const Inprogress = () => {
     const fetchApprovedRequests = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:4000/employees/getFinancialRequests"
+          "https://global-hrm-mobile-server.vercel.app/employees/getFinancialRequests"
         );
         // Filter requests with status "Approved" and exclude the user's own requests
         const filteredRequests = response.data.filter(

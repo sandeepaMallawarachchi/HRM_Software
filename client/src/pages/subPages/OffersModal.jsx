@@ -24,7 +24,7 @@ const Modal = ({ employee, onClose }) => {
       setLoading(true);
       axios
         .get(
-          `http://localhost:4000/employees/getPersonalDetails/${employee.empId}`
+          `https://global-hrm-mobile-server.vercel.app/employees/getPersonalDetails/${employee.empId}`
         )
         .then((response) => {
           setDetails(response.data);
@@ -46,7 +46,7 @@ const Modal = ({ employee, onClose }) => {
   // Fetch all roles and designations
   useEffect(() => {
     axios
-      .get("http://localhost:4000/admin/getAllEmployee")
+      .get("https://global-hrm-mobile-server.vercel.app/admin/getAllEmployee")
       .then((response) => {
         const employees = response.data;
         const roles = [...new Set(employees.map((emp) => emp.role))];
@@ -67,7 +67,7 @@ const Modal = ({ employee, onClose }) => {
       const fetchSalaryDetails = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:4000/admin/getPayslip/${employee.empId}`
+            `https://global-hrm-mobile-server.vercel.app/admin/getPayslip/${employee.empId}`
           );
           setSalaryDetails(response.data[0]); // Assuming you want the most recent salary details
         } catch (error) {
@@ -82,7 +82,7 @@ const Modal = ({ employee, onClose }) => {
   // Handle password validation and update
   const handlePasswordSubmit = () => {
     axios
-      .post(`http://localhost:4000/admin/validatePassword/${empId}`, {
+      .post(`https://global-hrm-mobile-server.vercel.app/admin/validatePassword/${empId}`, {
         empId: employee.empId,
         password: password,
       })
@@ -126,14 +126,14 @@ const Modal = ({ employee, onClose }) => {
       // Update work details (role, designation) if necessary
       axios
         .put(
-          `http://localhost:4000/employees/workDetails/${employee.empId}`,
+          `https://global-hrm-mobile-server.vercel.app/employees/workDetails/${employee.empId}`,
           updateData
         )
         .then(() => {
           // After work details are updated, update earnings (bonus, allowance) if necessary
           if (updateData.bonus || updateData.allowance) {
             return axios.put(
-              `http://localhost:4000/admin/updateEarnings/${employee.empId}`,
+              `https://global-hrm-mobile-server.vercel.app/admin/updateEarnings/${employee.empId}`,
               {
                 bonus: updateData.bonus || earnings.bonus, // Updated bonus value
                 allowance: updateData.allowance || earnings.allowance, // Updated allowance value
@@ -159,7 +159,7 @@ const Modal = ({ employee, onClose }) => {
       const fetchProfilePic = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:4000/employees/getProfileImage/${employee.empId}`
+            `https://global-hrm-mobile-server.vercel.app/employees/getProfileImage/${employee.empId}`
           );
           if (response.data.imageUrl) {
             setAvatar(response.data.imageUrl);
@@ -177,7 +177,7 @@ const Modal = ({ employee, onClose }) => {
     if (employee) {
       setLoading(true);
       axios
-        .get(`http://localhost:4000/admin/getEarnings/${employee.empId}`)
+        .get(`https://global-hrm-mobile-server.vercel.app/admin/getEarnings/${employee.empId}`)
         .then((response) => {
           setEarnings(response.data);
         })

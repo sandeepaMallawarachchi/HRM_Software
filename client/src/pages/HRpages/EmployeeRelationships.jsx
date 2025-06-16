@@ -13,7 +13,7 @@ const EmployeeRelationships = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:4000/admin/getAllEmployee")
+      .get("https://global-hrm-mobile-server.vercel.app/admin/getAllEmployee")
       .then((response) => {
         const data = response.data;
         const uniqueDepartments = [
@@ -31,7 +31,7 @@ const EmployeeRelationships = () => {
 
   const handleEmployeeClick = (empId) => {
     axios
-      .get(`http://localhost:4000/employees/getPersonalDetails/${empId}`)
+      .get(`https://global-hrm-mobile-server.vercel.app/employees/getPersonalDetails/${empId}`)
       .then((response) => {
         setPersonalDetails(response.data);
         setModalVisible(true);

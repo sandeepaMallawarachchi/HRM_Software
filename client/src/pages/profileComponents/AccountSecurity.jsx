@@ -19,7 +19,7 @@ const AccountSecurity = () => {
     useEffect(() => {
         const fetchEmail = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/employees/getEmployee/${empId}`);
+                const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getEmployee/${empId}`);
                 const data = response.data.email || {};
 
                 setEmail(data);
@@ -48,7 +48,7 @@ const AccountSecurity = () => {
 
     const handleSendResetCode = async () => {
         try {
-            const res = await axios.post("http://localhost:4000/employees/requestPasswordReset", { email });
+            const res = await axios.post("https://global-hrm-mobile-server.vercel.app/employees/requestPasswordReset", { email });
             if (res.status === 200) {
                 setEditable(true);
                 alert("Reset code sent successfully");
@@ -74,7 +74,7 @@ const AccountSecurity = () => {
         }
 
         try {
-            const res = await axios.post("http://localhost:4000/employees/resetPassword", {
+            const res = await axios.post("https://global-hrm-mobile-server.vercel.app/employees/resetPassword", {
                 resetCode,
                 newPassword,
             });

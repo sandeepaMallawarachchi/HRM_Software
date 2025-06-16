@@ -14,7 +14,7 @@ const AttandanceAnalysisComponent = () => {
     useEffect(() => {
         const fetchAttendanceAnalysis = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/employees/attendanceAnalysis/${empId}`);
+                const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/attendanceAnalysis/${empId}`);
                 const { weekData, monthData } = response.data;
                 setAttendanceAnalysis({ weekData, monthData });
             } catch (error) {

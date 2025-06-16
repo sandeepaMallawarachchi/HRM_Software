@@ -11,7 +11,7 @@ const PerformanceDashboard = () => {
   useEffect(() => {
     const fetchEmpData = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/admin/getEmployeeStats/${selectedDepartment}`);
+        const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getEmployeeStats/${selectedDepartment}`);
         setEmpData(response.data);
       } catch (error) {
         console.error(error);
@@ -20,7 +20,7 @@ const PerformanceDashboard = () => {
 
     const fetchDepartments = async () => {
       try {
-        const response = await axios.get("http://localhost:4000/admin/getAllDepartments");
+        const response = await axios.get("https://global-hrm-mobile-server.vercel.app/admin/getAllDepartments");
         setDepartments(response.data.map((dept) => dept.department));
       } catch (error) {
         console.error(error);

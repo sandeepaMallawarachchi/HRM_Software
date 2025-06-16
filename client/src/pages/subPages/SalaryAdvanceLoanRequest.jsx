@@ -48,7 +48,7 @@ const SalaryAdvanceLoanRequest = () => {
 
     try {
       const response = await axios.post(
-        `http://localhost:4000/employees/financialRequest/${empId}`,
+        `https://global-hrm-mobile-server.vercel.app/employees/financialRequest/${empId}`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -79,7 +79,7 @@ const SalaryAdvanceLoanRequest = () => {
     const fetchNetPay = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:4000/admin/getPayslip/${empId}`
+          `https://global-hrm-mobile-server.vercel.app/admin/getPayslip/${empId}`
         );
         const payslips = response.data;
         const currentDate = new Date();

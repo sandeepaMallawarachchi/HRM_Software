@@ -12,8 +12,8 @@ const Actions = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const requestLeave = await axios.get(`http://localhost:4000/employees/getLeaveRequest/${empId}`);
-                const requestFinancial = await axios.get(`http://localhost:4000/employees/getFinancialRequests/${empId}`);
+                const requestLeave = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getLeaveRequest/${empId}`);
+                const requestFinancial = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getFinancialRequests/${empId}`);
 
                 const currentDate = moment().startOf('day');
 

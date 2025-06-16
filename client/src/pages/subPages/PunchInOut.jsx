@@ -50,7 +50,7 @@ const PunchInOut = () => {
         e.preventDefault();
         if (errors.time) return;
         try {
-            const response = await axios.post(`http://localhost:4000/employees/attendance/${empId}`, {
+            const response = await axios.post(`https://global-hrm-mobile-server.vercel.app/employees/attendance/${empId}`, {
                 punch_in_time: time,
                 note,
             });
@@ -71,7 +71,7 @@ const PunchInOut = () => {
         e.preventDefault();
         if (errors.time || time <= punchInTime) return;
         try {
-            const response = await axios.post(`http://localhost:4000/employees/attendance/${empId}`, {
+            const response = await axios.post(`https://global-hrm-mobile-server.vercel.app/employees/attendance/${empId}`, {
                 punch_out_time: time,
                 note,
             });

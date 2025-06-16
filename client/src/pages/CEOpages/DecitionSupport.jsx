@@ -13,7 +13,7 @@ const DecitionSupport = () => {
     const fetchData = async () => {
       try {
         const planResponse = await axios.get(
-          `http://localhost:4000/admin/getAllPlans`
+          `https://global-hrm-mobile-server.vercel.app/admin/getAllPlans`
         );
         setPlanList(planResponse.data);
         setFilteredPlanList(planResponse.data);
@@ -32,7 +32,7 @@ const DecitionSupport = () => {
   const handleDeletePlan = async (planId) => {
     try {
       const response = await axios.delete(
-        `http://localhost:4000/admin/deletePlan/${planId}`
+        `https://global-hrm-mobile-server.vercel.app/admin/deletePlan/${planId}`
       );
       alert(response.data.message);
       // Optionally, refresh the plan list after deletion

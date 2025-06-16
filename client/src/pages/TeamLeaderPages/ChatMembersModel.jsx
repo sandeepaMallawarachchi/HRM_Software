@@ -24,7 +24,7 @@ const ChatMembersModel = ({ onClose }) => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:4000/admin/getAllEmployee"
+          "https://global-hrm-mobile-server.vercel.app/admin/getAllEmployee"
         );
         setEmployeeList(response.data);
         setFilteredEmployeeList(response.data);
@@ -82,7 +82,7 @@ const ChatMembersModel = ({ onClose }) => {
         chatId,
       };
 
-      await axios.post(`http://localhost:4000/admin/addMember`, newMember);
+      await axios.post(`https://global-hrm-mobile-server.vercel.app/admin/addMember`, newMember);
     } catch (error) {
       console.error("Error adding members to chat:", error);
     }

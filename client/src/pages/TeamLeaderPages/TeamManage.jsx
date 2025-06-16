@@ -24,7 +24,7 @@ const TeamManage = () => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:4000/admin/getTeam/${empId}/${selectedTeamName}`);
+      const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getTeam/${empId}/${selectedTeamName}`);
       setTeamData(response.data);
       setFilteredData(response.data);
     } catch (err) {
@@ -35,7 +35,7 @@ const TeamManage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/admin/getAllTeams/${empId}`);
+        const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getAllTeams/${empId}`);
         setAllTeamData(response.data);
       } catch (err) {
         console.error(err);
@@ -77,7 +77,7 @@ const TeamManage = () => {
     const confirmDelete = window.confirm("Are you sure you want to delete this member?");
     if (confirmDelete) {
       try {
-        await axios.delete(`http://localhost:4000/admin/deleteTeamMember/${memberEmpId}/${teamName}`);
+        await axios.delete(`https://global-hrm-mobile-server.vercel.app/admin/deleteTeamMember/${memberEmpId}/${teamName}`);
         setFilteredData((prevData) => prevData.filter((member) => member.empId !== memberEmpId));
       } catch (error) {
         alert("Failed to delete team member.");

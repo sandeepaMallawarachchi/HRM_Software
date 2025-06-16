@@ -14,7 +14,7 @@ const AssignedEmployeeModal = ({ onClose, selectedEmpId }) => {
     useEffect(() => {
         const fetchCertificates = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/employees/getCertificates/${selectedEmpId}`);
+                const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/employees/getCertificates/${selectedEmpId}`);
                 setCertificatesList(response.data);
             } catch (error) {
                 console.error("Error fetching certificates:", error);
@@ -23,7 +23,7 @@ const AssignedEmployeeModal = ({ onClose, selectedEmpId }) => {
 
         const fetchTraining = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/admin/getAllocatedTraining/${selectedEmpId}`);
+                const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/admin/getAllocatedTraining/${selectedEmpId}`);
                 setTraining(response.data);
             } catch (error) {
                 console.error("Error fetching training data:", error);
@@ -32,7 +32,7 @@ const AssignedEmployeeModal = ({ onClose, selectedEmpId }) => {
 
         const fetchSkills = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/learning/getSkill/${selectedEmpId}`);
+                const response = await axios.get(`https://global-hrm-mobile-server.vercel.app/learning/getSkill/${selectedEmpId}`);
                 setSkills(response.data);
             } catch (error) {
                 console.error('Error fetching skills:', error);
@@ -47,7 +47,7 @@ const AssignedEmployeeModal = ({ onClose, selectedEmpId }) => {
     const addFeedback = async () => {
         try {
             const stepsArray = newSteps.split(',').map((step) => step.trim());
-            await axios.post(`http://localhost:4000/learning/addFeedback/${empId}/${selectedEmpId}`, {
+            await axios.post(`https://global-hrm-mobile-server.vercel.app/learning/addFeedback/${empId}/${selectedEmpId}`, {
                 feedback: newFeedback,
                 recommendation: newRecommandation,
                 steps: stepsArray,

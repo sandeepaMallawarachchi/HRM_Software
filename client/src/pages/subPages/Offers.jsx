@@ -14,7 +14,7 @@ const Offers = () => {
   useEffect(() => {
     // Fetch employee data from the backend
     axios
-      .get("http://localhost:4000/admin/getAllEmployee") // Replace with your API URL
+      .get("https://global-hrm-mobile-server.vercel.app/admin/getAllEmployee") // Replace with your API URL
       .then((response) => {
         const data = response.data;
 

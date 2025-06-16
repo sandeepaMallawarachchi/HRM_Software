@@ -33,7 +33,7 @@ const PayrollManagement = () => {
 
   const fetchSalaries = async () => {
     try {
-      const response = await axios.get("http://localhost:4000/salary/salaries");
+      const response = await axios.get("https://global-hrm-mobile-server.vercel.app/salary/salaries");
       console.log("Fetched Salaries:", response.data);
       setSalaries(response.data);
       setFilteredSalaries(response.data); // Initially show all salaries
@@ -45,7 +45,7 @@ const PayrollManagement = () => {
   const fetchEmployeeData = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:4000/admin/getAllEmployee"
+        "https://global-hrm-mobile-server.vercel.app/admin/getAllEmployee"
       );
       const data = response.data;
 
@@ -100,13 +100,13 @@ const PayrollManagement = () => {
       if (editingId) {
         // Update existing salary in the salaries table
         await axios.put(
-          `http://localhost:4000/salary/salaries/${editingId}`,
+          `https://global-hrm-mobile-server.vercel.app/salary/salaries/${editingId}`,
           formData
         );
 
         // Update the salary in the workdetails table for employees with the same department and designation
         await axios.put(
-          "http://localhost:4000/salary/workdetails/updateSalaryByDeptAndDesig",
+          "https://global-hrm-mobile-server.vercel.app/salary/workdetails/updateSalaryByDeptAndDesig",
           {
             department: formData.department,
             designation: formData.designation,
@@ -118,13 +118,13 @@ const PayrollManagement = () => {
       } else {
         // Add new salary in the salaries table
         const newSalaryResponse = await axios.post(
-          "http://localhost:4000/salary/salaries",
+          "https://global-hrm-mobile-server.vercel.app/salary/salaries",
           formData
         );
 
         // Get the department and designation from the formData to update workdetails
         await axios.put(
-          "http://localhost:4000/salary/workdetails/updateSalaryByDeptAndDesig",
+          "https://global-hrm-mobile-server.vercel.app/salary/workdetails/updateSalaryByDeptAndDesig",
           {
             department: formData.department,
             designation: formData.designation,
@@ -152,7 +152,7 @@ const PayrollManagement = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/salary/salaries/${id}`);
+      await axios.delete(`https://global-hrm-mobile-server.vercel.app/salary/salaries/${id}`);
       fetchSalaries();
     } catch (error) {
       console.error("Error deleting salary:", error);
