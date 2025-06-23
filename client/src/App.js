@@ -56,6 +56,8 @@ import PayrollManagement from "./pages/HRpages/PayrollManagement";
 import Policies from "./pages/HRpages/Policies";
 import PolicyManagement from "./pages/HRpages/PolicyManagement";
 import SalaryDeduction from "./pages/HRpages/SalaryDeduction";
+import CheckLeaves from "./pages/subPages/CheckLeaves";
+import MyLeaves from "./pages/subPages/MyLeaves";
 
 //Ceo routes
 import ExecutiveDashboard from "./pages/CEOpages/ExecutiveDashboard";
@@ -119,6 +121,14 @@ const App = () => {
               element={<ProtectedRoute element={<AttendanceAndTime />} />}
             />
             <Route
+              path="/myleaves"
+              element={<ProtectedRoute element={<MyLeaves />} />}
+            />
+            <Route
+              path="/checkleaves"
+              element={<ProtectedRoute element={<CheckLeaves />} />}
+            />
+            <Route
               path="/learn"
               element={<ProtectedRoute element={<LearningDevelopment />} />}
             />
@@ -152,7 +162,7 @@ const App = () => {
               element={<ProtectedRoute element={<Communication />} />}
             />
             <Route
-              path="performance-management"
+              path="/performance-management"
               element={<ProtectedRoute element={<PerformanceManage />} />}
             />
             <Route

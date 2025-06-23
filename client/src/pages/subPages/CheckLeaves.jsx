@@ -15,7 +15,9 @@ const CheckLeaves = () => {
 
   const fetchLeaves = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/leaves/all");
+      const res = await axios.get(
+        "https://global-hrm-mobile-server.vercel.app/leaves/all"
+      );
       setLeaves(res.data);
     } catch (err) {
       console.error("Error fetching leave data:", err);
@@ -33,9 +35,12 @@ const CheckLeaves = () => {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      await axios.put(`http://localhost:4000/leaves/update-status/${id}`, {
-        status: newStatus,
-      });
+      await axios.put(
+        `https://global-hrm-mobile-server.vercel.app/leaves/update-status/${id}`,
+        {
+          status: newStatus,
+        }
+      );
       fetchLeaves();
     } catch (err) {
       console.error("Failed to update status:", err);

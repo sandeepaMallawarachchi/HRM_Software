@@ -3,7 +3,7 @@ import axios from "axios";
 import LeaveRequest from "./subPages/LeaveRequest";
 import LeaveAnalysis from "./subPages/LeaveAnalysis";
 import MyLeaves from "./subPages/MyLeaves";
-import CheckLeaves from "./subPages/CheckLeaves"; // Create this component
+import CheckLeaves from "./subPages/CheckLeaves";
 
 const LeaveAndAttendance = () => {
   const [visibleSection, setVisibleSection] = useState("leave");
