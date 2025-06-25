@@ -24,6 +24,7 @@ import "../components/CSS/Dasboardcss.css";
 import Actions from "../components/subComponents/Actions";
 import Reminders from "../components/subComponents/Reminders";
 import PostList from "../pages/Newspaper";
+import Posts from "../components/Posts";
 
 ChartJS.register(
   CategoryScale,
@@ -149,7 +150,7 @@ const Dashboard = () => {
       <div className="cards col-span-1 bg-white rounded-lg p-4">
         <h2 className="text-lg font-semibold mb-4">Buzz 🎰</h2>
         <div className="text-center max-h-64 overflow-y-auto">
-          <PostList />
+          <Posts />
         </div>
       </div>
 
