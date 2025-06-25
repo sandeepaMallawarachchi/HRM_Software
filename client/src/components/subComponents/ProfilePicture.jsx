@@ -22,11 +22,11 @@ const ProfilePicture = () => {
     }, [empId]);
 
     return (
-        <div className='relative max-w-40 max-h-40'>
+        <div className="rounded-full overflow-hidden border-1 border-white shadow-md">
             <img
                 src={avatar}
                 alt="avatar"
-                className="w-full h-full object-cover rounded-full min-h-10"
+                className="w-full h-full object-cover"
             />
         </div>
     );

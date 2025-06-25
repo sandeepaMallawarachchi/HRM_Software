@@ -154,7 +154,7 @@ const Header = () => {
         className="relative flex items-center border border-white rounded-full p-2 px-3 space-x-3 backdrop-blur-lg group cursor-pointer"
         onClick={toggleDropdown}
       >
-        <div className="w-10 justify-center rounded-full">
+        <div className="w-10 h-10 flex justify-center items-center rounded-full overflow-hidden">
           <ProfilePicture />
         </div>
         <span className="text-white">{empName.name}</span>
